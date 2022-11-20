@@ -25,9 +25,10 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
   mail:
-    host: smtp.163.com
-    username: jeecgos@163.com
-    password: ??
+    host: smtp.exmail.qq.com
+    port: 465
+    username: songxiaowei@chinagoods.com
+    password: qaz123456QWER
     properties:
       mail:
         smtp:
@@ -53,8 +54,10 @@ spring:
             instanceId: AUTO
           jobStore:
             class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
-            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-            tablePrefix: QRTZ_
+            driverDelegateClass: org.jeecg.quartz.StdJDBCDelegate
+            lockHandler:
+              class: org.jeecg.quartz.StdRowLockSemaphore
+            tablePrefix: qrtz_
             isClustered: true
             misfireThreshold: 12000
             clusterCheckinInterval: 15000
@@ -130,9 +133,9 @@ spring:
         connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/jeecg-boot?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
-          username: root
-          password: root
+          url: jdbc:mysql://172.18.3.106:3306/xingpan?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          username: cg_mall
+          password: cg_mall@123
           driver-class-name: com.mysql.cj.jdbc.Driver
           # 多数据源配置
           #multi-datasource1:
@@ -142,10 +145,10 @@ spring:
           #driver-class-name: com.mysql.cj.jdbc.Driver
   #redis 配置
   redis:
-    database: 0
-    host: 127.0.0.1
+    database: 1
+    host: 172.18.5.17
     port: 6379
-    password: ''
+    password: Admin@123
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml
@@ -162,6 +165,7 @@ mybatis-plus:
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     # 返回类型为Map,显示null对应的字段
     call-setters-on-nulls: true
+    map-underscore-to-camel-case: true
 #jeecg专用配置
 minidao:
   base-package: org.jeecg.modules.jmreport.*
@@ -226,8 +230,8 @@ jeecg:
     logRetentionDays: 30
   #分布式锁配置
   redisson:
-    address: 127.0.0.1:6379
-    password:
+    address: 172.18.5.17:6379
+    password: Admin@123
     type: STANDALONE
     enabled: true
 #cas单点登录
