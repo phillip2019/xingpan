@@ -1,5 +1,6 @@
 package org.jeecg.modules.demo.et.service.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import org.jeecg.modules.demo.et.entity.UaeChinagoods;
 import org.jeecg.modules.demo.et.mapper.UaeChinagoodsMapper;
 import org.jeecg.modules.demo.et.service.IUaeChinagoodsService;
@@ -14,6 +15,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
  * @Version: V1.0
  */
 @Service
+@DS("ghost_sa")
 public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, UaeChinagoods> implements IUaeChinagoodsService {
 
 }

@@ -137,12 +137,12 @@ spring:
           username: cg_mall
           password: cg_mall@123
           driver-class-name: com.mysql.cj.jdbc.Driver
-          # 多数据源配置
-          #multi-datasource1:
-          #url: jdbc:mysql://localhost:3306/jeecg-boot2?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
-          #username: root
-          #password: root
-          #driver-class-name: com.mysql.cj.jdbc.Driver
+#           多数据源配置
+        ghost_sa:
+          url: jdbc:mysql://172.18.3.106:3306/ghost_test?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          username: cg_mall
+          password: cg_mall@123
+          driver-class-name: com.mysql.cj.jdbc.Driver
   #redis 配置
   redis:
     database: 1

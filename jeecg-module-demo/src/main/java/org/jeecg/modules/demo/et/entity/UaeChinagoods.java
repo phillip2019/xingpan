@@ -24,7 +24,7 @@ import lombok.experimental.Accessors;
  * @Version: V1.0
  */
 @Data
-@TableName("uae_chinagoods")
+//@TableName("uae_chinagoods")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
 @ApiModel(value="埋点", description="埋点日志")
@@ -34,7 +34,7 @@ public class UaeChinagoods implements Serializable {
 	/**trackId*/
 	@Excel(name = "trackId", width = 15)
     @ApiModelProperty(value = "trackId")
-    private Integer trackId;
+    private Long trackId;
 	/**distinctId*/
 	@Excel(name = "distinctId", width = 15)
     @ApiModelProperty(value = "distinctId")
@@ -120,5 +120,5 @@ public class UaeChinagoods implements Serializable {
 	/**hour*/
 	@Excel(name = "hour", width = 15)
     @ApiModelProperty(value = "hour")
-    private Integer hour;
+    private Long hour;
 }

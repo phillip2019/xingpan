@@ -91,7 +91,12 @@ public class MybatisPlusSaasConfig {
             //获取需要动态解析的表名
             String dynamicTableName = ThreadLocalDataHelper.get(CommonConstant.DYNAMIC_TABLE_NAME);
             //当dynamicTableName不为空时才走动态表名处理逻辑,否则返回原始表名
-            if (ObjectUtil.isNotEmpty(dynamicTableName) && dynamicTableName.equals(tableName)) {
+            if (ObjectUtil.isNotEmpty(dynamicTableName)) {
+                assert dynamicTableName != null;
+                if (!dynamicTableName.equals(tableName)) {
+                    return dynamicTableName;
+                }
+
                 // 获取前端传递的版本号标识
                 Object version = ThreadLocalDataHelper.get(CommonConstant.VERSION);
                 if (ObjectUtil.isNotEmpty(version)) {
