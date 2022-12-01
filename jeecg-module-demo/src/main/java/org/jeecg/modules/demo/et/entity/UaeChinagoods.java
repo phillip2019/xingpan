@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * @Description: uae_chinagoods
+ * @Description: 埋点日志
  * @Author: jeecg-boot
  * @Date:   2022-11-22
  * @Version: V1.0
@@ -27,7 +27,7 @@ import lombok.experimental.Accessors;
 @TableName("uae_chinagoods")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="uae_chinagoods对象", description="uae_chinagoods")
+@ApiModel(value="埋点", description="埋点日志")
 public class UaeChinagoods implements Serializable {
     private static final long serialVersionUID = 1L;
 
