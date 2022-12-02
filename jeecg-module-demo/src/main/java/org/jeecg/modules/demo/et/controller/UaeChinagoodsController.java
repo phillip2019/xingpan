@@ -2,14 +2,17 @@ package org.jeecg.modules.demo.et.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.aspect.annotation.EtDynamicTable;
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jeecg.common.util.DateUtils;
 import org.jeecg.modules.demo.et.entity.UaeChinagoods;
 import org.jeecg.modules.demo.et.service.IUaeChinagoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
 import java.util.Arrays;
 
  /**
@@ -50,9 +54,17 @@ public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUae
 	public Result<IPage<UaeChinagoods>> queryPageList(UaeChinagoods uaeChinagoods,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-								   HttpServletRequest req) {
-
+								   HttpServletRequest req) throws ParseException {
 		QueryWrapper<UaeChinagoods> queryWrapper = new QueryWrapper<>(uaeChinagoods);
+		// 基于时间查询
+		String[] createdAtArr = req.getParameterValues("createdAtArr[]");
+		if (createdAtArr != null && createdAtArr.length == 2) {
+			long beginCreatedAt = DateUtils.parseTimestamp(createdAtArr[0], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
+			long endCreatedAt = DateUtils.parseTimestamp(createdAtArr[1], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
+			queryWrapper.between("created_at", beginCreatedAt, endCreatedAt);
+		}
+		queryWrapper.orderByDesc("created_at");
+
 		Page<UaeChinagoods> page = new Page<UaeChinagoods>(pageNo, pageSize);
 		IPage<UaeChinagoods> pageList = uaeChinagoodsService.page(page, queryWrapper);
 		return Result.OK(pageList);
