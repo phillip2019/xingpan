@@ -2,20 +2,16 @@ package org.jeecg.modules.demo.et.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
-import org.apache.kafka.streams.kstream.KStream;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.aspect.annotation.EtDynamicTable;
 import org.jeecg.common.constant.enums.EtEnvEnum;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.common.util.DateUtils;
-import org.jeecg.modules.demo.et.entity.EventTracking;
 import org.jeecg.modules.demo.et.entity.UaeChinagoods;
 import org.jeecg.modules.demo.et.service.IUaeChinagoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +60,7 @@ public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUae
 		}
 
 		IPage<UaeChinagoods> pageList;
-		if (EtEnvEnum.TEST.name().equals(env)) {
+		if (EtEnvEnum.TEST.etEnv.equals(env)) {
 			// kafka streaming消费kafka消息
 			QueryWrapper<UaeChinagoods> queryWrapper = new QueryWrapper<>(uaeChinagoods);
 			// 基于时间查询

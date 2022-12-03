@@ -2,6 +2,7 @@ package org.jeecg.modules.demo.et.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.util.JacksonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +101,7 @@ public class EventTracking implements Serializable {
     private String scLatitude;
     private String scLongitude;
     private String scIpIsp;
+    private String scLib;
     private String scLibPluginVersion;
     private String scUtmSource;
     private String scUtmMedium;
@@ -208,7 +210,7 @@ public class EventTracking implements Serializable {
                 .setScIsFirstTime(propertiesJn.path("$is_first_time").asText())
                 .setAnonymousId(anonymousId)
                 .setType(dataDecodeJn.path("type").asText())
-                .setEvent(dataDecodeJn.path("event").asText())
+                .setEvent(StringUtils.trim(dataDecodeJn.path("event").asText()))
                 .setScEventDuration(propertiesJn.path("event_duration").asText())
                 .setTime(dataDecodeJn.path("time").asLong())
                 .setScTrackId(dataDecodeJn.path("_track_id").asLong())
@@ -274,6 +276,7 @@ public class EventTracking implements Serializable {
                 .setScLatitude(propertiesJn.path("$latitude").asText())
                 .setScLongitude(propertiesJn.path("$longitude").asText())
                 .setScIpIsp(propertiesJn.path("$ip_isp").asText())
+                .setScLib(propertiesJn.path("$lib").asText())
                 .setScLibPluginVersion(propertiesJn.path("$lib_plugin_version").asText())
                 .setScUtmSource(propertiesJn.path("$utm_source").asText())
                 .setScUtmMedium(propertiesJn.path("$utm_medium").asText())
@@ -314,7 +317,9 @@ public class EventTracking implements Serializable {
         UaeChinagoods uaeChinagoods = new UaeChinagoods();
         uaeChinagoods.setTrackId(this.getScTrackId())
                 .setDistinctId(this.getDistinctId())
-                .setLib(this.getScLibPluginVersion())
+                .setLib(this.getScLib())
+                .setType(this.getType())
+                .setReferrer(this.getReferrer())
                 .setEvent(this.getEvent())
                 .setAllJson(this.getAllJson())
                 .setHost(this.getScReferrerHost())
@@ -323,13 +328,13 @@ public class EventTracking implements Serializable {
                 .setUaBrowser(this.getUaBrowser())
                 .setUaVersion(this.getUaVersion())
                 .setUaLanguage(this.getUaLanguage())
-        .setIp(this.getIp())
-        .setIpCity(this.getIpCity())
-        .setUrl(this.getScUrl())
-        .setRemark(this.getRemark())
-        .setCreatedAt(String.valueOf(this.getTime()))
-        .setProject(this.getProject())
-        .setPlatformType(this.getPlatformType())
+                .setIp(this.getIp())
+                .setIpCity(this.getIpCity())
+                .setUrl(this.getScUrl())
+                .setRemark(this.getRemark())
+                .setCreatedAt(String.valueOf(this.getTime()))
+                .setProject(this.getProject())
+                .setPlatformType(this.getPlatformType())
         ;
         return uaeChinagoods;
     }
@@ -430,6 +435,15 @@ public class EventTracking implements Serializable {
 
     public EventTracking setScIsLoginId(String scIsLoginId) {
         this.scIsLoginId = scIsLoginId;
+        return this;
+    }
+
+    public String getScLib() {
+        return scLib;
+    }
+
+    public EventTracking setScLib(String scLib) {
+        this.scLib = scLib;
         return this;
     }
 

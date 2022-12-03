@@ -4,24 +4,27 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.EvictingQueue;
+import com.google.common.collect.Streams;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.jeecg.common.constant.enums.EtEnvEnum;
 import org.jeecg.common.util.DateUtils;
 import org.jeecg.modules.demo.et.entity.EventTracking;
 import org.jeecg.modules.demo.et.entity.UaeChinagoods;
 import org.jeecg.modules.demo.et.mapper.UaeChinagoodsMapper;
 import org.jeecg.modules.demo.et.service.IUaeChinagoodsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -32,25 +35,62 @@ import java.util.stream.Collectors;
  */
 @Service
 @DS("ghost_sa")
+@Slf4j
 public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, UaeChinagoods> implements IUaeChinagoodsService {
-    @Autowired
-    private KStream<String, EventTracking> etStream;
 
-    private Queue<UaeChinagoods> eventTrackingQueue = EvictingQueue.create(50000);
+    @Value("${spring.kafka.consumer.bootstrap-servers}")
+    private String bootstrapServers;
 
-    public static final List<String> NOT_NEED_EVENT = Arrays.asList("$pageView", "$WebClick", "$AppClick", "$AppViewScreen");
+    @Value("${spring.kafka.consumer.group-id}")
+    private String consumerGroupId;
+
+    @Value("${cg.et.topic}")
+    private String sourceTopic;
+
+    private KafkaConsumer<String, String> kafkaConsumer;
+
+    public static final List<String> NOT_NEED_EVENT = Arrays.asList("$pageview",
+            "$WebStay", "$WebClick", "$AppClick", "$AppViewScreen", "profile_set_once",
+            "$AppStart", "$AppEnd"
+    );
 
     @PostConstruct
     public void init() {
-        etStream.filter((anonymousId, et) -> !NOT_NEED_EVENT.contains(et.getEvent())).map((anonymousId, et) -> {
-            eventTrackingQueue.add(et.toChinagoods());
-            return new KeyValue<>(et.getAnonymousId(), et.toChinagoods());
-        });
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        // group.id，指定了消费者所属群组
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 400);
+        // 100MB
+        props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, 10 * 1024 * 1024);
+
+        KafkaConsumer<String, String> kafkaConsumer =
+                new KafkaConsumer<>(props);
+        kafkaConsumer.subscribe(Collections.singletonList(sourceTopic));
+        this.kafkaConsumer = kafkaConsumer;
     }
 
-    @Override
-    public IPage<UaeChinagoods> queryKafkaMessage(UaeChinagoods uaeChinagoods, Integer pageNo, Integer pageSize, HttpServletRequest req) throws ParseException {
+    public KafkaConsumer<String, String> initKafkaConsumer() {
+        // 指定每个分区消费1000条数据
+        // 然后马上调用 seek() 方法定位分区的偏移量。
+        // seek() 方法只更新我们正在使用的位置，在下一次调用 poll() 时就可以获得正确的消息。
+        // 如果 seek() 发生错误, poll() 就会抛出异常。
+        Map<TopicPartition, Long> partitionOffsetM = kafkaConsumer.endOffsets(kafkaConsumer.assignment());
+        for (TopicPartition partition: kafkaConsumer.assignment()) {
+            kafkaConsumer.seek(partition, Math.max(partitionOffsetM.get(partition) - 100, 0));
+        }
+        return kafkaConsumer;
+    }
+
+    /**
+     * 批量消费kafka消息
+     **/
+    public List<UaeChinagoods> pollMessage(KafkaConsumer<String, String> consumer, UaeChinagoods uaeChinagoods, Integer pageNo, Integer pageSize, HttpServletRequest req) throws ParseException {
         String env = req.getParameter("env");
+        String remark = env.equals(EtEnvEnum.PROD.etEnv) ? "online" : "stg";
+
         String distinctId = uaeChinagoods.getDistinctId();
         String event = uaeChinagoods.getEvent();
         String project = req.getParameter("project");
@@ -65,43 +105,94 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
         long finalBeginCreatedAt = beginCreatedAt;
         long finalEndCreatedAt = endCreatedAt;
 
-        List<UaeChinagoods> resultList = eventTrackingQueue.stream().filter(et -> {
-            boolean ret = true;
-            if (StringUtils.isNotBlank(distinctId)) {
-                ret = StringUtils.equals(distinctId, et.getDistinctId());
-            }
 
-            if (StringUtils.isNotBlank(event)) {
-                ret = StringUtils.equals(event, et.getEvent());
-            }
+        // 100 是超时时间（ms），在该时间内 poll 会等待服务器返回数据
+        ConsumerRecords<String, String> records = consumer.poll(10000);
 
-            if (StringUtils.isNotBlank(project)) {
-                ret = StringUtils.equals(project, et.getProject());
-            }
+        // poll 返回一个记录列表。
+        // 每条记录都包含了记录所属主题的信息、记录所在分区的信息、记录在分区里的偏移量，以及记录的键值对。
+        List<UaeChinagoods> resultList = Streams.stream(records)
+                .map(record -> EventTracking.of(record.value()))
+                .filter((et) -> {
+                    return !NOT_NEED_EVENT.contains(et.getEvent()) && StringUtils.isNotBlank(et.getEvent());
+                })
+                .map(EventTracking::toChinagoods)
+                .filter(et -> {
+                    boolean ret = true;
+                    // remark
+                    if (StringUtils.isNotBlank(remark)) {
+                        ret = StringUtils.equals(remark, et.getRemark());
+                        if (!ret) {
+                            return false;
+                        }
+                    }
 
-            // platformType
-            if (StringUtils.isNotBlank(platformType)) {
-                ret = StringUtils.equals(platformType, et.getPlatformType());
-            }
+                    if (StringUtils.isNotBlank(distinctId)) {
+                        ret = StringUtils.equals(distinctId, et.getDistinctId());
+                        if (!ret) {
+                            return false;
+                        }
+                    }
 
-            // createdAt
-            if (finalBeginCreatedAt != 0 && finalEndCreatedAt != 0) {
-                ret = false;
-                long createdAt = Long.parseLong(et.getCreatedAt());
-                if (createdAt >= finalBeginCreatedAt && createdAt <= finalEndCreatedAt) {
-                    ret = true;
-                }
-            }
-            return ret;
-        }).collect(Collectors.toList())
-        ;
+                    if (StringUtils.isNotBlank(event)) {
+                        ret = StringUtils.equals(event, et.getEvent());
+                        if (!ret) {
+                            return false;
+                        }
+                    }
+
+                    if (StringUtils.isNotBlank(project)) {
+                        ret = StringUtils.equals(project, et.getProject());
+                        if (!ret) {
+                            return false;
+                        }
+                    }
+
+                    // platformType
+                    if (StringUtils.isNotBlank(platformType)) {
+                        ret = StringUtils.equals(platformType, et.getPlatformType());
+                        if (!ret) {
+                            return false;
+                        }
+                    }
+
+                    // createdAt
+                    if (finalBeginCreatedAt != 0 && finalEndCreatedAt != 0) {
+                        ret = false;
+                        long createdAt = Long.parseLong(et.getCreatedAt());
+                        if (createdAt >= finalBeginCreatedAt && createdAt <= finalEndCreatedAt) {
+                            ret = true;
+                        }
+                    }
+                    return ret;
+                }).collect(Collectors.toList());
+
+        return resultList;
+    }
+
+
+    /**
+     * 查询kafka消息
+     * @param uaeChinagoods 查询uae实例
+     * @param pageNo        页吗
+     * @param pageSize      页面尺寸
+     * @param req           请求实例
+     * @return 页面
+     * @throws ParseException
+     */
+    @Override
+    public IPage<UaeChinagoods> queryKafkaMessage(UaeChinagoods uaeChinagoods, Integer pageNo, Integer pageSize, HttpServletRequest req) throws ParseException {
+
+        KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer();
+        // 查询每个分区1000条消息
+        List<UaeChinagoods> resultList = pollMessage(kafkaConsumer, uaeChinagoods, pageNo, pageSize, req);
 
         Page<UaeChinagoods> page = new Page<UaeChinagoods>(pageNo, pageSize);
         page.setTotal(resultList.size())
-             .setRecords(resultList)
-             .setPages(1)
-             .setCurrent(1)
-             .setSize(resultList.size())
+                .setRecords(resultList)
+                .setPages(1)
+                .setCurrent(1)
+                .setSize(resultList.size())
         ;
         return page;
     }

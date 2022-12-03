@@ -23,7 +23,7 @@ public enum EtEnvEnum {
     /**
      * 编码标识
      */
-    String etEnv;
+    public String etEnv;
     /**
      * 代码生成器模板路径
      */
