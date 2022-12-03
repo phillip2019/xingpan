@@ -62,20 +62,25 @@ public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUae
 		if (EtEnvEnum.getEtEnvEnumByEnv(env) == null) {
 			return Result.error("环境不正确，请传递正确环境");
 		}
-		// kafka streaming消费kafka消息
 
-		QueryWrapper<UaeChinagoods> queryWrapper = new QueryWrapper<>(uaeChinagoods);
-		// 基于时间查询
-		String[] createdAtArr = req.getParameterValues("createdAtArr[]");
-		if (createdAtArr != null && createdAtArr.length == 2) {
-			long beginCreatedAt = DateUtils.parseTimestamp(createdAtArr[0], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
-			long endCreatedAt = DateUtils.parseTimestamp(createdAtArr[1], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
-			queryWrapper.between("created_at", beginCreatedAt, endCreatedAt);
+		IPage<UaeChinagoods> pageList;
+		if (EtEnvEnum.TEST.name().equals(env)) {
+			// kafka streaming消费kafka消息
+			QueryWrapper<UaeChinagoods> queryWrapper = new QueryWrapper<>(uaeChinagoods);
+			// 基于时间查询
+			String[] createdAtArr = req.getParameterValues("createdAtArr[]");
+			if (createdAtArr != null && createdAtArr.length == 2) {
+				long beginCreatedAt = DateUtils.parseTimestamp(createdAtArr[0], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
+				long endCreatedAt = DateUtils.parseTimestamp(createdAtArr[1], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
+				queryWrapper.between("created_at", beginCreatedAt, endCreatedAt);
+			}
+			queryWrapper.orderByDesc("created_at");
+
+			Page<UaeChinagoods> page = new Page<UaeChinagoods>(pageNo, pageSize);
+			pageList = uaeChinagoodsService.page(page, queryWrapper);
+		} else {
+			pageList = uaeChinagoodsService.queryKafkaMessage(uaeChinagoods, pageNo, pageSize, req);
 		}
-		queryWrapper.orderByDesc("created_at");
-
-		Page<UaeChinagoods> page = new Page<UaeChinagoods>(pageNo, pageSize);
-		IPage<UaeChinagoods> pageList = uaeChinagoodsService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
 	

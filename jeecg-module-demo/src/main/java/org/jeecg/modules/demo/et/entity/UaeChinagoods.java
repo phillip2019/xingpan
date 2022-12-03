@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -121,4 +122,10 @@ public class UaeChinagoods implements Serializable {
 	@Excel(name = "hour", width = 15)
     @ApiModelProperty(value = "hour")
     private Long hour;
+    /**project*/
+    @TableField(exist = false)
+    private transient String project;
+    /**platformType*/
+    @TableField(exist = false)
+    private transient String platformType;
 }

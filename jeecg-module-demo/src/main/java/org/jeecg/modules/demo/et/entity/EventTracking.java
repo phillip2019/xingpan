@@ -131,6 +131,7 @@ public class EventTracking implements Serializable {
     private String scItemJoin;
     private String scBotName;
     private String scIsValid;
+    private String allJson;
 
     /**
      * 字符串解析eventTracking实体
@@ -152,6 +153,12 @@ public class EventTracking implements Serializable {
             System.exit(-1);
         }
         JsonNode dataJn = messageJn.path("data");
+        String allJsonStr = null;
+        try {
+            allJsonStr = JacksonBuilder.MAPPER.writeValueAsString(dataJn);
+        } catch (JsonProcessingException e) {
+            logger.error("序列化埋点data属性数据失败， 原始内容为： {}", dataJn);
+        }
         JsonNode ipCityJn = dataJn.path("ip_city");
         JsonNode locationJn = ipCityJn.path("location");
         JsonNode dataDecodeJn = dataJn.path("data_decode");
@@ -298,8 +305,33 @@ public class EventTracking implements Serializable {
                 .setScItemJoin(propertiesJn.path("$item_join").asText())
                 .setScBotName(propertiesJn.path("$bot_name").asText())
                 .setScIsValid(propertiesJn.path("$is_valid").asText())
+                .setAllJson(allJsonStr)
         ;
         return et;
+    }
+
+    public UaeChinagoods toChinagoods() {
+        UaeChinagoods uaeChinagoods = new UaeChinagoods();
+        uaeChinagoods.setTrackId(this.getScTrackId())
+                .setDistinctId(this.getDistinctId())
+                .setLib(this.getScLibPluginVersion())
+                .setEvent(this.getEvent())
+                .setAllJson(this.getAllJson())
+                .setHost(this.getScReferrerHost())
+                .setUserAgent(this.getUserAgent())
+                .setUaPlatform(this.getUaPlatform())
+                .setUaBrowser(this.getUaBrowser())
+                .setUaVersion(this.getUaVersion())
+                .setUaLanguage(this.getUaLanguage())
+        .setIp(this.getIp())
+        .setIpCity(this.getIpCity())
+        .setUrl(this.getScUrl())
+        .setRemark(this.getRemark())
+        .setCreatedAt(String.valueOf(this.getTime()))
+        .setProject(this.getProject())
+        .setPlatformType(this.getPlatformType())
+        ;
+        return uaeChinagoods;
     }
 
     public String getTimeZone() {
@@ -1307,6 +1339,15 @@ public class EventTracking implements Serializable {
 
     public EventTracking setScIsValid(String scIsValid) {
         this.scIsValid = scIsValid;
+        return this;
+    }
+
+    public String getAllJson() {
+        return allJson;
+    }
+
+    public EventTracking setAllJson(String allJson) {
+        this.allJson = allJson;
         return this;
     }
 

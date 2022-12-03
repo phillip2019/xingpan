@@ -23,9 +23,12 @@ import org.springframework.kafka.annotation.EnableKafkaStreams;
 public class KfStreamConfig {
     private static final Logger logger = LoggerFactory.getLogger(KfStreamConfig.class);
 
+    @Value("${cg.et.topic}")
+    private String sourceTopic;
+
     @Bean
-    public KStream<String, EventTracking> eventTrackingStream(StreamsBuilder streamsBuilder, @Value("cg.et.topic")String topic) {
-        KStream<String, String> stream = streamsBuilder.stream(topic, Consumed.with(Serdes.String(), Serdes.String()));
+    public KStream<String, EventTracking> eventTrackingStream(StreamsBuilder streamsBuilder) {
+        KStream<String, String> stream = streamsBuilder.stream(sourceTopic, Consumed.with(Serdes.String(), Serdes.String()));
         KStream<String, EventTracking> etStream = stream.map((key, value) -> {
             EventTracking et = EventTracking.of(value);
             return new KeyValue<>(et.getAnonymousId(), et);
