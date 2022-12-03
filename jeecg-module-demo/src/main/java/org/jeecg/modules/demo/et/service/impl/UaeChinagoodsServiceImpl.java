@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -37,9 +38,11 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
 
     private Queue<UaeChinagoods> eventTrackingQueue = EvictingQueue.create(50000);
 
+    public static final List<String> NOT_NEED_EVENT = Arrays.asList("$pageView", "$WebClick", "$AppClick", "$AppViewScreen");
+
     @PostConstruct
     public void init() {
-        etStream.map((anonymousId, et) -> {
+        etStream.filter((anonymousId, et) -> !NOT_NEED_EVENT.contains(et.getEvent())).map((anonymousId, et) -> {
             eventTrackingQueue.add(et.toChinagoods());
             return new KeyValue<>(et.getAnonymousId(), et.toChinagoods());
         });
