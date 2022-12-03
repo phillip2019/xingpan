@@ -8,11 +8,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import org.apache.kafka.streams.kstream.KStream;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.aspect.annotation.EtDynamicTable;
+import org.jeecg.common.constant.enums.EtEnvEnum;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.common.util.DateUtils;
+import org.jeecg.modules.demo.et.entity.EventTracking;
 import org.jeecg.modules.demo.et.entity.UaeChinagoods;
 import org.jeecg.modules.demo.et.service.IUaeChinagoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +40,7 @@ import java.util.Arrays;
 public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUaeChinagoodsService> {
 	@Autowired
 	private IUaeChinagoodsService uaeChinagoodsService;
-	
+
 	/**
 	 * 分页列表查询
 	 *
@@ -55,6 +58,12 @@ public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUae
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) throws ParseException {
+		String env = req.getParameter("env");
+		if (EtEnvEnum.getEtEnvEnumByEnv(env) == null) {
+			return Result.error("环境不正确，请传递正确环境");
+		}
+		// kafka streaming消费kafka消息
+
 		QueryWrapper<UaeChinagoods> queryWrapper = new QueryWrapper<>(uaeChinagoods);
 		// 基于时间查询
 		String[] createdAtArr = req.getParameterValues("createdAtArr[]");

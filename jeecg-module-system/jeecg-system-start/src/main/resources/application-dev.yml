@@ -20,6 +20,8 @@ management:
         include: metrics,httptrace
 
 spring:
+  application:
+    name: xingpang
   servlet:
     multipart:
       max-file-size: 10MB
@@ -149,6 +151,41 @@ spring:
     host: 172.18.5.17
     port: 6379
     password: Admin@123
+  #kafka配置
+  kafka:
+    streams:
+      application-id: ${spring.application.name}
+      properties:
+        spring.json.trusted.packages: '*'
+    bootstrap-servers:
+    - 172.18.5.15:9092
+    - 172.18.5.16:9092
+    - 172.18.5.17:9092
+    - 172.18.5.6:9092
+    - 172.18.5.9:9092
+    consumer:
+      # 会覆盖 spring.kafka.bootstrap-servers 配置
+      bootstrap-servers: 172.18.5.15:9092,172.18.5.16:9092,172.18.5.17:9092,172.18.5.6:9092,172.18.5.9:9092
+      # 消费者所属消息组
+      group-id: xingpang-test
+      # 反序列化key的类
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # 反序列化value的类
+      value-deserializer: org.springframework.kafka.support.serializer.StringDeserializer
+      enable-auto-commit: false
+      auto-offset-reset: latest
+      properties:
+        session.timeout.ms: 12000
+        heartbeat.interval.ms: 3000
+        max.poll.records: 100
+        spring.json.trusted.packages: '*'
+    listener:
+      ack-mode: manual
+      type: batch
+      concurrency: 4
+    properties:
+      max.poll.interval.ms: 300000
+-
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml
@@ -299,3 +336,8 @@ third-app:
       # appSecret
       client-secret: ??
       agent-id: ??
+
+cg:
+  et:
+    # 埋点topic地址
+    topic: event-tracking
