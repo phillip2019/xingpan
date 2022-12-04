@@ -47,15 +47,12 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
     @Value("${cg.et.topic}")
     private String sourceTopic;
 
-    private KafkaConsumer<String, String> kafkaConsumer;
-
     public static final List<String> NOT_NEED_EVENT = Arrays.asList("$pageview",
             "$WebStay", "$WebClick", "$AppClick", "$AppViewScreen", "profile_set_once",
             "$AppStart", "$AppEnd"
     );
 
-    @PostConstruct
-    public void init() {
+    public KafkaConsumer<String, String> initKafkaConsumer() {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         // group.id，指定了消费者所属群组
@@ -69,10 +66,6 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
         KafkaConsumer<String, String> kafkaConsumer =
                 new KafkaConsumer<>(props);
         kafkaConsumer.subscribe(Collections.singletonList(sourceTopic));
-        this.kafkaConsumer = kafkaConsumer;
-    }
-
-    public KafkaConsumer<String, String> initKafkaConsumer() {
         // 指定每个分区消费1000条数据
         // 然后马上调用 seek() 方法定位分区的偏移量。
         // seek() 方法只更新我们正在使用的位置，在下一次调用 poll() 时就可以获得正确的消息。
@@ -182,7 +175,6 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
      */
     @Override
     public IPage<UaeChinagoods> queryKafkaMessage(UaeChinagoods uaeChinagoods, Integer pageNo, Integer pageSize, HttpServletRequest req) throws ParseException {
-
         KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer();
         // 查询每个分区1000条消息
         List<UaeChinagoods> resultList = pollMessage(kafkaConsumer, uaeChinagoods, pageNo, pageSize, req);

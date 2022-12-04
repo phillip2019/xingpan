@@ -21,7 +21,7 @@ management:
 
 spring:
   application:
-    name: xingpang
+    name: xingpan
   servlet:
     multipart:
       max-file-size: 10MB
