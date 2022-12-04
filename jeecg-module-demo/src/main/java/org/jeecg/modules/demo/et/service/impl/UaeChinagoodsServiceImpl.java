@@ -178,6 +178,8 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
         KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer();
         // 查询每个分区1000条消息
         List<UaeChinagoods> resultList = pollMessage(kafkaConsumer, uaeChinagoods, pageNo, pageSize, req);
+        // 关闭kafka连接，避免重新加入
+        kafkaConsumer.close();
 
         Page<UaeChinagoods> page = new Page<UaeChinagoods>(pageNo, pageSize);
         page.setTotal(resultList.size())
