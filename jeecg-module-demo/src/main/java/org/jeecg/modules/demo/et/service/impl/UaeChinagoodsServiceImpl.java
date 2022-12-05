@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.jeecg.common.constant.enums.EtEnvEnum;
@@ -59,20 +60,31 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 400);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5000);
         // 100MB
-        props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, 10 * 1024 * 1024);
+        props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, 50 * 1024 * 1024);
 
         KafkaConsumer<String, String> kafkaConsumer =
                 new KafkaConsumer<>(props);
-        kafkaConsumer.subscribe(Collections.singletonList(sourceTopic));
+//        kafkaConsumer.subscribe(Collections.singletonList(sourceTopic));
         // 指定每个分区消费1000条数据
         // 然后马上调用 seek() 方法定位分区的偏移量。
         // seek() 方法只更新我们正在使用的位置，在下一次调用 poll() 时就可以获得正确的消息。
         // 如果 seek() 发生错误, poll() 就会抛出异常。
-        Map<TopicPartition, Long> partitionOffsetM = kafkaConsumer.endOffsets(kafkaConsumer.assignment());
-        for (TopicPartition partition: kafkaConsumer.assignment()) {
-            kafkaConsumer.seek(partition, Math.max(partitionOffsetM.get(partition) - 100, 0));
+        List<PartitionInfo> partitionInfoList = kafkaConsumer.partitionsFor(sourceTopic);
+        List<TopicPartition> topicPartitionList = new ArrayList<>(partitionInfoList.size());
+        TopicPartition topicPartition;
+
+        for (PartitionInfo partitionInfo : partitionInfoList) {
+            topicPartition = new TopicPartition(sourceTopic, partitionInfo.partition());
+            topicPartitionList.add(topicPartition);
+        }
+
+        kafkaConsumer.assign(topicPartitionList);
+        Map<TopicPartition, Long> partitionOffsetM = kafkaConsumer.endOffsets(topicPartitionList);
+        for (TopicPartition partition: topicPartitionList) {
+            log.info("分区: {}, 当前最后offset为: {}", partition, partitionOffsetM.get(partition));
+            kafkaConsumer.seek(partition, Math.max(partitionOffsetM.get(partition) - 1250, 0));
         }
         return kafkaConsumer;
     }
@@ -101,23 +113,22 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
 
         // 100 是超时时间（ms），在该时间内 poll 会等待服务器返回数据
         ConsumerRecords<String, String> records = consumer.poll(10000);
+        log.info("批量获取消息，当前获取消息大小为： {}", records.count());
 
         // poll 返回一个记录列表。
         // 每条记录都包含了记录所属主题的信息、记录所在分区的信息、记录在分区里的偏移量，以及记录的键值对。
         List<UaeChinagoods> resultList = Streams.stream(records)
                 .map(record -> EventTracking.of(record.value()))
                 .filter((et) -> {
-                    return !NOT_NEED_EVENT.contains(et.getEvent()) && StringUtils.isNotBlank(et.getEvent());
+//                    return !NOT_NEED_EVENT.contains(et.getEvent()) && StringUtils.isNotBlank(et.getEvent());
+                    return true;
                 })
                 .map(EventTracking::toChinagoods)
                 .filter(et -> {
                     boolean ret = true;
-                    // remark
-                    if (StringUtils.isNotBlank(remark)) {
-                        ret = StringUtils.equals(remark, et.getRemark());
-                        if (!ret) {
-                            return false;
-                        }
+
+                    if (et.getDistinctId().equals("1565221")) {
+                        log.info("当前访问用户为stg环境用户: {}", et.getDistinctId());
                     }
 
                     if (StringUtils.isNotBlank(distinctId)) {
@@ -129,6 +140,14 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
 
                     if (StringUtils.isNotBlank(event)) {
                         ret = StringUtils.equals(event, et.getEvent());
+                        if (!ret) {
+                            return false;
+                        }
+                    }
+
+                    // remark
+                    if (StringUtils.isNotBlank(remark)) {
+                        ret = StringUtils.equals(remark, et.getRemark());
                         if (!ret) {
                             return false;
                         }
