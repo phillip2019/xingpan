@@ -1,10 +1,7 @@
 package org.jeecg.modules.demo.et.mapper;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-import org.jeecg.modules.demo.et.entity.UaeChinagoods;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.jeecg.modules.demo.et.entity.EtChinagoods;
 
 /**
  * @Description: uae_chinagoods
@@ -12,6 +9,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @Date:   2022-11-22
  * @Version: V1.0
  */
-public interface UaeChinagoodsMapper extends BaseMapper<UaeChinagoods> {
-
+public interface EtChinagoodsMapper extends BaseMapper<EtChinagoods> {
 }

@@ -372,6 +372,10 @@ public interface CommonConstant {
 
     /**存储在线程变量里的动态表名*/
     String DYNAMIC_TABLE_NAME="DYNAMIC_TABLE_NAME";
+
+    /**存储在线程变量里的表名类型*/
+    String TABLE_NAME_TYPE = "TABLE_NAME_TYPE";
+
     /**
      * http:// http协议
      */

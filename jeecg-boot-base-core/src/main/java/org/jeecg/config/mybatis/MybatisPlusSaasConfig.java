@@ -5,10 +5,18 @@ import java.util.List;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.extension.plugins.inner.DynamicTableNameInnerInterceptor;
+import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.jeecg.common.config.TenantContext;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.util.oConvertUtils;
+import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +27,8 @@ import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerIntercept
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+
+import javax.sql.DataSource;
 
 /**
  * 单数据源配置（jeecg.datasource.open = false时生效）
@@ -90,13 +100,10 @@ public class MybatisPlusSaasConfig {
         dynamicTableNameInnerInterceptor.setTableNameHandler((sql, tableName) -> {
             //获取需要动态解析的表名
             String dynamicTableName = ThreadLocalDataHelper.get(CommonConstant.DYNAMIC_TABLE_NAME);
+            String tableNameType = ThreadLocalDataHelper.get(CommonConstant.TABLE_NAME_TYPE);
             //当dynamicTableName不为空时才走动态表名处理逻辑,否则返回原始表名
-            if (ObjectUtil.isNotEmpty(dynamicTableName)) {
-                assert dynamicTableName != null;
-                if (!dynamicTableName.equals(tableName)) {
-                    return dynamicTableName;
-                }
-
+            assert dynamicTableName != null;
+            if (ObjectUtil.isNotEmpty(dynamicTableName) && dynamicTableName.equals(tableName)) {
                 // 获取前端传递的版本号标识
                 Object version = ThreadLocalDataHelper.get(CommonConstant.VERSION);
                 if (ObjectUtil.isNotEmpty(version)) {
@@ -104,25 +111,14 @@ public class MybatisPlusSaasConfig {
                     return tableName + "_" + version;
                 }
             }
+
+            // 如果原始表名是et_开头，则使用自定义动态表名逻辑，直接使用动态表名，这些表为埋点表
+            if (StringUtils.isNotBlank(tableNameType)) {
+                return dynamicTableName;
+            }
+
             return tableName;
         });
         return dynamicTableNameInnerInterceptor;
     }
-
-//    /**
-//     * 下个版本会删除，现在为了避免缓存出现问题不得不配置
-//     * @return
-//     */
-//    @Bean
-//    public ConfigurationCustomizer configurationCustomizer() {
-//        return configuration -> configuration.setUseDeprecatedExecutor(false);
-//    }
-//    /**
-//     * mybatis-plus SQL执行效率插件【生产环境可以关闭】
-//     */
-//    @Bean
-//    public PerformanceInterceptor performanceInterceptor() {
-//        return new PerformanceInterceptor();
-//    }
-
 }

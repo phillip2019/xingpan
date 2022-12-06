@@ -1,6 +1,7 @@
 package org.jeecg.modules.demo.et.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,14 +16,13 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.jeecg.common.constant.enums.EtEnvEnum;
 import org.jeecg.common.util.DateUtils;
+import org.jeecg.modules.demo.et.entity.EtChinagoods;
 import org.jeecg.modules.demo.et.entity.EventTracking;
-import org.jeecg.modules.demo.et.entity.UaeChinagoods;
-import org.jeecg.modules.demo.et.mapper.UaeChinagoodsMapper;
-import org.jeecg.modules.demo.et.service.IUaeChinagoodsService;
+import org.jeecg.modules.demo.et.mapper.EtChinagoodsMapper;
+import org.jeecg.modules.demo.et.service.IEtChinagoodsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.*;
@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
  * @Version: V1.0
  */
 @Service
-@DS("ghost_sa")
 @Slf4j
-public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, UaeChinagoods> implements IUaeChinagoodsService {
+@DS("ghostSa")
+public class EtChinagoodsServiceImpl extends ServiceImpl<EtChinagoodsMapper, EtChinagoods> implements IEtChinagoodsService {
 
     @Value("${spring.kafka.consumer.bootstrap-servers}")
     private String bootstrapServers;
@@ -93,12 +93,12 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
     /**
      * 批量消费kafka消息
      **/
-    public List<UaeChinagoods> pollMessage(KafkaConsumer<String, String> consumer, UaeChinagoods uaeChinagoods, Integer pageNo, Integer pageSize, HttpServletRequest req) throws ParseException {
+    public List<EtChinagoods> pollMessage(KafkaConsumer<String, String> consumer, EtChinagoods etChinagoods, Integer pageNo, Integer pageSize, HttpServletRequest req) throws ParseException {
         String env = req.getParameter("env");
         String remark = env.equals(EtEnvEnum.PROD.etEnv) ? "online" : "stg";
 
-        String distinctId = uaeChinagoods.getDistinctId();
-        String event = uaeChinagoods.getEvent();
+        String distinctId = etChinagoods.getDistinctId();
+        String event = etChinagoods.getEvent();
         String project = req.getParameter("project");
         String platformType = req.getParameter("platformType");
         int batchSize = Integer.parseInt(req.getParameter("batchSize"));
@@ -113,7 +113,7 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
         long finalEndCreatedAt = endCreatedAt;
 
         int consumerCount = 0;
-        List<UaeChinagoods> resultList = new ArrayList<>(batchSize);
+        List<EtChinagoods> resultList = new ArrayList<>(batchSize);
         while (consumerCount <= batchSize ) {
             // 100 是超时时间（ms），在该时间内 poll 会等待服务器返回数据
             ConsumerRecords<String, String> records = consumer.poll(3000);
@@ -122,7 +122,7 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
 
             // poll 返回一个记录列表。
             // 每条记录都包含了记录所属主题的信息、记录所在分区的信息、记录在分区里的偏移量，以及记录的键值对。
-            List<UaeChinagoods> tmpResultList = Streams.stream(records)
+            List<EtChinagoods> tmpResultList = Streams.stream(records)
                     .map(record -> EventTracking.of(record.value()))
                     .filter((et) -> !NOT_NEED_EVENT.contains(et.getEvent()) && StringUtils.isNotBlank(et.getEvent()))
                     .map(EventTracking::toChinagoods)
@@ -182,7 +182,7 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
 
     /**
      * 查询kafka消息
-     * @param uaeChinagoods 查询uae实例
+     * @param etChinagoods 查询uae实例
      * @param pageNo        页吗
      * @param pageSize      页面尺寸
      * @param req           请求实例
@@ -190,15 +190,15 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
      * @throws ParseException
      */
     @Override
-    public IPage<UaeChinagoods> queryKafkaMessage(UaeChinagoods uaeChinagoods, Integer pageNo, Integer pageSize, HttpServletRequest req) throws ParseException {
+    public IPage<EtChinagoods> queryKafkaMessage(EtChinagoods etChinagoods, Integer pageNo, Integer pageSize, HttpServletRequest req) throws ParseException {
         int batchSize = Integer.parseInt(req.getParameter("batchSize"));
         KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer(batchSize);
         // 查询每个分区1000条消息
-        List<UaeChinagoods> resultList = pollMessage(kafkaConsumer, uaeChinagoods, pageNo, pageSize, req);
+        List<EtChinagoods> resultList = pollMessage(kafkaConsumer, etChinagoods, pageNo, pageSize, req);
         // 关闭kafka连接，避免重新加入
         kafkaConsumer.close();
 
-        Page<UaeChinagoods> page = new Page<UaeChinagoods>(pageNo, pageSize);
+        Page<EtChinagoods> page = new Page<EtChinagoods>(pageNo, pageSize);
         page.setTotal(resultList.size())
                 .setRecords(resultList)
                 .setPages(1)

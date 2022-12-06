@@ -12,8 +12,8 @@ import org.jeecg.common.aspect.annotation.EtDynamicTable;
 import org.jeecg.common.constant.enums.EtEnvEnum;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.common.util.DateUtils;
-import org.jeecg.modules.demo.et.entity.UaeChinagoods;
-import org.jeecg.modules.demo.et.service.IUaeChinagoodsService;
+import org.jeecg.modules.demo.et.entity.EtChinagoods;
+import org.jeecg.modules.demo.et.service.IEtChinagoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,45 +24,44 @@ import java.text.ParseException;
 import java.util.Arrays;
 
  /**
- * @Description: uae_chinagoods
+ * @Description: et_chinagoods
  * @Author: jeecg-boot
  * @Date:   2022-11-22
  * @Version: V1.0
  */
-@Api(tags="uae_chinagoods")
+@Api(tags="et_chinagoods")
 @RestController
 @RequestMapping("/et/uaeChinagoods")
 @Slf4j
-public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUaeChinagoodsService> {
+public class EtChinagoodsController extends JeecgController<EtChinagoods, IEtChinagoodsService> {
 	@Autowired
-	private IUaeChinagoodsService uaeChinagoodsService;
+	private IEtChinagoodsService etChinagoodsService;
 
 	/**
 	 * 分页列表查询
 	 *
-	 * @param uaeChinagoods
+	 * @param etChinagoods
 	 * @param pageNo
 	 * @param pageSize
 	 * @param req
 	 * @return
 	 */
-	//@AutoLog(value = "uae_chinagoods-分页列表查询")
-	@ApiOperation(value="uae_chinagoods-分页列表查询", notes="uae_chinagoods-分页列表查询")
-	@EtDynamicTable(value = "chinagoods")
+	//@AutoLog(value = "et_chinagoods-分页列表查询")
+	@ApiOperation(value="et_chinagoods-分页列表查询", notes="et_chinagoods-分页列表查询")
 	@GetMapping(value = "/list")
-	public Result<IPage<UaeChinagoods>> queryPageList(UaeChinagoods uaeChinagoods,
-								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-								   HttpServletRequest req) throws ParseException {
+	@EtDynamicTable(value = "et_chinagoods")
+	public Result<IPage<EtChinagoods>> queryPageList(EtChinagoods etChinagoods,
+													 @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+													 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+													 HttpServletRequest req) throws ParseException {
 		String env = req.getParameter("env");
 		if (EtEnvEnum.getEtEnvEnumByEnv(env) == null) {
 			return Result.error("环境不正确，请传递正确环境");
 		}
 
-		IPage<UaeChinagoods> pageList;
+		QueryWrapper<EtChinagoods> queryWrapper = new QueryWrapper<>(etChinagoods);
+		Page<EtChinagoods> page = new Page<EtChinagoods>(pageNo, pageSize);
 		if (EtEnvEnum.TEST.etEnv.equals(env)) {
-			// kafka streaming消费kafka消息
-			QueryWrapper<UaeChinagoods> queryWrapper = new QueryWrapper<>(uaeChinagoods);
 			// 基于时间查询
 			String[] createdAtArr = req.getParameterValues("createdAtArr[]");
 			if (createdAtArr != null && createdAtArr.length == 2) {
@@ -71,42 +70,41 @@ public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUae
 				queryWrapper.between("created_at", beginCreatedAt, endCreatedAt);
 			}
 			queryWrapper.orderByDesc("created_at");
-
-			Page<UaeChinagoods> page = new Page<UaeChinagoods>(pageNo, pageSize);
-			pageList = uaeChinagoodsService.page(page, queryWrapper);
-		} else {
-			pageList = uaeChinagoodsService.queryKafkaMessage(uaeChinagoods, pageNo, pageSize, req);
+			IPage<EtChinagoods> pageList = etChinagoodsService.page(page, queryWrapper);
+			return Result.OK(pageList);
 		}
+
+		IPage<EtChinagoods> pageList = etChinagoodsService.queryKafkaMessage(etChinagoods, pageNo, pageSize, req);
 		return Result.OK(pageList);
 	}
 	
 	/**
 	 *   添加
 	 *
-	 * @param uaeChinagoods
+	 * @param etChinagoods
 	 * @return
 	 */
-	@AutoLog(value = "uae_chinagoods-添加")
-	@ApiOperation(value="uae_chinagoods-添加", notes="uae_chinagoods-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:uae_chinagoods:add")
+	@AutoLog(value = "et_chinagoods-添加")
+	@ApiOperation(value="et_chinagoods-添加", notes="et_chinagoods-添加")
+	//@RequiresPermissions("org.jeecg.modules.demo:et_chinagoods:add")
 	@PostMapping(value = "/add")
-	public Result<String> add(@RequestBody UaeChinagoods uaeChinagoods) {
-		uaeChinagoodsService.save(uaeChinagoods);
+	public Result<String> add(@RequestBody EtChinagoods etChinagoods) {
+		etChinagoodsService.save(etChinagoods);
 		return Result.OK("添加成功！");
 	}
 	
 	/**
 	 *  编辑
 	 *
-	 * @param uaeChinagoods
+	 * @param etChinagoods
 	 * @return
 	 */
-	@AutoLog(value = "uae_chinagoods-编辑")
-	@ApiOperation(value="uae_chinagoods-编辑", notes="uae_chinagoods-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:uae_chinagoods:edit")
+	@AutoLog(value = "et_chinagoods-编辑")
+	@ApiOperation(value="et_chinagoods-编辑", notes="et_chinagoods-编辑")
+	//@RequiresPermissions("org.jeecg.modules.demo:et_chinagoods:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
-	public Result<String> edit(@RequestBody UaeChinagoods uaeChinagoods) {
-		uaeChinagoodsService.updateById(uaeChinagoods);
+	public Result<String> edit(@RequestBody EtChinagoods etChinagoods) {
+		etChinagoodsService.updateById(etChinagoods);
 		return Result.OK("编辑成功!");
 	}
 	
@@ -116,12 +114,12 @@ public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUae
 	 * @param id
 	 * @return
 	 */
-	@AutoLog(value = "uae_chinagoods-通过id删除")
-	@ApiOperation(value="uae_chinagoods-通过id删除", notes="uae_chinagoods-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:uae_chinagoods:delete")
+	@AutoLog(value = "et_chinagoods-通过id删除")
+	@ApiOperation(value="et_chinagoods-通过id删除", notes="et_chinagoods-通过id删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:et_chinagoods:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
-		uaeChinagoodsService.removeById(id);
+		etChinagoodsService.removeById(id);
 		return Result.OK("删除成功!");
 	}
 	
@@ -131,12 +129,12 @@ public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUae
 	 * @param ids
 	 * @return
 	 */
-	@AutoLog(value = "uae_chinagoods-批量删除")
-	@ApiOperation(value="uae_chinagoods-批量删除", notes="uae_chinagoods-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:uae_chinagoods:deleteBatch")
+	@AutoLog(value = "et_chinagoods-批量删除")
+	@ApiOperation(value="et_chinagoods-批量删除", notes="et_chinagoods-批量删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:et_chinagoods:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-		this.uaeChinagoodsService.removeByIds(Arrays.asList(ids.split(",")));
+		this.etChinagoodsService.removeByIds(Arrays.asList(ids.split(",")));
 		return Result.OK("批量删除成功!");
 	}
 	
@@ -146,27 +144,27 @@ public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUae
 	 * @param id
 	 * @return
 	 */
-	//@AutoLog(value = "uae_chinagoods-通过id查询")
-	@ApiOperation(value="uae_chinagoods-通过id查询", notes="uae_chinagoods-通过id查询")
+	//@AutoLog(value = "et_chinagoods-通过id查询")
+	@ApiOperation(value="et_chinagoods-通过id查询", notes="et_chinagoods-通过id查询")
 	@GetMapping(value = "/queryById")
-	public Result<UaeChinagoods> queryById(@RequestParam(name="id",required=true) String id) {
-		UaeChinagoods uaeChinagoods = uaeChinagoodsService.getById(id);
-		if(uaeChinagoods==null) {
+	public Result<EtChinagoods> queryById(@RequestParam(name="id",required=true) String id) {
+		EtChinagoods etChinagoods = etChinagoodsService.getById(id);
+		if(etChinagoods ==null) {
 			return Result.error("未找到对应数据");
 		}
-		return Result.OK(uaeChinagoods);
+		return Result.OK(etChinagoods);
 	}
 
     /**
     * 导出excel
     *
     * @param request
-    * @param uaeChinagoods
+    * @param etChinagoods
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:uae_chinagoods:exportXls")
+    //@RequiresPermissions("org.jeecg.modules.demo:et_chinagoods:exportXls")
     @RequestMapping(value = "/exportXls")
-    public ModelAndView exportXls(HttpServletRequest request, UaeChinagoods uaeChinagoods) {
-        return super.exportXls(request, uaeChinagoods, UaeChinagoods.class, "uae_chinagoods");
+    public ModelAndView exportXls(HttpServletRequest request, EtChinagoods etChinagoods) {
+        return super.exportXls(request, etChinagoods, EtChinagoods.class, "et_chinagoods");
     }
 
     /**
@@ -176,10 +174,10 @@ public class UaeChinagoodsController extends JeecgController<UaeChinagoods, IUae
     * @param response
     * @return
     */
-    //@RequiresPermissions("uae_chinagoods:importExcel")
+    //@RequiresPermissions("et_chinagoods:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-        return super.importExcel(request, response, UaeChinagoods.class);
+        return super.importExcel(request, response, EtChinagoods.class);
     }
 
 }

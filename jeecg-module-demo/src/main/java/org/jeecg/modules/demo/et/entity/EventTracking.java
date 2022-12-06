@@ -313,9 +313,12 @@ public class EventTracking implements Serializable {
         return et;
     }
 
-    public UaeChinagoods toChinagoods() {
-        UaeChinagoods uaeChinagoods = new UaeChinagoods();
-        uaeChinagoods.setTrackId(this.getScTrackId())
+    /**
+     * 将etChinagoods转换成chinagoods实体内容
+     **/
+    public EtChinagoods toChinagoods() {
+        EtChinagoods etChinagoods = new EtChinagoods();
+        etChinagoods.setTrackId(this.getScTrackId())
                 .setDistinctId(this.getDistinctId())
                 .setLib(this.getScLib())
                 .setType(this.getType())
@@ -336,7 +339,7 @@ public class EventTracking implements Serializable {
                 .setProject(this.getProject())
                 .setPlatformType(this.getPlatformType())
         ;
-        return uaeChinagoods;
+        return etChinagoods;
     }
 
     public String getTimeZone() {

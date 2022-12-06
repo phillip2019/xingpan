@@ -50,6 +50,8 @@ public class EventTrackingDynamicTableAspect {
         ThreadLocalDataHelper.put(CommonConstant.VERSION, version);
         //存储表名到本地线程变量
         ThreadLocalDataHelper.put(CommonConstant.DYNAMIC_TABLE_NAME, tableName);
+
+        ThreadLocalDataHelper.put(CommonConstant.TABLE_NAME_TYPE, "event-tracking");
         //执行方法
         Object result = point.proceed();
         //清空本地变量
