@@ -53,14 +53,14 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
             "$AppStart", "$AppEnd"
     );
 
-    public KafkaConsumer<String, String> initKafkaConsumer() {
+    public KafkaConsumer<String, String> initKafkaConsumer(int batchSize) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         // group.id，指定了消费者所属群组
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5000);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, batchSize);
         // 100MB
         props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, 50 * 1024 * 1024);
 
@@ -80,11 +80,12 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
             topicPartitionList.add(topicPartition);
         }
 
+        int partitionBatchSize = batchSize / partitionInfoList.size() + 1;
         kafkaConsumer.assign(topicPartitionList);
         Map<TopicPartition, Long> partitionOffsetM = kafkaConsumer.endOffsets(topicPartitionList);
         for (TopicPartition partition: topicPartitionList) {
-            log.info("分区: {}, 当前最后offset为: {}", partition, partitionOffsetM.get(partition));
-            kafkaConsumer.seek(partition, Math.max(partitionOffsetM.get(partition) - 1250, 0));
+            log.debug("分区: {}, 当前最后offset为: {}", partition, partitionOffsetM.get(partition));
+            kafkaConsumer.seek(partition, Math.max(partitionOffsetM.get(partition) - partitionBatchSize, 0));
         }
         return kafkaConsumer;
     }
@@ -100,6 +101,7 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
         String event = uaeChinagoods.getEvent();
         String project = req.getParameter("project");
         String platformType = req.getParameter("platformType");
+        int batchSize = Integer.parseInt(req.getParameter("batchSize"));
         long beginCreatedAt = 0L, endCreatedAt = 0L;
         // 基于时间查询
         String[] createdAtArr = req.getParameterValues("createdAtArr[]");
@@ -110,75 +112,70 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
         long finalBeginCreatedAt = beginCreatedAt;
         long finalEndCreatedAt = endCreatedAt;
 
+        int consumerCount = 0;
+        List<UaeChinagoods> resultList = new ArrayList<>(batchSize);
+        while (consumerCount <= batchSize ) {
+            // 100 是超时时间（ms），在该时间内 poll 会等待服务器返回数据
+            ConsumerRecords<String, String> records = consumer.poll(3000);
+            log.info("批量获取消息，当前获取消息大小为： {}", records.count());
+            consumerCount += records.count();
 
-        // 100 是超时时间（ms），在该时间内 poll 会等待服务器返回数据
-        ConsumerRecords<String, String> records = consumer.poll(10000);
-        log.info("批量获取消息，当前获取消息大小为： {}", records.count());
-
-        // poll 返回一个记录列表。
-        // 每条记录都包含了记录所属主题的信息、记录所在分区的信息、记录在分区里的偏移量，以及记录的键值对。
-        List<UaeChinagoods> resultList = Streams.stream(records)
-                .map(record -> EventTracking.of(record.value()))
-                .filter((et) -> {
-//                    return !NOT_NEED_EVENT.contains(et.getEvent()) && StringUtils.isNotBlank(et.getEvent());
-                    return true;
-                })
-                .map(EventTracking::toChinagoods)
-                .filter(et -> {
-                    boolean ret = true;
-
-                    if (et.getDistinctId().equals("1565221")) {
-                        log.info("当前访问用户为stg环境用户: {}", et.getDistinctId());
-                    }
-
-                    if (StringUtils.isNotBlank(distinctId)) {
-                        ret = StringUtils.equals(distinctId, et.getDistinctId());
-                        if (!ret) {
-                            return false;
+            // poll 返回一个记录列表。
+            // 每条记录都包含了记录所属主题的信息、记录所在分区的信息、记录在分区里的偏移量，以及记录的键值对。
+            List<UaeChinagoods> tmpResultList = Streams.stream(records)
+                    .map(record -> EventTracking.of(record.value()))
+                    .filter((et) -> !NOT_NEED_EVENT.contains(et.getEvent()) && StringUtils.isNotBlank(et.getEvent()))
+                    .map(EventTracking::toChinagoods)
+                    .filter(et -> {
+                        boolean ret = true;
+                        if (StringUtils.isNotBlank(distinctId)) {
+                            ret = StringUtils.equals(distinctId, et.getDistinctId());
+                            if (!ret) {
+                                return false;
+                            }
                         }
-                    }
 
-                    if (StringUtils.isNotBlank(event)) {
-                        ret = StringUtils.equals(event, et.getEvent());
-                        if (!ret) {
-                            return false;
+                        if (StringUtils.isNotBlank(event)) {
+                            ret = StringUtils.equals(event, et.getEvent());
+                            if (!ret) {
+                                return false;
+                            }
                         }
-                    }
 
-                    // remark
-                    if (StringUtils.isNotBlank(remark)) {
-                        ret = StringUtils.equals(remark, et.getRemark());
-                        if (!ret) {
-                            return false;
+                        // remark
+                        if (StringUtils.isNotBlank(remark)) {
+                            ret = StringUtils.equals(remark, et.getRemark());
+                            if (!ret) {
+                                return false;
+                            }
                         }
-                    }
 
-                    if (StringUtils.isNotBlank(project)) {
-                        ret = StringUtils.equals(project, et.getProject());
-                        if (!ret) {
-                            return false;
+                        if (StringUtils.isNotBlank(project)) {
+                            ret = StringUtils.equals(project, et.getProject());
+                            if (!ret) {
+                                return false;
+                            }
                         }
-                    }
 
-                    // platformType
-                    if (StringUtils.isNotBlank(platformType)) {
-                        ret = StringUtils.equals(platformType, et.getPlatformType());
-                        if (!ret) {
-                            return false;
+                        // platformType
+                        if (StringUtils.isNotBlank(platformType)) {
+                            ret = StringUtils.equals(platformType, et.getPlatformType());
+                            if (!ret) {
+                                return false;
+                            }
                         }
-                    }
-
-                    // createdAt
-                    if (finalBeginCreatedAt != 0 && finalEndCreatedAt != 0) {
-                        ret = false;
-                        long createdAt = Long.parseLong(et.getCreatedAt());
-                        if (createdAt >= finalBeginCreatedAt && createdAt <= finalEndCreatedAt) {
-                            ret = true;
+                        // createdAt
+                        if (finalBeginCreatedAt != 0 && finalEndCreatedAt != 0) {
+                            ret = false;
+                            long createdAt = Long.parseLong(et.getCreatedAt());
+                            if (createdAt >= finalBeginCreatedAt && createdAt <= finalEndCreatedAt) {
+                                ret = true;
+                            }
                         }
-                    }
-                    return ret;
-                }).collect(Collectors.toList());
-
+                        return ret;
+                    }).collect(Collectors.toList());
+            resultList.addAll(tmpResultList);
+        }
         return resultList;
     }
 
@@ -194,7 +191,8 @@ public class UaeChinagoodsServiceImpl extends ServiceImpl<UaeChinagoodsMapper, U
      */
     @Override
     public IPage<UaeChinagoods> queryKafkaMessage(UaeChinagoods uaeChinagoods, Integer pageNo, Integer pageSize, HttpServletRequest req) throws ParseException {
-        KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer();
+        int batchSize = Integer.parseInt(req.getParameter("batchSize"));
+        KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer(batchSize);
         // 查询每个分区1000条消息
         List<UaeChinagoods> resultList = pollMessage(kafkaConsumer, uaeChinagoods, pageNo, pageSize, req);
         // 关闭kafka连接，避免重新加入
