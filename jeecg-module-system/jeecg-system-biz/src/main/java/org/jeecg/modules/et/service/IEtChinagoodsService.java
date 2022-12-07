@@ -1,9 +1,7 @@
-package org.jeecg.modules.demo.et.service;
+package org.jeecg.modules.et.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.jeecg.modules.demo.et.entity.EtChinagoods;
+import org.jeecg.modules.et.entity.EtChinagoods;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import javax.servlet.http.HttpServletRequest;

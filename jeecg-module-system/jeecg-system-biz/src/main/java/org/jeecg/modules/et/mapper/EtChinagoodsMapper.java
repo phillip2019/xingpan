@@ -1,7 +1,7 @@
-package org.jeecg.modules.demo.et.mapper;
+package org.jeecg.modules.et.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.jeecg.modules.demo.et.entity.EtChinagoods;
+import org.jeecg.modules.et.entity.EtChinagoods;
 
 /**
  * @Description: uae_chinagoods

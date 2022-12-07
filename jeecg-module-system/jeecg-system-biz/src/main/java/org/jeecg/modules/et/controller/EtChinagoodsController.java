@@ -1,4 +1,4 @@
-package org.jeecg.modules.demo.et.controller;
+package org.jeecg.modules.et.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -12,8 +12,8 @@ import org.jeecg.common.aspect.annotation.EtDynamicTable;
 import org.jeecg.common.constant.enums.EtEnvEnum;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.common.util.DateUtils;
-import org.jeecg.modules.demo.et.entity.EtChinagoods;
-import org.jeecg.modules.demo.et.service.IEtChinagoodsService;
+import org.jeecg.modules.et.entity.EtChinagoods;
+import org.jeecg.modules.et.service.IEtChinagoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;

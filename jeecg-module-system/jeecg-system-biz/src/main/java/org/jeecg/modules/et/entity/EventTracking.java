@@ -1,4 +1,4 @@
-package org.jeecg.modules.demo.et.entity;
+package org.jeecg.modules.et.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

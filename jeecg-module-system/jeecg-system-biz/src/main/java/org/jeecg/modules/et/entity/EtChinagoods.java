@@ -1,5 +1,6 @@
-package org.jeecg.modules.demo.et.entity;
+package org.jeecg.modules.et.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -30,7 +31,7 @@ public class EtChinagoods implements Serializable {
 	/**trackId*/
 	@Excel(name = "trackId", width = 15)
     @ApiModelProperty(value = "trackId")
-    @TableId
+    @TableId(type = IdType.INPUT)
     private Long trackId;
 	/**distinctId*/
 	@Excel(name = "distinctId", width = 15)
@@ -120,8 +121,8 @@ public class EtChinagoods implements Serializable {
     private Integer hour;
     /**project*/
     @TableField(exist = false)
-    private String project;
+    private transient String project;
     /**platformType*/
     @TableField(exist = false)
-    private String platformType;
+    private transient String platformType;
 }

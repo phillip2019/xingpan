@@ -1,7 +1,6 @@
-package org.jeecg.modules.demo.et.service.impl;
+package org.jeecg.modules.et.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,10 +15,10 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.jeecg.common.constant.enums.EtEnvEnum;
 import org.jeecg.common.util.DateUtils;
-import org.jeecg.modules.demo.et.entity.EtChinagoods;
-import org.jeecg.modules.demo.et.entity.EventTracking;
-import org.jeecg.modules.demo.et.mapper.EtChinagoodsMapper;
-import org.jeecg.modules.demo.et.service.IEtChinagoodsService;
+import org.jeecg.modules.et.entity.EtChinagoods;
+import org.jeecg.modules.et.entity.EventTracking;
+import org.jeecg.modules.et.mapper.EtChinagoodsMapper;
+import org.jeecg.modules.et.service.IEtChinagoodsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +33,9 @@ import java.util.stream.Collectors;
  * @Date:   2022-11-22
  * @Version: V1.0
  */
+@DS("ghostSa")
 @Service
 @Slf4j
-@DS("ghostSa")
 public class EtChinagoodsServiceImpl extends ServiceImpl<EtChinagoodsMapper, EtChinagoods> implements IEtChinagoodsService {
 
     @Value("${spring.kafka.consumer.bootstrap-servers}")
