@@ -123,6 +123,6 @@ public class EtChinagoods implements Serializable {
     @TableField(exist = false)
     private transient String project;
     /**platformType*/
-    @TableField(exist = false)
-    private transient String platformType;
+    @TableField(exist = true)
+    private String platformType;
 }
