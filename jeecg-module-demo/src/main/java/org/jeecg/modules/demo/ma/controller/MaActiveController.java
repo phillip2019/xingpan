@@ -174,4 +174,16 @@ public class MaActiveController extends JeecgController<MaActive, IMaActiveServi
         return super.importExcel(request, response, MaActive.class);
     }
 
+
+	 /**
+	  * 通过excel导入易拉宝数据
+	  * @param request
+	  * @param response
+	  * @return
+	  */
+	 //@RequiresPermissions("ma_active:importExcel")
+	 @RequestMapping(value = "/importYLBExcel", method = RequestMethod.POST)
+	 public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+		 return maActiveService.importYLBExcel(request, response);
+	 }
 }
