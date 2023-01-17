@@ -1,13 +1,16 @@
 package org.jeecg.modules.demo.ma.service.impl;
 
+import cn.hutool.core.net.URLEncoder;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.JacksonBuilder;
 import org.jeecg.modules.demo.ma.entity.*;
 import org.jeecg.modules.demo.ma.exception.CRequestParamException;
@@ -24,8 +27,6 @@ import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -33,11 +34,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * @Description: 活动
@@ -142,9 +140,15 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
 
         // 按照序号分组，生成易拉宝分组
         Map<String, List<MaActiveYlbMaterial>> ylbMaterialMapList = new HashMap<>(maActiveYlbMaterialList.size() / 4);
+        String seqNo = null;
         for (MaActiveYlbMaterial ylbMaterial : maActiveYlbMaterialList) {
-            if (!ylbMaterialMapList.containsKey(ylbMaterial.getSeqNo())) {
-                ylbMaterialMapList.put(ylbMaterial.getSeqNo(), new ArrayList<>(4));
+            if (StringUtils.isNotBlank(ylbMaterial.getSeqNo())) {
+                seqNo = ylbMaterial.getSeqNo();
+            } else {
+                ylbMaterial.setSeqNo(seqNo);
+            }
+            if (!ylbMaterialMapList.containsKey(seqNo)) {
+                ylbMaterialMapList.put(seqNo, new ArrayList<>(4));
             }
             List<MaActiveYlbMaterial> ylbMaterialList = ylbMaterialMapList.get(ylbMaterial.getSeqNo());
             ylbMaterialList.add(ylbMaterial);
@@ -161,7 +165,10 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         // 添加易拉宝编号
         for (Map.Entry<String, List<MaActiveYlbMaterial>> integerListEntry : ylbMaterialMapList.entrySet()) {
             maPosition = new MaPosition();
-            String seqNo = integerListEntry.getKey();
+            maPosition.setCreateBy(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getUsername());
+            maPosition.setCreateTime(new Date());
+            positionList.add(maPosition);
+            seqNo = integerListEntry.getKey();
             List<MaActiveYlbMaterial> ylbMaterialList = integerListEntry.getValue();
             if (ylbMaterialList.size() == 0) {
                 continue;
@@ -247,7 +254,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
      * @version v1.0.0       
      **/
     @Transactional(rollbackFor = Exception.class)
-    public void saveYlbBatch(Long activeId, List<MaActiveYlbMaterial> maActiveYlbMaterialList) throws CRequestParamException {
+    public void saveYlbBatch(Long activeId, List<MaActiveYlbMaterial> maActiveYlbMaterialList) throws Exception {
         List<MaPosition> positionList = preCheckImportYlbExcel(activeId, maActiveYlbMaterialList);
 
         // TODO 生成企业微信公众号二维码信息
@@ -273,10 +280,9 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("text/plain");
-        RequestBody body = RequestBody.create(mediaType, "");
         Request request = new Request.Builder()
                 .url("https://user.chinagoods.com/user/bindwechatofficial/getofficialaccesstoken")
-                .method("GET", body)
+                .method("GET", null)
                 .build();
         Response response = client.newCall(request).execute();
         assert response.body() != null;
@@ -289,6 +295,10 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
     }
 
     private Long saveYlbId2DB(MaPosition positionEntry, Long ts) throws IOException, CSaveYlb2DBException {
+        return saveYlbId2DB(positionEntry, null, ts);
+    }
+
+    private Long saveYlbId2DB(MaPosition positionEntry, MaPositionShop positionShop, Long ts) throws IOException, CSaveYlb2DBException {
 //        + 点位编号 position_no
 //                + 市场  market_name
 //                + ~~楼层~~  floor
@@ -314,6 +324,12 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
                 .put("user_type", "buyer")
         ;
 
+        if (positionShop != null) {
+            ylbObjectNode.put("shop_id", positionShop.getShopId())
+                    .put("shop_name", positionShop.getShopName())
+                    ;
+        }
+
         ObjectNode dataObjectNode = JacksonBuilder.MAPPER.createObjectNode();
         dataObjectNode.put("data", JacksonBuilder.MAPPER.writeValueAsString(ylbObjectNode));
         OkHttpClient client = new OkHttpClient().newBuilder()
@@ -338,7 +354,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
     /**
      * 获取对应店铺，对应易拉宝编号微信公众号带参二维码
      **/
-    private String getWeChatOfficialQrCode(String accessToken, String shopId, String ylbId) throws IOException, CWxQrCodeException {
+    private String getWeChatOfficialQrCode(String accessToken, String shopId, Long ylbId) throws IOException, CWxQrCodeException {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
@@ -357,7 +373,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         Response response = client.newCall(request).execute();
         String responseContent = response.body().string();
         JsonNode jsonNode = JacksonBuilder.MAPPER.readTree(responseContent);
-        if (jsonNode.get("errcode").asInt(0) != 0) {
+        if (jsonNode.has("errcode")) {
             throw new CWxQrCodeException(String.format("获取带参微信公众号二维码失败，返回内容为: %s", responseContent));
         }
         return jsonNode.get("ticket").asText();
@@ -367,14 +383,30 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
      * 生成微信公众号二维码
      **/
     private void generateWeChatOfficialQrCode(List<MaPosition> positionList) throws Exception {
+        Long ts = System.currentTimeMillis() / 1000;
         // 获取当前可用access_token
         String accessToken;
+        List<Long> ylbIdList = new ArrayList<>(positionList.size());
+        Long ylbParamId;
+        String ylbTicket, shopYlbTicket;
         for (MaPosition positionEntry : positionList) {
             accessToken = getWeChatOfficialAccessToken();
-            // TODO 生成易拉宝二维码
+            ylbParamId = saveYlbId2DB(positionEntry, ts);
+            ylbIdList.add(ylbParamId);
+            ylbTicket = getWeChatOfficialQrCode(accessToken, null, ylbParamId);
+            positionEntry.setQrCodeTicket(ylbTicket);
+            positionEntry.setQrCodeUrl(String.format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=%s", URLEncoder.createDefault().encode(ylbTicket, StandardCharsets.UTF_8)));
 
             // TODO 生成易拉宝店铺二维码
+            for (MaPositionShop positionShop : positionEntry.getPositionShopList()) {
+                ylbParamId = saveYlbId2DB(positionEntry, positionShop, ts);
+                ylbIdList.add(ylbParamId);
+                shopYlbTicket = getWeChatOfficialQrCode(accessToken, positionShop.getShopId(), ylbParamId);
+                positionShop.setQrCodeTicket(shopYlbTicket);
+                positionShop.setQrCodeUrl(String.format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=%s", URLEncoder.createDefault().encode(shopYlbTicket, StandardCharsets.UTF_8)));
+            }
         }
+        // TODO 若执行失败，则删除生成的参数编号
     }
 
     /**

@@ -186,7 +186,7 @@ public class MaActiveController extends JeecgController<MaActive, IMaActiveServi
 	  */
 	 //@RequiresPermissions("ma_active:importExcel")
 	 @RequestMapping(value = "/importYLBExcel", method = RequestMethod.POST)
-	 public Result<?> importYlbExcel(@NotNull(message = "活动编号必填") @RequestParam Long activeId, HttpServletRequest request, HttpServletResponse response) {
+	 public Result<?> importYlbExcel(@NotNull(message = "活动编号必填") @RequestParam("id") Long activeId, HttpServletRequest request, HttpServletResponse response) {
 		 return maActiveService.importYlbExcel(activeId, request, response, MaActiveYlbMaterial.class);
 	 }
 }
