@@ -34,12 +34,12 @@ public class MaPositionShop implements Serializable {
 	/**主键编号*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "主键编号")
-    private Integer id;
+    private Long id;
 	/**点位ID*/
 	@Excel(name = "点位ID", width = 15, dictTable = "ma_position", dicText = "id", dicCode = "id")
 	@Dict(dictTable = "ma_position", dicText = "id", dicCode = "id")
     @ApiModelProperty(value = "点位ID")
-    private Integer positionId;
+    private Long positionId;
 	/**点位编号*/
 	@Excel(name = "点位编号", width = 15, dictTable = "ma_position", dicText = "position_no", dicCode = "position_no")
 	@Dict(dictTable = "ma_position", dicText = "position_no", dicCode = "position_no")
@@ -54,13 +54,17 @@ public class MaPositionShop implements Serializable {
     @ApiModelProperty(value = "店铺名称")
     private String shopName;
 	/**店铺主图链接*/
-	@Excel(name = "店铺主图链接", width = 15)
+	@Excel(name = "店铺主图链接", width = 100)
     @ApiModelProperty(value = "店铺主图链接")
     private String shopCover;
 	/**店铺主营商品数组*/
-	@Excel(name = "店铺主营商品数组", width = 15)
+	@Excel(name = "店铺主营商品数组", width = 100)
     @ApiModelProperty(value = "店铺主营商品数组")
     private String mainGoodsArr;
+    /**主营内容*/
+    @Excel(name = "主营内容", width = 15)
+    @ApiModelProperty(value = "主营内容")
+    private String mainBusinessScope;
 	/**店铺位置*/
 	@Excel(name = "店铺位置", width = 15)
     @ApiModelProperty(value = "店铺位置")

@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.demo.ma.mapper.MaPositionMapper">
-
+    <insert id="insertPositionReturnId" parameterType="org.jeecg.modules.demo.ma.entity.MaPosition" useGeneratedKeys="true" keyProperty="id">
+        insert into ma_position(position_no
+                                ,position_type
+                                ,seq_no
+                                ,active_id
+                                ,market_name
+                                ,floor
+                                ,owner_account
+                                ,owner_name
+                                ,qr_code_ticket
+                                ,qr_code_url
+                                ,status
+                                ,create_by
+                                ,create_time
+                                ,update_by
+                                ,update_time
+                                )
+        values( #{dto.positionNo}
+               ,#{dto.positionType}
+               ,#{dto.seqNo}
+               ,#{dto.activeId}
+               ,#{dto.marketName}
+               ,#{dto.floor}
+               ,#{dto.ownerAccount}
+               ,#{dto.ownerName}
+               ,#{dto.qrCodeTicket}
+               ,#{dto.qrCodeUrl}
+               ,#{dto.status}
+               ,#{dto.createBy}
+               ,#{dto.createTime}
+               ,#{dto.updateBy}
+               ,#{dto.updateTime}
+        )
+    </insert>
+    <select id="selectMarketFloorPositionNum" resultType="org.jeecg.modules.demo.ma.mapper.dto.MaMarketFloorNumDTO"
+            parameterType="java.lang.Long">
+        select market_name
+              ,floor
+              ,count(1) num
+        from ma_position
+        where 1 = 1
+        and active_id = #{activeId}
+        group by market_name
+                ,floor
+    </select>
 </mapper>

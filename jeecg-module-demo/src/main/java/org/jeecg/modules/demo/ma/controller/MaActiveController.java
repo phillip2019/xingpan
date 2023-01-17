@@ -9,10 +9,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
+
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.demo.ma.entity.MaActive;
+import org.jeecg.modules.demo.ma.entity.MaActiveYlbMaterial;
 import org.jeecg.modules.demo.ma.service.IMaActiveService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -183,7 +186,7 @@ public class MaActiveController extends JeecgController<MaActive, IMaActiveServi
 	  */
 	 //@RequiresPermissions("ma_active:importExcel")
 	 @RequestMapping(value = "/importYLBExcel", method = RequestMethod.POST)
-	 public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-		 return maActiveService.importYLBExcel(request, response);
+	 public Result<?> importYlbExcel(@NotNull(message = "活动编号必填") @RequestParam Long activeId, HttpServletRequest request, HttpServletResponse response) {
+		 return maActiveService.importYlbExcel(activeId, request, response, MaActiveYlbMaterial.class);
 	 }
 }

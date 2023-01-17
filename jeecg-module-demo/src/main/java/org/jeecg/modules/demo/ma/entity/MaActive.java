@@ -34,7 +34,7 @@ public class MaActive implements Serializable {
 	/**主键编号*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "主键编号")
-    private Integer id;
+    private Long id;
 	/**活动名称*/
 	@Excel(name = "活动名称", width = 15)
     @ApiModelProperty(value = "活动名称")

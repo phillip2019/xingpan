@@ -103,21 +103,23 @@ public class MybatisPlusSaasConfig {
             String dynamicTableName = ThreadLocalDataHelper.get(CommonConstant.DYNAMIC_TABLE_NAME);
             String tableNameType = ThreadLocalDataHelper.get(CommonConstant.TABLE_NAME_TYPE);
             //当dynamicTableName不为空时才走动态表名处理逻辑,否则返回原始表名
-            assert dynamicTableName != null;
-            if (ObjectUtil.isNotEmpty(dynamicTableName) && dynamicTableName.equals(tableName)) {
-                // 获取前端传递的版本号标识
-                Object version = ThreadLocalDataHelper.get(CommonConstant.VERSION);
-                if (ObjectUtil.isNotEmpty(version)) {
-                    //拼接表名规则(原始表名+下划线+前端传递的版本号)
-                    return tableName + "_" + version;
+            if (dynamicTableName != null) {
+                if (ObjectUtil.isNotEmpty(dynamicTableName) && dynamicTableName.equals(tableName)) {
+                    // 获取前端传递的版本号标识
+                    Object version = ThreadLocalDataHelper.get(CommonConstant.VERSION);
+                    if (ObjectUtil.isNotEmpty(version)) {
+                        //拼接表名规则(原始表名+下划线+前端传递的版本号)
+                        return tableName + "_" + version;
+                    }
                 }
-            }
 
-            // 如果原始表名是et_开头，则使用自定义动态表名逻辑，直接使用动态表名，这些表为埋点表
-            if (StringUtils.isNotBlank(tableNameType)) {
-                return dynamicTableName;
-            }
+                // 如果原始表名是et_开头，则使用自定义动态表名逻辑，直接使用动态表名，这些表为埋点表
+                if (StringUtils.isNotBlank(tableNameType)) {
+                    return dynamicTableName;
+                }
 
+                return tableName;
+            }
             return tableName;
         });
         return dynamicTableNameInnerInterceptor;

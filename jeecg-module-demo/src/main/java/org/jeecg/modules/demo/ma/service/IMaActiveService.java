@@ -1,7 +1,12 @@
 package org.jeecg.modules.demo.ma.service;
 
+import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.demo.ma.entity.MaActive;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.jeecg.modules.demo.ma.entity.MaActiveYlbMaterial;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @Description: 活动
@@ -11,4 +16,15 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IMaActiveService extends IService<MaActive> {
 
+
+    /**
+     * 导入易拉宝物料数据
+     *
+     * @param activeId 活动编号
+     * @param request 请求体
+     * @param response 返回体
+     * @param clazz
+     * @return 导入消息
+     */
+    Result<?> importYlbExcel(Long activeId, HttpServletRequest request, HttpServletResponse response, Class<MaActiveYlbMaterial> clazz);
 }

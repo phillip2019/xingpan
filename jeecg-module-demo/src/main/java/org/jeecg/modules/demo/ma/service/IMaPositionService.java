@@ -10,5 +10,4 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @Version: V1.0
  */
 public interface IMaPositionService extends IService<MaPosition> {
-
 }

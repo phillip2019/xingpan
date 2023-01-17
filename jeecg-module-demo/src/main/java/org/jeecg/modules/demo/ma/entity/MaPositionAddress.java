@@ -34,11 +34,11 @@ public class MaPositionAddress implements Serializable {
 	/**主键编号*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "主键编号")
-    private Integer id;
+    private Long id;
 	/**点位ID*/
 	@Excel(name = "点位ID", width = 15)
     @ApiModelProperty(value = "点位ID")
-    private Integer positionId;
+    private Long positionId;
 	/**点位编号*/
 	@Excel(name = "点位编号", width = 15)
     @ApiModelProperty(value = "点位编号")
@@ -66,7 +66,7 @@ public class MaPositionAddress implements Serializable {
 	/**点位位置状态*/
 	@Excel(name = "点位位置状态", width = 15)
     @ApiModelProperty(value = "点位位置状态")
-    private String usedStauts;
+    private String usedStatus;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
     private String createBy;
