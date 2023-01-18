@@ -33,8 +33,8 @@ public class MaActiveYlbMaterial implements Serializable {
     @ApiModelProperty(value = "市场")
     private String marketName;
     /**序号*/
-    @Excel(name = "序号", width = 15)
-    @ApiModelProperty(value = "序号")
+    @Excel(name = "易拉宝序号", width = 15)
+    @ApiModelProperty(value = "易拉宝序号")
     private String seqNo;
 	/**楼层*/
 	@Excel(name = "楼层", width = 15)
