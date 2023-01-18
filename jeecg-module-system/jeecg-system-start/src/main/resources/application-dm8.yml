@@ -237,3 +237,9 @@ third-app:
       # appSecret
       client-secret: ??
       agent-id: ??
+
+cg:
+  et:
+    # 埋点topic地址
+    topic: events-tracking
+  ylbIdHost: https://apiserver.chinagoods.com

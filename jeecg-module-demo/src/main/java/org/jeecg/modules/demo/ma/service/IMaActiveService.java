@@ -7,6 +7,8 @@ import org.jeecg.modules.demo.ma.entity.MaActiveYlbMaterial;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.MalformedURLException;
 
 /**
  * @Description: 活动
@@ -27,4 +29,12 @@ public interface IMaActiveService extends IService<MaActive> {
      * @return 导入消息
      */
     Result<?> importYlbExcel(Long activeId, HttpServletRequest request, HttpServletResponse response, Class<MaActiveYlbMaterial> clazz);
+
+    /**
+     * 下载活动二维码图片到指定目录
+     * @param activeId 活动编号
+     * @param srcSource 存放目录
+     * @throws IOException 网络异常
+     */
+    void downloadActiveQrCode(Long activeId, String srcSource) throws IOException;
 }

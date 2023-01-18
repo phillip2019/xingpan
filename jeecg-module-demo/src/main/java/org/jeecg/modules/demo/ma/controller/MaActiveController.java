@@ -1,19 +1,20 @@
 package org.jeecg.modules.demo.ma.controller;
 
+import java.io.*;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ZipUtil;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.config.JeecgBaseConfig;
 import org.jeecg.modules.demo.ma.entity.MaActive;
 import org.jeecg.modules.demo.ma.entity.MaActiveYlbMaterial;
 import org.jeecg.modules.demo.ma.service.IMaActiveService;
@@ -23,18 +24,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -52,8 +46,10 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 public class MaActiveController extends JeecgController<MaActive, IMaActiveService> {
 	@Autowired
 	private IMaActiveService maActiveService;
-	
-	/**
+
+	 @Resource
+	 private JeecgBaseConfig jeecgBaseConfig;
+	/**upload
 	 * 分页列表查询
 	 *
 	 * @param maActive
@@ -187,6 +183,43 @@ public class MaActiveController extends JeecgController<MaActive, IMaActiveServi
 	 //@RequiresPermissions("ma_active:importExcel")
 	 @RequestMapping(value = "/importYLBExcel", method = RequestMethod.POST)
 	 public Result<?> importYlbExcel(@NotNull(message = "活动编号必填") @RequestParam("id") Long activeId, HttpServletRequest request, HttpServletResponse response) {
+	 	log.info("开始导入活动编号： {}易拉宝物料", activeId);
 		 return maActiveService.importYlbExcel(activeId, request, response, MaActiveYlbMaterial.class);
+	 }
+
+	 /**
+	  * 导出易拉宝公众号二维码数据
+	  * @param request 请求
+	  * @param response 返回内容
+	  * @return
+	  */
+	 //@RequiresPermissions("ma_active:exportYLBQrCode")
+	 @RequestMapping(value = "/exportYLBQrCode")
+	 public void exportYlbQrCode(@NotNull(message = "活动编号必填") @RequestParam("id") Long activeId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		 String downloadName = "易拉宝二维码.zip";
+		 //服务器存储地址
+		 String srcSource = jeecgBaseConfig.getPath().getUpload() + File.separator + "qrCode";
+		 maActiveService.downloadActiveQrCode(activeId, srcSource);
+		 String targetActiveSrcSource = Paths.get(srcSource, String.valueOf(activeId)).toString();
+		 //将文件进行打包下载
+		 try (OutputStream out =  response.getOutputStream()) {
+			 // 先将文件压缩成active_id.zip，再删除此文件
+			 ZipUtil.zip(targetActiveSrcSource, targetActiveSrcSource + ".zip");
+			 //将目标文件打包成zip导出
+			 File file = new File(targetActiveSrcSource + ".zip");
+			 // 重置返回内容
+			 response.reset();
+			 try(FileInputStream fis = FileUtils.openInputStream(file)) {
+				 IOUtils.copy(fis, out);
+			 }
+			 // 删除压缩好的包
+			 FileUtil.del(file);
+			 // 此处没用，前端会重新覆盖
+			 response.setHeader("Content-Disposition","attachment;fileName="+downloadName);
+			 response.setContentType("application/octet-stream;charset=UTF-8");
+			 out.flush();
+		 } catch (Exception e) {
+			 log.error("目录: {} 打包下载失败，请重新再试!", targetActiveSrcSource, e);
+		 }
 	 }
 }

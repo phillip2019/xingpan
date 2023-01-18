@@ -1,5 +1,6 @@
 package org.jeecg.modules.demo.ma.service.impl;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.URLEncoder;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
@@ -26,6 +28,7 @@ import org.jeecg.modules.demo.ma.service.IMaActiveService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,8 +36,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -55,6 +63,9 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
 
     @Autowired
     private MaPositionShopMapper positionShopMapper;
+
+    @Value("${cg.ylbIdHost}")
+    private String saveYlbIdHost;
 
     public static final Map<String, String> MARKET_NAME2TAG_NAME_MAP = ImmutableMap.<String, String>builder()
             .put("国际商贸城一区", "M01")
@@ -95,6 +106,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             params.setNeedSave(true);
             try {
                 List<MaActiveYlbMaterial> list = ExcelImportUtil.importExcel(file.getInputStream(), clazz, params);
+                log.info("导入活动编号: {}, 数量店铺: {}", activeId, list.size());
                 //update-begin-author:taoyan date:20190528 for:批量插入数据
                 long start = System.currentTimeMillis();
                 saveYlbBatch(activeId, list);
@@ -123,7 +135,6 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         }
         return Result.error("文件导入失败！");
     }
-
 
     /**
      * @description 基于活动编号，检查输入易拉宝物料，生成易拉宝点位、易拉宝点位店铺、点位地址信息，返回易拉宝点位列表
@@ -255,11 +266,13 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
      **/
     @Transactional(rollbackFor = Exception.class)
     public void saveYlbBatch(Long activeId, List<MaActiveYlbMaterial> maActiveYlbMaterialList) throws Exception {
+        log.info("预检查活动: {}, 易拉宝excel", activeId);
         List<MaPosition> positionList = preCheckImportYlbExcel(activeId, maActiveYlbMaterialList);
 
-        // TODO 生成企业微信公众号二维码信息
+        log.info("活动: {}, 生成易拉宝微信公众号带参二维码和易拉宝店铺微信公众号带参二维码， 点位数量为: {}", activeId, positionList.size());
         generateWeChatOfficialQrCode(positionList);
 
+        log.info("活动: {}, 保存点位、点位地址和点位店铺信息", activeId);
         for (MaPosition maPositionDTO : positionList) {
             // 提交生成易拉宝点位信息
             positionMapper.insertPositionReturnId(maPositionDTO);
@@ -315,7 +328,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
 //        + 人员角色 user_type buyer(采购商)|supplier(经营户)|owner(管理员)
 
         ObjectNode ylbObjectNode = JacksonBuilder.MAPPER.createObjectNode();
-        ylbObjectNode.put("position_no", positionEntry.getId())
+        ylbObjectNode.put("position_no", positionEntry.getPositionNo())
                 .put("active_id", positionEntry.getActiveId())
                 .put("owner_account", positionEntry.getOwnerAccount())
                 .put("owner_name", positionEntry.getOwnerName())
@@ -337,7 +350,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, JacksonBuilder.MAPPER.writeValueAsString(dataObjectNode));
         Request request = new Request.Builder()
-                .url("https://testwhale.chinagoods.com/ums/ylb/add")
+                .url(String.format("%s/ums/ylb/add", saveYlbIdHost))
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
@@ -427,5 +440,45 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             floorNumM.put(floor, num);
         }
         return curMarketFloorNumMapMap;
+    }
+
+    @Override
+    public void downloadActiveQrCode(Long activeId, String srcSource) throws IOException {
+        List<MaActiveYlbQrCodeUrl> activeYlbQrCodeUrlList = positionMapper.selectYlbQrCodeByActiveId(activeId);
+        // 按照序号分组，同一个分组的存储到同一个列表中
+        Map<String, List<MaActiveYlbQrCodeUrl>> seqNoYlbQrCodeListMap = new HashMap<>(activeYlbQrCodeUrlList.size() / 5);
+        for (MaActiveYlbQrCodeUrl activeYlbQrCodeUrl : activeYlbQrCodeUrlList) {
+            if (!seqNoYlbQrCodeListMap.containsKey(activeYlbQrCodeUrl.getSeqNo())) {
+                seqNoYlbQrCodeListMap.put(activeYlbQrCodeUrl.getSeqNo(), new ArrayList<>(4));
+            }
+            List<MaActiveYlbQrCodeUrl> seqNoYlbQrCodeList = seqNoYlbQrCodeListMap.get(activeYlbQrCodeUrl.getSeqNo());
+            seqNoYlbQrCodeList.add(activeYlbQrCodeUrl);
+        }
+        String finalActiveDirPath = Paths.get(srcSource, String.valueOf(activeId)).toString();
+        FileUtil.del(finalActiveDirPath);
+        FileUtil.mkdir(finalActiveDirPath);
+        for (Map.Entry<String, List<MaActiveYlbQrCodeUrl>> seqNoYlbQrCodeEntry : seqNoYlbQrCodeListMap.entrySet()) {
+            String seqNo = seqNoYlbQrCodeEntry.getKey();
+            List<MaActiveYlbQrCodeUrl> ylbQrCodeUrlList = seqNoYlbQrCodeEntry.getValue();
+            // 存储易拉宝编号图片
+            MaActiveYlbQrCodeUrl maActiveYlbQrCodeUrl = ylbQrCodeUrlList.get(0);
+            String marketName = maActiveYlbQrCodeUrl.getMarketName();
+            String floor = maActiveYlbQrCodeUrl.getFloor();
+            String ylbQrCodeUrl = maActiveYlbQrCodeUrl.getYlbQrCodeUrl();
+            // 易拉宝图片存储路径为： 目的目录+市场+楼层目录
+            Path ylbSaveDirPath = Paths.get(finalActiveDirPath, marketName, floor);
+            String ylbSaveDir = ylbSaveDirPath.toString();
+            if (!FileUtil.exist(ylbSaveDirPath.toFile())) {
+                FileUtil.mkdir(ylbSaveDirPath.toFile());
+            }
+            FileUtils.copyURLToFile(new URL(ylbQrCodeUrl), Paths.get(ylbSaveDir, seqNo + ".png").toFile());
+
+            // 下载易拉宝店铺二维码图片
+            String ylbShopQrCodeUrl;
+            for (MaActiveYlbQrCodeUrl qrCodeUrl : ylbQrCodeUrlList) {
+                ylbShopQrCodeUrl = qrCodeUrl.getYlbShopQrCodeUrl();
+                FileUtils.copyURLToFile(new URL(ylbShopQrCodeUrl), Paths.get(ylbSaveDir, seqNo + '-' + qrCodeUrl.getShopId() + ".png").toFile());
+            }
+        }
     }
 }

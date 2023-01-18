@@ -46,4 +46,22 @@
         group by market_name
                 ,floor
     </select>
+    <select id="selectYlbQrCodeByActiveId" resultType="org.jeecg.modules.demo.ma.entity.MaActiveYlbQrCodeUrl"
+            parameterType="java.lang.Long">
+        select mp.position_no
+              ,mp.market_name
+                    ,mp.floor
+                    ,mp.seq_no
+                    ,mps.shop_id
+                    ,mps.shop_name
+                    ,mp.qr_code_url ylb_qr_code_url
+                    ,mps.qr_code_url ylb_shop_qr_code_url
+        from ma_position mp
+        left join ma_position_shop mps
+        on mp.id = mps.position_id
+        where 1 = 1
+        and mp.active_id = #{activeId}
+        order by mp.seq_no
+                ,mps.shop_id
+    </select>
 </mapper>

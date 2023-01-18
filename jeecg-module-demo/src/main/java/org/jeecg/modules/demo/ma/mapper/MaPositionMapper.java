@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
+import org.jeecg.modules.demo.ma.entity.MaActiveYlbQrCodeUrl;
 import org.jeecg.modules.demo.ma.entity.MaPosition;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.jeecg.modules.demo.ma.mapper.dto.MaMarketFloorNumDTO;
@@ -29,4 +30,11 @@ public interface MaPositionMapper extends BaseMapper<MaPosition> {
      * @return 执行成功条数
      */
     int insertPositionReturnId(@Param("dto") MaPosition maPositionDTO);
+
+    /**
+     * 通过活动编号，查询易拉宝二维码图片地址
+     * @param activeId 活动编号
+     * @return 返回查询内容
+     */
+    List<MaActiveYlbQrCodeUrl> selectYlbQrCodeByActiveId(@Param("activeId") Long activeId);
 }
