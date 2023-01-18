@@ -476,6 +476,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
 
     @Override
     public void downloadActiveQrCode(Long activeId, String srcSource) throws IOException {
+        log.info("开始查询活动: {}对应易拉宝带参微信二维码信息", activeId);
         List<MaActiveYlbQrCodeUrl> activeYlbQrCodeUrlList = positionMapper.selectYlbQrCodeByActiveId(activeId);
         // 按照序号分组，同一个分组的存储到同一个列表中
         Map<String, List<MaActiveYlbQrCodeUrl>> seqNoYlbQrCodeListMap = new HashMap<>(activeYlbQrCodeUrlList.size() / 5);
@@ -489,7 +490,10 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         String finalActiveDirPath = Paths.get(srcSource, String.valueOf(activeId)).toString();
         FileUtil.del(finalActiveDirPath);
         FileUtil.mkdir(finalActiveDirPath);
+        log.info("活动: {}, 开始下载易拉宝带参微信二维码图片， 总计:{}张易拉宝", activeId, seqNoYlbQrCodeListMap.size());
+        int pos = 0;
         for (Map.Entry<String, List<MaActiveYlbQrCodeUrl>> seqNoYlbQrCodeEntry : seqNoYlbQrCodeListMap.entrySet()) {
+            pos++;
             String seqNo = seqNoYlbQrCodeEntry.getKey();
             List<MaActiveYlbQrCodeUrl> ylbQrCodeUrlList = seqNoYlbQrCodeEntry.getValue();
             // 存储易拉宝编号图片
@@ -497,6 +501,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             String marketName = maActiveYlbQrCodeUrl.getMarketName();
             String floor = maActiveYlbQrCodeUrl.getFloor();
             String ylbQrCodeUrl = maActiveYlbQrCodeUrl.getYlbQrCodeUrl();
+            log.info("活动: {}, 开始下载易拉宝带参微信二维码图片， 当前第: {}张易拉宝, 总计:{}张易拉宝,", activeId, pos, seqNoYlbQrCodeListMap.size());
             // 易拉宝图片存储路径为： 目的目录+市场+楼层目录
             Path ylbSaveDirPath = Paths.get(finalActiveDirPath, marketName, floor);
             String ylbSaveDir = ylbSaveDirPath.toString();

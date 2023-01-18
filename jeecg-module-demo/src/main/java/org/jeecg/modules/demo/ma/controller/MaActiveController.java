@@ -199,14 +199,17 @@ public class MaActiveController extends JeecgController<MaActive, IMaActiveServi
 		 String downloadName = "易拉宝二维码.zip";
 		 //服务器存储地址
 		 String srcSource = jeecgBaseConfig.getPath().getUpload() + File.separator + "qrCode";
+		 log.info("开始下载活动: {} 微信公众号带参二维码图片到目录: {}中", activeId, srcSource);
 		 maActiveService.downloadActiveQrCode(activeId, srcSource);
 		 String targetActiveSrcSource = Paths.get(srcSource, String.valueOf(activeId)).toString();
 		 //将文件进行打包下载
 		 try (OutputStream out =  response.getOutputStream()) {
+		 	String targetFile = targetActiveSrcSource + ".zip";
+			 log.info("活动: {} 开始压缩微信公众号带参二维码目录: {} 到文件: {}中", activeId, targetActiveSrcSource, targetFile);
 			 // 先将文件压缩成active_id.zip，再删除此文件
-			 ZipUtil.zip(targetActiveSrcSource, targetActiveSrcSource + ".zip");
+			 ZipUtil.zip(targetActiveSrcSource, targetFile);
 			 //将目标文件打包成zip导出
-			 File file = new File(targetActiveSrcSource + ".zip");
+			 File file = new File(targetFile);
 			 // 重置返回内容
 			 response.reset();
 			 try(FileInputStream fis = FileUtils.openInputStream(file)) {
