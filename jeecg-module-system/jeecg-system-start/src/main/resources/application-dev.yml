@@ -341,4 +341,4 @@ cg:
   et:
     # 埋点topic地址
     topic: events-tracking
-  ylbIdHost: https://testwhale.chinagoods.com
+  ylbIdHost: https://testapiserver.chinagoods.com
