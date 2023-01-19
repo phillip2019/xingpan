@@ -3,6 +3,7 @@ package org.jeecg.modules.demo.ma.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.URLEncoder;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
@@ -381,12 +382,8 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
     private void getWeChatOfficialQrCode(String accessToken, String shopId, Long ylbId, MaPosition positionEntry, MaPositionShop positionShop) throws IOException, CWxQrCodeException {
         MediaType mediaType = MediaType.parse("application/json");
         ObjectNode ylbIdObjectNode = JacksonBuilder.MAPPER.createObjectNode();
-        if (StringUtils.isNotBlank(shopId)) {
-            ylbIdObjectNode.put("shop_id", shopId);
-        }
         ylbIdObjectNode.put("id", ylbId);
-        ylbIdObjectNode.put("type", "易拉宝");
-        RequestBody body = RequestBody.create(mediaType, "{\"action_name\": \"QR_LIMIT_STR_SCENE\",  \"action_info\": { \"scene\": {  \"scene_str\": \"YLBId: "+ JacksonBuilder.MAPPER.writeValueAsString(ylbIdObjectNode)  + "}}}");
+        RequestBody body = RequestBody.create(mediaType, "{\"action_name\": \"QR_LIMIT_STR_SCENE\",  \"action_info\": { \"scene\": {  \"scene_str\": \"YLBId: "+ JacksonBuilder.MAPPER.writeValueAsString(ylbIdObjectNode)  + "\"}}}");
         Request request = new Request.Builder()
                 .url("https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=" + accessToken)
                 .method("POST", body)
@@ -433,7 +430,6 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         String accessToken;
         List<Long> ylbIdList = new ArrayList<>(positionList.size());
         Long ylbParamId;
-        String ylbTicket, shopYlbTicket;
         int pos = 0;
         int maxBatchSize = positionList.size();
         for (MaPosition positionEntry : positionList) {
@@ -517,5 +513,13 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
                 FileUtils.copyURLToFile(new URL(ylbShopQrCodeUrl), Paths.get(ylbSaveDir, seqNo + '-' + qrCodeUrl.getShopId() + ".png").toFile());
             }
         }
+    }
+
+    public static void main(String[] args) throws JsonProcessingException {
+        ObjectNode ylbIdObjectNode = JacksonBuilder.MAPPER.createObjectNode();
+        ylbIdObjectNode.put("shop_id", "432432");
+        ylbIdObjectNode.put("id", 23432);
+        ylbIdObjectNode.put("type", "易拉宝");
+        System.out.println(JacksonBuilder.MAPPER.writeValueAsString(ylbIdObjectNode));
     }
 }
