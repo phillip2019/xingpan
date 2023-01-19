@@ -92,8 +92,6 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             .build();
 
     /**
-     * TODO 解析易拉宝物料数据
-     * TODO 生成带参数的微信公众号二维码
      * @description 解析易拉宝物料数据
      * @author xiaowei.song
      * @date 2023/1/17 9:00
@@ -381,9 +379,13 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
      **/
     private void getWeChatOfficialQrCode(String accessToken, String shopId, Long ylbId, MaPosition positionEntry, MaPositionShop positionShop) throws IOException, CWxQrCodeException {
         MediaType mediaType = MediaType.parse("application/json");
-        ObjectNode ylbIdObjectNode = JacksonBuilder.MAPPER.createObjectNode();
-        ylbIdObjectNode.put("id", ylbId);
-        RequestBody body = RequestBody.create(mediaType, "{\"action_name\": \"QR_LIMIT_STR_SCENE\",  \"action_info\": { \"scene\": {  \"scene_str\": \"YLBId: "+ JacksonBuilder.MAPPER.writeValueAsString(ylbIdObjectNode)  + "\"}}}");
+        ObjectNode paramsObjectNode = JacksonBuilder.MAPPER.createObjectNode();
+        paramsObjectNode.put("action_name", "QR_LIMIT_STR_SCENE");
+        ObjectNode actionInfoObjectNode = JacksonBuilder.MAPPER.createObjectNode();
+        actionInfoObjectNode.put("scene", "YLBId: " + ylbId);
+        paramsObjectNode.set("action_info", actionInfoObjectNode);
+
+        RequestBody body = RequestBody.create(mediaType, JacksonBuilder.MAPPER.writeValueAsString(paramsObjectNode));
         Request request = new Request.Builder()
                 .url("https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=" + accessToken)
                 .method("POST", body)
@@ -440,13 +442,13 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             ylbIdList.add(ylbParamId);
             getWeChatOfficialQrCode(accessToken, null, ylbParamId, positionEntry, null);
 
-            // TODO 生成易拉宝店铺二维码
             for (MaPositionShop positionShop : positionEntry.getPositionShopList()) {
                 ylbParamId = saveYlbId2DB(positionEntry, positionShop, ts);
                 ylbIdList.add(ylbParamId);
                 getWeChatOfficialQrCode(accessToken, positionShop.getShopId(), ylbParamId, null, positionShop);
             }
         }
+        Thread.sleep(3 * 1000);
         // TODO 若执行失败，则删除生成的参数编号
     }
 
