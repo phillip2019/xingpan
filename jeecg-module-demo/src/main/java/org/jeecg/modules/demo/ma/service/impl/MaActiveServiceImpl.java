@@ -382,9 +382,11 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         ObjectNode paramsObjectNode = JacksonBuilder.MAPPER.createObjectNode();
         paramsObjectNode.put("action_name", "QR_LIMIT_STR_SCENE");
         ObjectNode actionInfoObjectNode = JacksonBuilder.MAPPER.createObjectNode();
-        actionInfoObjectNode.put("scene", "YLBId: " + ylbId);
         paramsObjectNode.set("action_info", actionInfoObjectNode);
+        ObjectNode sceneObjectNode = JacksonBuilder.MAPPER.createObjectNode();
+        sceneObjectNode.put("scene_str", "YLBId: " + ylbId);
 
+        actionInfoObjectNode.set("scene", sceneObjectNode);
         RequestBody body = RequestBody.create(mediaType, JacksonBuilder.MAPPER.writeValueAsString(paramsObjectNode));
         Request request = new Request.Builder()
                 .url("https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=" + accessToken)
@@ -443,6 +445,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             getWeChatOfficialQrCode(accessToken, null, ylbParamId, positionEntry, null);
 
             for (MaPositionShop positionShop : positionEntry.getPositionShopList()) {
+                Thread.sleep(100);
                 ylbParamId = saveYlbId2DB(positionEntry, positionShop, ts);
                 ylbIdList.add(ylbParamId);
                 getWeChatOfficialQrCode(accessToken, positionShop.getShopId(), ylbParamId, null, positionShop);
