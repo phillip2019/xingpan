@@ -232,7 +232,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
                     .setFloor(floor)
                     .setOwnerAccount(ownerAccount)
                     .setOwnerName(ownerName)
-                    .setStatus("启用")
+                    .setStatus(1)
             ;
 
             MaPositionAddress positionAddress = new MaPositionAddress();
@@ -242,7 +242,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
                     .setPositionAddressType(positionAddressType)
                     .setPositionAddressDetail(positionAddressDetail)
                     .setIndustryName(industryName)
-                    .setUsedStatus("启用")
+                    .setUsedStatus(1)
             ;
             maPosition.setPositionAddress(positionAddress);
 
@@ -411,14 +411,17 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
                     return;
                 }
                 String ticket = jsonNode.get("ticket").asText();
+                String url = jsonNode.get("url").asText();
                 if (positionShop != null) {
                     positionShop.setQrCodeTicket(ticket);
                     positionShop.setQrCodeUrl(String.format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=%s", URLEncoder.createDefault().encode(ticket, StandardCharsets.UTF_8)));
+                    positionShop.setUrl(url);
                 }
 
                 if (positionEntry != null) {
                     positionEntry.setQrCodeTicket(ticket);
                     positionEntry.setQrCodeUrl(String.format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=%s", URLEncoder.createDefault().encode(ticket, StandardCharsets.UTF_8)));
+                    positionEntry.setUrl(url);
                 }
             }
         });

@@ -63,7 +63,7 @@ public class MaPositionAddress implements Serializable {
 	/**点位位置状态*/
 	@Excel(name = "点位位置状态", width = 15)
     @ApiModelProperty(value = "点位位置状态")
-    private String usedStatus;
+    private Integer usedStatus;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
     private String createBy;

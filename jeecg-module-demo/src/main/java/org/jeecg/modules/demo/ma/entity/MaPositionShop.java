@@ -81,6 +81,10 @@ public class MaPositionShop implements Serializable {
 	@Excel(name = "点位店铺微信二维码链接", width = 15)
     @ApiModelProperty(value = "点位店铺微信二维码链接")
     private String qrCodeUrl;
+    /**公众号带参数二维码链接*/
+    @Excel(name = "公众号带参数二维码链接", width = 15)
+    @ApiModelProperty(value = "公众号带参数二维码链接")
+    private String url;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
     private String createBy;

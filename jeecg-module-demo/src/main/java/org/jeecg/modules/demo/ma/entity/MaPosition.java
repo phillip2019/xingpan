@@ -43,7 +43,7 @@ public class MaPosition implements Serializable {
 	/**点位类型*/
 	@Excel(name = "点位类型", width = 15)
     @ApiModelProperty(value = "点位类型")
-    private String positionType = "易拉宝";
+    private String positionType;
 	/**点位序号*/
 	@Excel(name = "序号", width = 15)
     @ApiModelProperty(value = "序号")
@@ -76,10 +76,14 @@ public class MaPosition implements Serializable {
 	@Excel(name = "微信二维码链接", width = 15)
     @ApiModelProperty(value = "微信二维码链接")
     private String qrCodeUrl;
+    /**公众号带参数二维码链接*/
+    @Excel(name = "公众号带参数二维码链接", width = 15)
+    @ApiModelProperty(value = "公众号带参数二维码链接")
+    private String url;
 	/**点位状态*/
 	@Excel(name = "点位状态", width = 15)
     @ApiModelProperty(value = "点位状态")
-    private String status;
+    private Integer status;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
     private String createBy;

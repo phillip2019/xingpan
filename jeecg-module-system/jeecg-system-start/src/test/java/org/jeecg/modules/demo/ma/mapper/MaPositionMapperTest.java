@@ -48,7 +48,7 @@ class MaPositionMapperTest {
                 .setOwnerName("张三")
                 .setQrCodeTicket("4234324")
                 .setQrCodeUrl("432432")
-                .setStatus("启用");
+                .setStatus(1);
         positionMapper.insertPositionReturnId(maPosition);
         assert maPosition.getId() != null;
     }
