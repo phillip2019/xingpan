@@ -1,18 +1,20 @@
 package org.jeecg.modules.demo.ma.controller;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.demo.ma.entity.MaPosition;
 import org.jeecg.modules.demo.ma.entity.MaPositionAddress;
+import org.jeecg.modules.demo.ma.mapper.MaPositionMapper;
 import org.jeecg.modules.demo.ma.service.IMaPositionAddressService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -20,6 +22,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.demo.ma.service.IMaPositionService;
+import org.jeecg.modules.demo.ma.service.impl.MaPositionServiceImpl;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -49,6 +53,9 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 public class MaPositionAddressController extends JeecgController<MaPositionAddress, IMaPositionAddressService> {
 	@Autowired
 	private IMaPositionAddressService maPositionAddressService;
+
+	 @Autowired
+	 private MaPositionMapper positionMapper;
 	
 	/**
 	 * 分页列表查询
@@ -66,7 +73,25 @@ public class MaPositionAddressController extends JeecgController<MaPositionAddre
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
-		QueryWrapper<MaPositionAddress> queryWrapper = QueryGenerator.initQueryWrapper(maPositionAddress, req.getParameterMap());
+		Map<String, String[]> requestMap = new HashMap<>(req.getParameterMap().size());
+		requestMap.putAll(req.getParameterMap());
+		List<Long> positionIdList = null;
+		// 若maPositionAddress中positionSeqNo非空，则转换positionSeqNo为positionId
+		if (StringUtils.isNotBlank(maPositionAddress.getPositionSeqNo())) {
+			QueryWrapper<MaPosition> maPositionQueryWrapper = new QueryWrapper<>();
+			maPositionQueryWrapper.eq("seq_no", maPositionAddress.getPositionSeqNo());
+			maPositionQueryWrapper.select("id");
+			MaPosition maPosition = positionMapper.selectOne(maPositionQueryWrapper);
+			List<MaPosition> positionList = positionMapper.selectList(maPositionQueryWrapper);
+			if (positionList == null) {
+				return Result.error(String.format("序号: %s查询为空，请检查序号", maPositionAddress.getPositionSeqNo()));
+			}
+			positionIdList = positionList.stream().map(MaPosition::getId).collect(Collectors.toList());
+		}
+		QueryWrapper<MaPositionAddress> queryWrapper = QueryGenerator.initQueryWrapper(maPositionAddress, requestMap);
+		if (positionIdList != null) {
+			queryWrapper.in("position_id", positionIdList);
+		}
 		Page<MaPositionAddress> page = new Page<MaPositionAddress>(pageNo, pageSize);
 		IPage<MaPositionAddress> pageList = maPositionAddressService.page(page, queryWrapper);
 		return Result.OK(pageList);
