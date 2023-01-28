@@ -35,7 +35,7 @@ public class MaPosition implements Serializable {
 	/**主键编号*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "主键编号")
-    private Long id;
+    private String id;
 	/**点位编号*/
 	@Excel(name = "点位编号", width = 15)
     @ApiModelProperty(value = "点位编号")

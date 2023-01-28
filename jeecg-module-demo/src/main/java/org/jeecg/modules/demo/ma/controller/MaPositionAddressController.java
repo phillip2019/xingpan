@@ -75,7 +75,7 @@ public class MaPositionAddressController extends JeecgController<MaPositionAddre
 								   HttpServletRequest req) {
 		Map<String, String[]> requestMap = new HashMap<>(req.getParameterMap().size());
 		requestMap.putAll(req.getParameterMap());
-		List<Long> positionIdList = null;
+		List<String> positionIdList = null;
 		// 若maPositionAddress中positionSeqNo非空，则转换positionSeqNo为positionId
 		if (StringUtils.isNotBlank(maPositionAddress.getPositionSeqNo())) {
 			QueryWrapper<MaPosition> maPositionQueryWrapper = new QueryWrapper<>();

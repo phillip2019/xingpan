@@ -34,12 +34,12 @@ public class MaPositionShop implements Serializable {
 	/**主键编号*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "主键编号")
-    private Long id;
+    private String id;
 	/**点位ID*/
 	@Excel(name = "点位ID", width = 15, dictTable = "ma_position", dicText = "id", dicCode = "id")
 	@Dict(dictTable = "ma_position", dicText = "id", dicCode = "id")
     @ApiModelProperty(value = "点位ID")
-    private Long positionId;
+    private String positionId;
 	/**点位编号*/
 	@Excel(name = "点位编号", width = 15, dictTable = "ma_position", dicText = "position_no", dicCode = "position_no")
 	@Dict(dictTable = "ma_position", dicText = "position_no", dicCode = "position_no")
