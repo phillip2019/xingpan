@@ -83,7 +83,7 @@ public class MaPositionAddressController extends JeecgController<MaPositionAddre
 			maPositionQueryWrapper.select("id");
 			MaPosition maPosition = positionMapper.selectOne(maPositionQueryWrapper);
 			List<MaPosition> positionList = positionMapper.selectList(maPositionQueryWrapper);
-			if (positionList == null) {
+			if (positionList == null || positionList.size() == 0) {
 				return Result.error(String.format("序号: %s查询为空，请检查序号", maPositionAddress.getPositionSeqNo()));
 			}
 			positionIdList = positionList.stream().map(MaPosition::getId).collect(Collectors.toList());
