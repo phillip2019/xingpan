@@ -89,7 +89,7 @@ public class MaPositionAddressController extends JeecgController<MaPositionAddre
 			positionIdList = positionList.stream().map(MaPosition::getId).collect(Collectors.toList());
 		}
 		QueryWrapper<MaPositionAddress> queryWrapper = QueryGenerator.initQueryWrapper(maPositionAddress, requestMap);
-		if (positionIdList != null) {
+		if (positionIdList != null && positionIdList.size() > 0) {
 			queryWrapper.in("position_id", positionIdList);
 		}
 		Page<MaPositionAddress> page = new Page<MaPositionAddress>(pageNo, pageSize);
