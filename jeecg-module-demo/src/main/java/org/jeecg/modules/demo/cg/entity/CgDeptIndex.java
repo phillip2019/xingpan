@@ -35,18 +35,14 @@ public class CgDeptIndex implements Serializable {
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "id")
     private Integer id;
-	/**一级部门*/
-	@Excel(name = "一级部门", width = 15)
-    @ApiModelProperty(value = "一级部门")
-    private String firstLevelDept;
+	/**部门编号*/
+	@Excel(name = "部门编号", width = 15)
+    @ApiModelProperty(value = "部门编号")
+    private String deptId;
 	/**一级部门负责人*/
 	@Excel(name = "一级部门负责人", width = 15)
     @ApiModelProperty(value = "一级部门负责人")
     private String firstLevelOwner;
-	/**二级部门*/
-	@Excel(name = "二级部门", width = 15)
-    @ApiModelProperty(value = "二级部门")
-    private String secondLevelDept;
 	/**二级部门负责人*/
 	@Excel(name = "二级部门负责人", width = 15)
     @ApiModelProperty(value = "二级部门负责人")
