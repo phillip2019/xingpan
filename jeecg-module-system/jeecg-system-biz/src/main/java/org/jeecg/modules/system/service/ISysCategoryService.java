@@ -43,6 +43,14 @@ public interface ISysCategoryService extends IService<SysCategory> {
      * @throws JeecgBootException
 	 */
 	public List<TreeSelectModel> queryListByCode(String pcode) throws JeecgBootException;
+
+	/**
+	 * 根据叶子编号列表加载指定分类字典的数据，
+	 * @param ids
+	 * @return
+	 * @throws JeecgBootException
+	 */
+	public List<TreeSelectModel> queryListByIds(List<Long> ids) throws JeecgBootException;
 	
 	/**
 	  * 根据pid查询子节点集合

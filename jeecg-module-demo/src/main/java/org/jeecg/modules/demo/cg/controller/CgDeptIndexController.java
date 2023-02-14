@@ -49,7 +49,9 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 public class CgDeptIndexController extends JeecgController<CgDeptIndex, ICgDeptIndexService> {
 	@Autowired
 	private ICgDeptIndexService cgDeptIndexService;
-	
+
+	 @Autowired
+	 private ISysCategoryService sysCategoryService;
 	/**
 	 * 分页列表查询
 	 *
@@ -69,6 +71,20 @@ public class CgDeptIndexController extends JeecgController<CgDeptIndex, ICgDeptI
 		QueryWrapper<CgDeptIndex> queryWrapper = QueryGenerator.initQueryWrapper(cgDeptIndex, req.getParameterMap());
 		Page<CgDeptIndex> page = new Page<CgDeptIndex>(pageNo, pageSize);
 		IPage<CgDeptIndex> pageList = cgDeptIndexService.page(page, queryWrapper);
+
+		//批量查询用户的所属部门
+		//step.1 先拿到全部的 deptIds
+		//step.2 通过 deptIds，一次性查询用户的所属部门名字
+		List<String> deptIds = pageList.getRecords().stream().map(CgDeptIndex::getDeptId).collect(Collectors.toList());
+		if(deptIds != null && deptIds.size()>0){
+			Map<String,String>  useDepNames = sysCategoryService.queryListByCode(deptIds);
+			pageList.getRecords().forEach(item->{
+				item.setOrgCodeTxt(useDepNames.get(item.getId()));
+			});
+		}
+		result.setSuccess(true);
+		result.setResult(pageList);
+
 		return Result.OK(pageList);
 	}
 	

@@ -93,6 +93,11 @@ public class SysCategoryServiceImpl extends ServiceImpl<SysCategoryMapper, SysCa
 	}
 
 	@Override
+	public List<TreeSelectModel> queryListByIds(List<Long> ids) throws JeecgBootException {
+		return ;
+	}
+
+	@Override
 	public List<TreeSelectModel> queryListByPid(String pid) {
 		if(oConvertUtils.isEmpty(pid)) {
 			pid = ROOT_PID_VALUE;
@@ -121,7 +126,7 @@ public class SysCategoryServiceImpl extends ServiceImpl<SysCategoryMapper, SysCa
 		//1.删除时将节点下所有子节点一并删除
 		this.baseMapper.deleteBatchIds(Arrays.asList(allIds.split(",")));
 		//2.将父节点中已经没有下级的节点，修改为没有子节点
-		if(oConvertUtils.isNotEmpty(pids)){
+		if(oConvertUtils.isNotEmpty(pids)) {
 			LambdaUpdateWrapper<SysCategory> updateWrapper = new UpdateWrapper<SysCategory>()
 					.lambda()
 					.in(SysCategory::getId,Arrays.asList(pids.split(",")))
@@ -192,7 +197,7 @@ public class SysCategoryServiceImpl extends ServiceImpl<SysCategoryMapper, SysCa
 	 * @param sb
 	 * @return
 	 */
-	private StringBuffer getTreeChildIds(String pidVal,StringBuffer sb){
+	private StringBuffer getTreeChildIds(String pidVal, StringBuffer sb){
 		LambdaQueryWrapper<SysCategory> queryWrapper = new LambdaQueryWrapper<>();
 		queryWrapper.eq(SysCategory::getPid,pidVal);
 		List<SysCategory> dataList = baseMapper.selectList(queryWrapper);
