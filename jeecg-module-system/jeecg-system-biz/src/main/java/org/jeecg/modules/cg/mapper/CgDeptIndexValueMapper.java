@@ -1,9 +1,6 @@
-package org.jeecg.modules.demo.cg.mapper;
+package org.jeecg.modules.cg.mapper;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-import org.jeecg.modules.demo.cg.entity.CgDeptIndexValue;
+import org.jeecg.modules.cg.entity.CgDeptIndexValue;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

@@ -1,17 +1,13 @@
-package org.jeecg.modules.demo.cg.entity;
+package org.jeecg.modules.cg.entity;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
-import org.jeecg.common.aspect.annotation.Dict;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
@@ -38,6 +34,10 @@ public class CgDeptIndex implements Serializable {
 	@Excel(name = "部门编号", width = 15)
     @ApiModelProperty(value = "部门编号")
     private String deptId;
+    /**部门名称*/
+    @Excel(name = "部门名称", width = 15)
+    @ApiModelProperty(value = "部门名称")
+    private String deptText;
 	/**一级部门负责人*/
 	@Excel(name = "一级部门负责人", width = 15)
     @ApiModelProperty(value = "一级部门负责人")

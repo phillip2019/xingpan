@@ -50,7 +50,7 @@ public interface ISysCategoryService extends IService<SysCategory> {
 	 * @return
 	 * @throws JeecgBootException
 	 */
-	public List<TreeSelectModel> queryListByIds(List<Long> ids) throws JeecgBootException;
+	public List<SysCategory> queryListByIds(List<String> ids) throws JeecgBootException;
 	
 	/**
 	  * 根据pid查询子节点集合

@@ -1,8 +1,8 @@
-package org.jeecg.modules.demo.cg.service.impl;
+package org.jeecg.modules.cg.service.impl;
 
-import org.jeecg.modules.demo.cg.entity.CgDeptIndexValue;
-import org.jeecg.modules.demo.cg.mapper.CgDeptIndexValueMapper;
-import org.jeecg.modules.demo.cg.service.ICgDeptIndexValueService;
+import org.jeecg.modules.cg.entity.CgDeptIndexValue;
+import org.jeecg.modules.cg.mapper.CgDeptIndexValueMapper;
+import org.jeecg.modules.cg.service.ICgDeptIndexValueService;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

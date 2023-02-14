@@ -93,8 +93,9 @@ public class SysCategoryServiceImpl extends ServiceImpl<SysCategoryMapper, SysCa
 	}
 
 	@Override
-	public List<TreeSelectModel> queryListByIds(List<Long> ids) throws JeecgBootException {
-		return ;
+	public List<SysCategory> queryListByIds(List<String> ids) throws JeecgBootException {
+		List<SysCategory> sysCategoryList = baseMapper.selectList(new LambdaQueryWrapper<SysCategory>().in(ids.size() > 0, SysCategory::getId, ids));
+		return sysCategoryList;
 	}
 
 	@Override

@@ -1,37 +1,28 @@
-package org.jeecg.modules.demo.cg.controller;
+package org.jeecg.modules.cg.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.demo.cg.entity.CgDeptIndex;
-import org.jeecg.modules.demo.cg.service.ICgDeptIndexService;
+import org.jeecg.modules.cg.entity.CgDeptIndex;
+import org.jeecg.modules.cg.service.ICgDeptIndexService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jeecg.modules.system.entity.SysCategory;
+import org.jeecg.modules.system.service.ISysCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -74,12 +65,16 @@ public class CgDeptIndexController extends JeecgController<CgDeptIndex, ICgDeptI
 
 		//批量查询用户的所属部门
 		//step.1 先拿到全部的 deptIds
-		//step.2 通过 deptIds，一次性查询用户的所属部门名字
+		//step.2 通过 deptIds，一次性查询指标的所属部门名字
 		List<String> deptIds = pageList.getRecords().stream().map(CgDeptIndex::getDeptId).collect(Collectors.toList());
-		if(deptIds != null && deptIds.size()>0){
-			Map<String,String>  useDepNames = sysCategoryService.queryListByCode(deptIds);
+		if(deptIds.size() > 0){
+			List<SysCategory>  sysCategoryList = sysCategoryService.queryListByIds(deptIds);
+			Map<String, String> deptId2DeptName = new HashMap<>(sysCategoryList.size());
+			for (SysCategory category : sysCategoryList) {
+				deptId2DeptName.put(category.getId(), category.getName());
+			}
 			pageList.getRecords().forEach(item->{
-				item.setOrgCodeTxt(useDepNames.get(item.getId()));
+				item.setDeptText(deptId2DeptName.get(item.getDeptId()));
 			});
 		}
 		result.setSuccess(true);
