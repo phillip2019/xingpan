@@ -37,7 +37,7 @@ public class CgDeptIndex implements Serializable {
     /**部门名称*/
     @Excel(name = "部门名称", width = 15)
     @ApiModelProperty(value = "部门名称")
-    private String deptText;
+    private transient String deptText;
 	/**一级部门负责人*/
 	@Excel(name = "一级部门负责人", width = 15)
     @ApiModelProperty(value = "一级部门负责人")

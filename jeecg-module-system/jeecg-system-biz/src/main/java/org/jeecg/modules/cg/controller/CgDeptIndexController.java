@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.modules.system.entity.SysCategory;
+import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.service.ISysCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,7 @@ public class CgDeptIndexController extends JeecgController<CgDeptIndex, ICgDeptI
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
+		Result<IPage<CgDeptIndex>> result = new Result<>();
 		QueryWrapper<CgDeptIndex> queryWrapper = QueryGenerator.initQueryWrapper(cgDeptIndex, req.getParameterMap());
 		Page<CgDeptIndex> page = new Page<CgDeptIndex>(pageNo, pageSize);
 		IPage<CgDeptIndex> pageList = cgDeptIndexService.page(page, queryWrapper);
