@@ -98,6 +98,7 @@ public class EtChinagoodsServiceImpl extends ServiceImpl<EtChinagoodsMapper, EtC
 
         String distinctId = etChinagoods.getDistinctId();
         String event = etChinagoods.getEvent();
+        String ip = etChinagoods.getIp();
         String project = req.getParameter("project");
         String platformType = req.getParameter("platformType");
         int batchSize = Integer.parseInt(req.getParameter("batchSize"));
@@ -124,6 +125,7 @@ public class EtChinagoodsServiceImpl extends ServiceImpl<EtChinagoodsMapper, EtC
             List<EtChinagoods> tmpResultList = Streams.stream(records)
                     .map(record -> EventTracking.of(record.value()))
                     .filter((et) -> !NOT_NEED_EVENT.contains(et.getEvent()) && StringUtils.isNotBlank(et.getEvent()))
+                    .filter((et) -> ip.equals(et.getIp()))
                     .map(EventTracking::toChinagoods)
                     .filter(et -> {
                         boolean ret = true;
