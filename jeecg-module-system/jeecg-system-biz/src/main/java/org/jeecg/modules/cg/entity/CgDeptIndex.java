@@ -29,7 +29,7 @@ public class CgDeptIndex implements Serializable {
 
 	/**id*/
     @ApiModelProperty(value = "id")
-    private Integer id;
+    private Long id;
 	/**部门编号*/
 	@Excel(name = "部门编号", width = 15)
     @ApiModelProperty(value = "部门编号")

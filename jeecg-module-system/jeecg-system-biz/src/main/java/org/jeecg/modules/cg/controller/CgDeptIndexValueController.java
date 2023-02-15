@@ -1,11 +1,17 @@
 package org.jeecg.modules.cg.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.modules.cg.entity.CgDeptIndex;
 import org.jeecg.modules.cg.entity.CgDeptIndexValue;
+import org.jeecg.modules.cg.service.ICgDeptIndexService;
 import org.jeecg.modules.cg.service.ICgDeptIndexValueService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,6 +20,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jeecg.modules.system.entity.SysCategory;
+import org.jeecg.modules.system.service.ISysCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -34,7 +42,13 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 public class CgDeptIndexValueController extends JeecgController<CgDeptIndexValue, ICgDeptIndexValueService> {
 	@Autowired
 	private ICgDeptIndexValueService cgDeptIndexValueService;
-	
+
+	 @Autowired
+	 private ICgDeptIndexService cgDeptIndexService;
+
+	 @Autowired
+	 private ISysCategoryService sysCategoryService;
+
 	/**
 	 * 分页列表查询
 	 *
@@ -51,9 +65,38 @@ public class CgDeptIndexValueController extends JeecgController<CgDeptIndexValue
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
+		Result<IPage<CgDeptIndexValue>> result = new Result<>();
 		QueryWrapper<CgDeptIndexValue> queryWrapper = QueryGenerator.initQueryWrapper(cgDeptIndexValue, req.getParameterMap());
 		Page<CgDeptIndexValue> page = new Page<CgDeptIndexValue>(pageNo, pageSize);
 		IPage<CgDeptIndexValue> pageList = cgDeptIndexValueService.page(page, queryWrapper);
+
+		//批量指标值的所属指标编号
+		//step.1 先拿到全部的 indexIds
+		//step.2 通过 deptIds，一次性查询指标的所属部门名字
+		List<Long> indexIds = pageList.getRecords().stream().map(CgDeptIndexValue::getDeptIndexId).map(Long::valueOf).collect(Collectors.toList());
+		if (indexIds.size() > 0) {
+			List<CgDeptIndex> cgDeptIndexList = cgDeptIndexService.listByIds(indexIds);
+
+			List<String> deptIds = cgDeptIndexList.stream().map(CgDeptIndex::getDeptId).collect(Collectors.toList());
+			List<SysCategory>  sysCategoryList = sysCategoryService.queryListByIds(deptIds);
+			Map<String, String> deptId2DeptName = new HashMap<>(sysCategoryList.size());
+			for (SysCategory category : sysCategoryList) {
+				deptId2DeptName.put(category.getId(), category.getName());
+			}
+
+			Map<Long, CgDeptIndex> deptIndexId2DeptIndexM = new HashMap<>(cgDeptIndexList.size());
+			for (CgDeptIndex deptIndex : cgDeptIndexList) {
+				deptIndexId2DeptIndexM.put(deptIndex.getId(), deptIndex);
+			}
+			pageList.getRecords().forEach(item->{
+				CgDeptIndex deptIndex = deptIndexId2DeptIndexM.get(Long.valueOf(item.getDeptIndexId()));
+				item.setDeptText(deptId2DeptName.get(deptIndex.getDeptId()));
+				item.setDeptId(deptIndex.getDeptId());
+				item.setIndexNameZh(deptIndex.getIndexNameZh());
+			});
+		}
+		result.setSuccess(true);
+		result.setResult(pageList);
 		return Result.OK(pageList);
 	}
 	
