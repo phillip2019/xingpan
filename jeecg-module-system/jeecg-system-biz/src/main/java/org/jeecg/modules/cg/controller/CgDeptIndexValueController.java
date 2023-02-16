@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.modules.cg.entity.CgDeptIndex;
@@ -65,8 +67,20 @@ public class CgDeptIndexValueController extends JeecgController<CgDeptIndexValue
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
+		// 若请求参数中包含部门，则先查询部门编号对应的指标编号
+		List<Long> indexIdList = null;
+		if (StringUtils.isNotBlank(cgDeptIndexValue.getDeptId())) {
+			Map<String, Object> queryMapParam = new HashMap<String, Object>() {{
+				put("dept_id", cgDeptIndexValue.getDeptId());
+			}};
+			List<CgDeptIndex> indexList = cgDeptIndexService.listByMap(queryMapParam);
+			indexIdList = indexList.stream().map(CgDeptIndex::getId).collect(Collectors.toList());
+		}
 		Result<IPage<CgDeptIndexValue>> result = new Result<>();
 		QueryWrapper<CgDeptIndexValue> queryWrapper = QueryGenerator.initQueryWrapper(cgDeptIndexValue, req.getParameterMap());
+		if (indexIdList != null && indexIdList.size() > 0) {
+			queryWrapper.in("dept_index_id", indexIdList);
+		}
 		Page<CgDeptIndexValue> page = new Page<CgDeptIndexValue>(pageNo, pageSize);
 		IPage<CgDeptIndexValue> pageList = cgDeptIndexValueService.page(page, queryWrapper);
 

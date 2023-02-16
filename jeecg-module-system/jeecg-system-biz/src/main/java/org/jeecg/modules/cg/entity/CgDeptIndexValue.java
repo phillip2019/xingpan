@@ -2,6 +2,7 @@ package org.jeecg.modules.cg.entity;
 
 import java.io.Serializable;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -36,14 +37,17 @@ public class CgDeptIndexValue implements Serializable {
     /**部门编号*/
     @Excel(name = "部门编号", width = 15)
     @ApiModelProperty(value = "部门编号")
+    @TableField(exist = false)
     private transient String deptId;
     /**部门名称*/
     @Excel(name = "部门名称", width = 15)
     @ApiModelProperty(value = "部门名称")
+    @TableField(exist = false)
     private transient String deptText;
     /**指标名称中文名*/
     @Excel(name = "指标名称中文名", width = 15)
     @ApiModelProperty(value = "指标名称中文名")
+    @TableField(exist = false)
     private transient String indexNameZh;
 	/**部门值*/
 	@Excel(name = "部门值", width = 15)
