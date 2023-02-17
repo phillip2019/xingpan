@@ -125,12 +125,18 @@ public class EtChinagoodsServiceImpl extends ServiceImpl<EtChinagoodsMapper, EtC
             List<EtChinagoods> tmpResultList = Streams.stream(records)
                     .map(record -> EventTracking.of(record.value()))
                     .filter((et) -> !NOT_NEED_EVENT.contains(et.getEvent()) && StringUtils.isNotBlank(et.getEvent()))
-                    .filter((et) -> ip.equals(et.getIp()))
                     .map(EventTracking::toChinagoods)
                     .filter(et -> {
                         boolean ret = true;
                         if (StringUtils.isNotBlank(distinctId)) {
                             ret = StringUtils.equals(distinctId, et.getDistinctId());
+                            if (!ret) {
+                                return false;
+                            }
+                        }
+
+                        if (StringUtils.isNotBlank(ip)) {
+                            ret = StringUtils.equals(ip, et.getIp());
                             if (!ret) {
                                 return false;
                             }
