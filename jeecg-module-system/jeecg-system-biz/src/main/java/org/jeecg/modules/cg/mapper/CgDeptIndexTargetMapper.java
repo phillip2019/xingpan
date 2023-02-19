@@ -1,0 +1,17 @@
+package org.jeecg.modules.demo.cg.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import org.jeecg.modules.demo.cg.entity.CgDeptIndexTarget;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+/**
+ * @Description: cg_dept_index_target
+ * @Author: jeecg-boot
+ * @Date:   2023-02-19
+ * @Version: V1.0
+ */
+public interface CgDeptIndexTargetMapper extends BaseMapper<CgDeptIndexTarget> {
+
+}

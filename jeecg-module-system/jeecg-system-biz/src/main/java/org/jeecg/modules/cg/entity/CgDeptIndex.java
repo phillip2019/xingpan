@@ -58,6 +58,10 @@ public class CgDeptIndex implements Serializable {
 	@Excel(name = "指标释义", width = 15)
     @ApiModelProperty(value = "指标释义")
     private String indexInterpretation;
+    /**指标单位*/
+    @Excel(name = "指标单位*/", width = 15)
+    @ApiModelProperty(value = "指标单位*/")
+    private String indexUnit;
 	/**指标周期, 累计|日|周|月|季度|年*/
 	@Excel(name = "指标周期, 累计|日|周|月|季度|年", width = 15)
     @ApiModelProperty(value = "指标周期, 累计|日|周|月|季度|年")
@@ -78,6 +82,14 @@ public class CgDeptIndex implements Serializable {
 	@Excel(name = "在天的小时填报结束", width = 15)
     @ApiModelProperty(value = "在天的小时填报结束")
     private String dayHourOver;
+    /**指标状态*/
+    @Excel(name = "指标状态", width = 15)
+    @ApiModelProperty(value = "指标状态")
+    private Integer status;
+    /**指标填报状态*/
+    @Excel(name = "指标填报状态", width = 15)
+    @ApiModelProperty(value = "指标填报状态")
+    private Integer indexFillingMethod;
 	/**活动备注*/
 	@Excel(name = "活动备注", width = 15)
     @ApiModelProperty(value = "活动备注")
