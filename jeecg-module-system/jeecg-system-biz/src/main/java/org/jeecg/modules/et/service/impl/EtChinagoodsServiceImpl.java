@@ -125,6 +125,7 @@ public class EtChinagoodsServiceImpl extends ServiceImpl<EtChinagoodsMapper, EtC
             List<EtChinagoods> tmpResultList = Streams.stream(records)
                     .map(record -> EventTracking.of(record.value()))
                     .filter((et) -> !NOT_NEED_EVENT.contains(et.getEvent()) && StringUtils.isNotBlank(et.getEvent()))
+                    .filter((et) -> !"foreigner_credit".equals(et.getProject()))
                     .map(EventTracking::toChinagoods)
                     .filter(et -> {
                         boolean ret = true;
