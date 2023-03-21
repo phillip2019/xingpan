@@ -33,7 +33,6 @@ public class CgDeptIndexTarget implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**id*/
-	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "id")
     private java.lang.Integer id;
 	/**指标编号*/
