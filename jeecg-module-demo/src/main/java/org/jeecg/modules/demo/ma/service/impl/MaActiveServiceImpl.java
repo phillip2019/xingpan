@@ -44,6 +44,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 活动
@@ -576,6 +577,28 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
     }
 
     /**
+     * @description 基于活动编号，检查输入商铺台卡店铺物料，生成台卡店铺二维码，返回商铺台卡店铺二维码列表
+     * @author xiaowei.song
+     * @date 2023/4/4 10:15
+     * @version v1.0.0
+     **/
+    private List<MaTaiKaShop> preCheckImportTaiKaExcel(Long activeId, List<MaActiveTaiKaMaterial> maActiveTaiKaMaterialList) throws CRequestParamException {
+        // 检查活动编号是否存在，若不存在抛出异常
+        MaActive maActive = getById(activeId);
+        if (maActive == null) {
+            throw new CRequestParamException(String.format("活动编号: %s, 不存在，请先选中活动，再导入商铺台卡店铺物料！", activeId));
+        }
+        // 得到需要处理的shopIds
+        List<String> shopIdsFE =   maActiveTaiKaMaterialList.stream().filter(Objects::nonNull).filter(e -> StringUtils.isNotBlank(e.getShopId())).map(MaActiveTaiKaMaterial::getShopId).collect(Collectors.toList());
+        // 通过shopId去查询店铺维表详情信息
+
+
+        List<MaTaiKaShop> taiKaShopList = new ArrayList<>(maActiveTaiKaMaterialList.size());
+
+        return taiKaShopList;
+    }
+
+    /**
      * @description 基于活动编号，输入商铺台卡物料，生成商铺台卡店铺点位
      * @author xiaowei.song
      * @date 2023/04/04 10:15
@@ -584,7 +607,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
     @Transactional(rollbackFor = Exception.class)
     public void saveTaiKaBatch(Long activeId, List<MaActiveTaiKaMaterial> maActiveTaiKaMaterialList) throws Exception {
         log.info("预检查活动: {}, 商铺台卡excel", activeId);
-        List<MaPosition> positionList = preCheckImportYlbExcel(activeId, maActiveTaiKaMaterialList);
+        List<MaTaiKaShop> positionList = preCheckImportTaiKaExcel(activeId, maActiveTaiKaMaterialList);
 
         log.info("活动: {}, 生成易拉宝微信公众号带参二维码和易拉宝店铺微信公众号带参二维码， 点位数量为: {}", activeId, positionList.size());
         generateWeChatOfficialQrCode(positionList);
