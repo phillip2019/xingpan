@@ -338,6 +338,12 @@
                 <artifactId>jimureport-nosql-starter</artifactId>
                 <version>${jimureport-spring-boot-starter.version}</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/com.facebook.presto/presto-jdbc -->
+            <dependency>
+                <groupId>com.facebook.presto</groupId>
+                <artifactId>presto-jdbc</artifactId>
+                <version>0.279</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

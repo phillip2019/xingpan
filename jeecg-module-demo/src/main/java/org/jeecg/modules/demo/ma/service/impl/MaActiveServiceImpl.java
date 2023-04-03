@@ -523,6 +523,94 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         }
     }
 
+    /**
+     * 导入商铺台卡物料数据
+     *
+     * @param activeId 活动编号
+     * @param request  请求体
+     * @param response 返回体
+     * @param clazz    商铺台卡前端物料表
+     * @return 导入消息
+     */
+    @Override
+    public Result<?> importTaiKaExcel(Long activeId, HttpServletRequest request, HttpServletResponse response, Class<MaActiveTaiKaMaterial> clazz) {
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+        for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+            // 获取上传文件对象
+            MultipartFile file = entity.getValue();
+            ImportParams params = new ImportParams();
+            params.setTitleRows(2);
+            params.setHeadRows(1);
+            params.setNeedSave(true);
+            try {
+                List<MaActiveTaiKaMaterial> list = ExcelImportUtil.importExcel(file.getInputStream(), clazz, params);
+                log.info("导入活动编号: {}, 店铺数量: {}", activeId, list.size());
+                //update-begin-author:taoyan date:20190528 for:批量插入数据
+                long start = System.currentTimeMillis();
+                saveTaiKaBatch(activeId, list);
+                //400条 saveBatch消耗时间1592毫秒  循环插入消耗时间1947毫秒
+                //1200条  saveBatch消耗时间3687毫秒 循环插入消耗时间5212毫秒
+                log.info("消耗时间" + (System.currentTimeMillis() - start) + "毫秒");
+                //update-end-author:taoyan date:20190528 for:批量插入数据
+                return Result.ok("文件导入成功！数据行数：" + list.size());
+            } catch (Exception e) {
+                //update-begin-author:taoyan date:20211124 for: 导入数据重复增加提示
+                String msg = e.getMessage();
+                log.error(msg, e);
+                if(msg != null && msg.contains("Duplicate entry")){
+                    return Result.error("文件导入失败:有重复数据！");
+                } else {
+                    return Result.error("文件导入失败:" + e.getMessage());
+                }
+                //update-end-author:taoyan date:20211124 for: 导入数据重复增加提示
+            } finally {
+                try {
+                    file.getInputStream().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return Result.error("文件导入失败！");
+    }
+
+    /**
+     * @description 基于活动编号，输入商铺台卡物料，生成商铺台卡店铺点位
+     * @author xiaowei.song
+     * @date 2023/04/04 10:15
+     * @version v1.0.0
+     **/
+    @Transactional(rollbackFor = Exception.class)
+    public void saveTaiKaBatch(Long activeId, List<MaActiveTaiKaMaterial> maActiveTaiKaMaterialList) throws Exception {
+        log.info("预检查活动: {}, 商铺台卡excel", activeId);
+        List<MaPosition> positionList = preCheckImportYlbExcel(activeId, maActiveTaiKaMaterialList);
+
+        log.info("活动: {}, 生成易拉宝微信公众号带参二维码和易拉宝店铺微信公众号带参二维码， 点位数量为: {}", activeId, positionList.size());
+        generateWeChatOfficialQrCode(positionList);
+
+        log.info("活动: {}, 保存点位、点位地址和点位店铺信息", activeId);
+        List<MaPositionShop> preSavePositionShopList = new ArrayList<>(1000);
+        for (MaPosition maPositionDTO : positionList) {
+            // 提交生成易拉宝点位信息
+            positionMapper.insertPositionReturnId(maPositionDTO);
+            // 生成易拉宝点位店铺
+            maPositionDTO.getPositionAddress().setPositionId(maPositionDTO.getId());
+            positionAddressMapper.insert(maPositionDTO.getPositionAddress());
+
+            for (MaPositionShop positionShop : maPositionDTO.getPositionShopList()) {
+                positionShop.setPositionId(maPositionDTO.getId());
+            }
+            preSavePositionShopList.addAll(maPositionDTO.getPositionShopList());
+            if (preSavePositionShopList.size() >= 996) {
+                positionShopService.saveBatch(preSavePositionShopList);
+                preSavePositionShopList.clear();
+            }
+        }
+        if (preSavePositionShopList.size() > 0) {
+            positionShopService.saveBatch(preSavePositionShopList);
+        }
+    }
     public static void main(String[] args) throws JsonProcessingException {
         ObjectNode ylbIdObjectNode = JacksonBuilder.MAPPER.createObjectNode();
         ylbIdObjectNode.put("shop_id", "432432");

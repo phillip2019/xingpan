@@ -3,6 +3,7 @@ package org.jeecg.modules.demo.ma.service;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.demo.ma.entity.MaActive;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.jeecg.modules.demo.ma.entity.MaActiveTaiKaMaterial;
 import org.jeecg.modules.demo.ma.entity.MaActiveYlbMaterial;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,4 +38,16 @@ public interface IMaActiveService extends IService<MaActive> {
      * @throws IOException 网络异常
      */
     void downloadActiveQrCode(Long activeId, String srcSource) throws IOException;
+
+
+    /**
+     * 导入商铺台卡物料数据
+     *
+     * @param activeId 活动编号
+     * @param request 请求体
+     * @param response 返回体
+     * @param clazz 商铺台卡前端物料表
+     * @return 导入消息
+     */
+    Result<?> importTaiKaExcel(Long activeId, HttpServletRequest request, HttpServletResponse response, Class<MaActiveTaiKaMaterial> clazz);
 }

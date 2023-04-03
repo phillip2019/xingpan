@@ -17,6 +17,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.config.JeecgBaseConfig;
 import org.jeecg.modules.demo.ma.entity.MaActive;
 import org.jeecg.modules.demo.ma.entity.MaActiveYlbMaterial;
+import org.jeecg.modules.demo.ma.entity.MaActiveTaiKaMaterial;
 import org.jeecg.modules.demo.ma.service.IMaActiveService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -26,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import io.swagger.annotations.Api;
@@ -205,6 +205,58 @@ public class MaActiveController extends JeecgController<MaActive, IMaActiveServi
 		 //将文件进行打包下载
 		 try (OutputStream out =  response.getOutputStream()) {
 		 	String targetFile = targetActiveSrcSource + ".zip";
+			 log.info("活动: {} 开始压缩微信公众号带参二维码目录: {} 到文件: {}中", activeId, targetActiveSrcSource, targetFile);
+			 // 先将文件压缩成active_id.zip，再删除此文件
+			 ZipUtil.zip(targetActiveSrcSource, targetFile);
+			 //将目标文件打包成zip导出
+			 File file = new File(targetFile);
+			 // 重置返回内容
+			 response.reset();
+			 try(FileInputStream fis = FileUtils.openInputStream(file)) {
+				 IOUtils.copy(fis, out);
+			 }
+			 // 删除压缩好的包
+			 FileUtil.del(file);
+			 // 此处没用，前端会重新覆盖
+			 response.setHeader("Content-Disposition","attachment;fileName="+downloadName);
+			 response.setContentType("application/octet-stream;charset=UTF-8");
+			 out.flush();
+		 } catch (Exception e) {
+			 log.error("目录: {} 打包下载失败，请重新再试!", targetActiveSrcSource, e);
+		 }
+	 }
+
+	 /**
+	  * 通过excel导入商位台卡店铺数据
+	  * @param request
+	  * @param response
+	  * @return
+	  */
+	 //@RequiresPermissions("ma_active:importExcel")
+	 @RequestMapping(value = "/importTaiKaExcel", method = RequestMethod.POST)
+	 public Result<?> importTaiKaExcel(@NotNull(message = "活动编号必填") @RequestParam("id") Long activeId, HttpServletRequest request, HttpServletResponse response) {
+		 log.info("开始导入活动编号： {}商位台卡店铺物料", activeId);
+		 return maActiveService.importTaiKaExcel(activeId, request, response, MaActiveTaiKaMaterial.class);
+	 }
+
+	 /**
+	  * 导出商位台卡店铺公众号二维码数据
+	  * @param request 请求
+	  * @param response 返回内容
+	  * @return
+	  */
+	 //@RequiresPermissions("ma_active:exportTaiKaQrCode")
+	 @RequestMapping(value = "/exportTaiKaQrCode")
+	 public void exportTaiKaQrCode(@NotNull(message = "活动编号必填") @RequestParam("id") Long activeId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		 String downloadName = "商位台卡店铺二维码.zip";
+		 //服务器存储地址
+		 String srcSource = jeecgBaseConfig.getPath().getUpload() + File.separator + "qrCode";
+		 log.info("开始下载活动: {} 微信公众号带参二维码图片到目录: {}中", activeId, srcSource);
+		 maActiveService.downloadActiveQrCode(activeId, srcSource);
+		 String targetActiveSrcSource = Paths.get(srcSource, String.valueOf(activeId)).toString();
+		 //将文件进行打包下载
+		 try (OutputStream out =  response.getOutputStream()) {
+			 String targetFile = targetActiveSrcSource + ".zip";
 			 log.info("活动: {} 开始压缩微信公众号带参二维码目录: {} 到文件: {}中", activeId, targetActiveSrcSource, targetFile);
 			 // 先将文件压缩成active_id.zip，再删除此文件
 			 ZipUtil.zip(targetActiveSrcSource, targetFile);
