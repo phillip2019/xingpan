@@ -1,7 +1,8 @@
 package org.jeecg.modules.demo.ma.mapper;
 
-import org.jeecg.modules.demo.ma.entity.MaPosition;
-import org.jeecg.modules.demo.ma.mapper.dto.MaMarketFloorNumDTO;
+import org.jeecg.modules.ma.entity.MaPosition;
+import org.jeecg.modules.ma.mapper.MaPositionMapper;
+import org.jeecg.modules.ma.mapper.dto.MaMarketFloorNumDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author xiaowei.song

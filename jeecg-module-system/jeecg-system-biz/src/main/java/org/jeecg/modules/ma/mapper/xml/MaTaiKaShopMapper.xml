@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.ma.mapper.MaTaiKaShopMapper">
+
+    <select id="selectTaiKaQrCodeByActiveId" resultType="org.jeecg.modules.ma.entity.MaActiveTaiKaQrCodeUrl"
+            parameterType="java.lang.Long">
+        select ks.market_name
+              ,ks.shop_id
+              ,ks.shop_name
+              ,ks.qr_code_url tai_ka_shop_qr_code_url
+        from ma_tai_ka_shop ks
+        where 1 = 1
+        and ks.active_id = #{activeId}
+        order by market_name
+                ,ks.shop_id
+    </select>
+</mapper>

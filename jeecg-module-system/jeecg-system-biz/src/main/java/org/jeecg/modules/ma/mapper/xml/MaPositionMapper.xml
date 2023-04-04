@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.ma.mapper.MaPositionMapper">
+    <insert id="insertPositionReturnId" parameterType="org.jeecg.modules.ma.entity.MaPosition" useGeneratedKeys="true" keyProperty="id">
+        insert into ma_position(position_no
+                                ,position_type
+                                ,seq_no
+                                ,active_id
+                                ,market_name
+                                ,floor
+                                ,owner_account
+                                ,owner_name
+                                ,qr_code_ticket
+                                ,qr_code_url
+                                ,status
+                                ,create_by
+                                ,create_time
+                                ,update_by
+                                ,update_time
+                                )
+        values( #{dto.positionNo}
+               ,#{dto.positionType}
+               ,#{dto.seqNo}
+               ,#{dto.activeId}
+               ,#{dto.marketName}
+               ,#{dto.floor}
+               ,#{dto.ownerAccount}
+               ,#{dto.ownerName}
+               ,#{dto.qrCodeTicket}
+               ,#{dto.qrCodeUrl}
+               ,#{dto.status}
+               ,#{dto.createBy}
+               ,#{dto.createTime}
+               ,#{dto.updateBy}
+               ,#{dto.updateTime}
+        )
+    </insert>
+    <select id="selectMarketFloorPositionNum" resultType="org.jeecg.modules.ma.mapper.dto.MaMarketFloorNumDTO"
+            parameterType="java.lang.Long">
+        select market_name
+              ,floor
+              ,count(1) num
+        from ma_position
+        where 1 = 1
+        and active_id = #{activeId}
+        group by market_name
+                ,floor
+    </select>
+    <select id="selectYlbQrCodeByActiveId" resultType="org.jeecg.modules.ma.entity.MaActiveYlbQrCodeUrl"
+            parameterType="java.lang.Long">
+        select mp.position_no
+              ,mp.market_name
+                    ,mp.floor
+                    ,mp.seq_no
+                    ,mps.shop_id
+                    ,mps.shop_name
+                    ,mp.qr_code_url ylb_qr_code_url
+                    ,mps.qr_code_url ylb_shop_qr_code_url
+        from ma_position mp
+        left join ma_position_shop mps
+        on mp.id = mps.position_id
+        where 1 = 1
+        and mp.active_id = #{activeId}
+        order by mp.seq_no
+                ,mps.shop_id
+    </select>
+</mapper>

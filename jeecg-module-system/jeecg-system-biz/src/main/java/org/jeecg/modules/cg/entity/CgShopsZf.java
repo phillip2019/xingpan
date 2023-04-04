@@ -42,5 +42,17 @@ public class CgShopsZf implements Serializable {
     /**店铺号*/
     @Excel(name = "店铺号", width = 15)
     @ApiModelProperty(value = "店铺号")
-    private String boothNoArr;
+    private String boothNo;
+    /**拉链表结束日期*/
+    @Excel(name = "拉链表结束日期", width = 15)
+    @ApiModelProperty(value = "拉链表结束日期")
+    private String endDate = "9999-12-31";
+    /**店铺是否正常营业*/
+    @Excel(name = "店铺是否正常营业", width = 15)
+    @ApiModelProperty(value = "店铺是否正常营业")
+    private String isShopOn = "Y";
+    /**语言*/
+    @Excel(name = "语言", width = 15)
+    @ApiModelProperty(value = "语言")
+    private String lang = "zh";
 }
