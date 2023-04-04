@@ -347,4 +347,5 @@ cg:
   et:
     # 埋点topic地址
     topic: events-tracking
+  accessTokenHost: https://testuser.chinagoods.com
   ylbIdHost: https://testapiserver.chinagoods.com

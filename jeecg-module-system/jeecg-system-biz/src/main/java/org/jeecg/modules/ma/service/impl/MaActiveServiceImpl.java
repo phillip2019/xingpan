@@ -77,6 +77,9 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
     @Value("${cg.ylbIdHost}")
     private String saveYlbIdHost;
 
+    @Value("${cg.accessTokenHost}")
+    private String accessTokenHost;
+
     public static final OkHttpClient okHttpClient = new OkHttpClient();
 
 
@@ -313,7 +316,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
     private String getWeChatOfficialAccessToken() throws IOException, CWxAccessTokenException {
         MediaType mediaType = MediaType.parse("text/plain");
         Request request = new Request.Builder()
-                .url("https://user.chinagoods.com/user/bindwechatofficial/getofficialaccesstoken")
+                .url(accessTokenHost + "/user/bindwechatofficial/getofficialaccesstoken")
                 .method("GET", null)
                 .build();
         Response response = okHttpClient.newCall(request).execute();
