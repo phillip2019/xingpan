@@ -719,22 +719,22 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         log.info("开始生成微信公众号带参二维码...");
         Long ts = System.currentTimeMillis() / 1000;
         // 获取当前可用access_token
-        String accessToken;
+        String accessToken = getWeChatOfficialAccessToken();;
         List<Long> taiKaIdList = new ArrayList<>(taiKaList.size());
         Long taiKaParamId;
         int pos = 0;
         int maxBatchSize = taiKaList.size();
         for (MaTaiKaShop taiKaShop : taiKaList) {
             pos++;
-            if (pos > 0 && pos % 60 == 0) {
-                Thread.sleep(10 * 1000);
-            }
             log.info("开始生成第: {}, 总计: {}, 市场: {}, 店铺: {}， 店铺名: {}, 带参二维码", pos, maxBatchSize, taiKaShop.getMarketName(), taiKaShop.getShopId(), taiKaShop.getShopName());
-            accessToken = getWeChatOfficialAccessToken();
             taiKaParamId = saveTaiKaId2DB(taiKaShop, ts);
             taiKaIdList.add(taiKaParamId);
             taiKaShop.setTaiKaId(String.valueOf(taiKaParamId));
             getTaiKaWeChatOfficialQrCode(accessToken, taiKaShop);
+            if (pos % 60 == 0) {
+                Thread.sleep(10 * 1000);
+                accessToken = getWeChatOfficialAccessToken();
+            }
         }
         // TODO 若执行失败，则删除生成的参数编号
     }
