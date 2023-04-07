@@ -684,6 +684,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
+
         //第四步 call对象调用enqueue()方法，通过Callback()回调拿到响应体Response
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -726,7 +727,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         for (MaTaiKaShop taiKaShop : taiKaList) {
             pos++;
             if (pos > 0 && pos % 150 == 0) {
-                Thread.sleep(2 * 1000);
+                Thread.sleep(3 * 1000);
             }
             log.info("开始生成第: {}, 总计: {}, 市场: {}, 店铺: {}， 店铺名: {}, 带参二维码", pos, maxBatchSize, taiKaShop.getMarketName(), taiKaShop.getShopId(), taiKaShop.getShopName());
             accessToken = getWeChatOfficialAccessToken();
