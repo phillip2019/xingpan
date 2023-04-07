@@ -89,7 +89,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             .build();
 
     public static final OkHttpClient okHttpClient =  new OkHttpClient.Builder()
-            .dispatcher(new Dispatcher(Executors.newFixedThreadPool(3)))
+            .dispatcher(new Dispatcher(Executors.newFixedThreadPool(5)))
             .connectionPool(new ConnectionPool(1, 60000, TimeUnit.MILLISECONDS))
             .readTimeout(60000, TimeUnit.MILLISECONDS)
             .connectTimeout(60000, TimeUnit.MILLISECONDS)
@@ -749,7 +749,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             taiKaShop.setTaiKaId(String.valueOf(taiKaParamId));
             getTaiKaWeChatOfficialQrCode(accessToken, taiKaShop);
             if (pos % 50 == 0) {
-                Thread.sleep(10 * 1000);
+                Thread.sleep(3 * 1000);
                 accessToken = getWeChatOfficialAccessToken();
             }
         }
