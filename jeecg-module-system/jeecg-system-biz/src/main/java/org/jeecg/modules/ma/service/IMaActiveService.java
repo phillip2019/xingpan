@@ -49,12 +49,4 @@ public interface IMaActiveService extends IService<MaActive> {
      * @return 导入消息
      */
     Result<?> importTaiKaExcel(Long activeId, HttpServletRequest request, HttpServletResponse response, Class<MaActiveTaiKaMaterial> clazz);
-
-    /**
-     * 下载活动台卡店铺二维码图片到指定目录
-     * @param activeId 活动编号
-     * @param srcSource 存放目录
-     * @throws IOException 网络异常
-     */
-    void downloadActiveTaiKaQrCode(Long activeId, String srcSource) throws IOException;
 }
