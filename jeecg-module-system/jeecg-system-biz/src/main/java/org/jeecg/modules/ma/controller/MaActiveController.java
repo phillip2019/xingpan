@@ -294,7 +294,7 @@ public class MaActiveController extends JeecgController<MaActive, IMaActiveServi
 			 File file = new File(targetFile);
 			 if (!file.exists()) {
 				 log.error("活动: {}, 打包文件不存在，文件地址: {}, 请先执行准备导出商品台卡店铺二维码操作!", activeId, targetFile);
-				 downloadName = String.format("活动: %s, 打包文件不存在，文件地址: %s, 请先执行准备导出商品台卡店铺二维码操作!", activeId, targetFile)
+				 downloadName = String.format("活动: %s, 打包文件不存在，文件地址: %s, 请先执行准备导出商品台卡店铺二维码操作!", activeId, targetFile);
 			 }
 			 // 重置返回内容
 			 response.reset();
