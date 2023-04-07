@@ -725,6 +725,9 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         int maxBatchSize = taiKaList.size();
         for (MaTaiKaShop taiKaShop : taiKaList) {
             pos++;
+            if (pos > 0 && pos % 500 == 0) {
+                Thread.sleep(3 * 1000);
+            }
             log.info("开始生成第: {}, 总计: {}, 市场: {}, 店铺: {}， 店铺名: {}, 带参二维码", pos, maxBatchSize, taiKaShop.getMarketName(), taiKaShop.getShopId(), taiKaShop.getShopName());
             accessToken = getWeChatOfficialAccessToken();
             taiKaParamId = saveTaiKaId2DB(taiKaShop, ts);
@@ -732,7 +735,6 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             taiKaShop.setTaiKaId(String.valueOf(taiKaParamId));
             getTaiKaWeChatOfficialQrCode(accessToken, taiKaShop);
         }
-        Thread.sleep(3 * 1000);
         // TODO 若执行失败，则删除生成的参数编号
     }
 
