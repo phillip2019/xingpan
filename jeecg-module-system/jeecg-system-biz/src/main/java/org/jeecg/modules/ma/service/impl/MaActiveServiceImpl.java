@@ -727,7 +727,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
         for (MaTaiKaShop taiKaShop : taiKaList) {
             pos++;
             if (pos > 0 && pos % 150 == 0) {
-                Thread.sleep(3 * 1000);
+                Thread.sleep(10 * 1000);
             }
             log.info("开始生成第: {}, 总计: {}, 市场: {}, 店铺: {}， 店铺名: {}, 带参二维码", pos, maxBatchSize, taiKaShop.getMarketName(), taiKaShop.getShopId(), taiKaShop.getShopName());
             accessToken = getWeChatOfficialAccessToken();
