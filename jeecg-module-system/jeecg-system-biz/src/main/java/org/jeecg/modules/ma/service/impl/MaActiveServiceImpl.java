@@ -701,8 +701,26 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
+        try {
+            Call call = okHttpClient.newCall(request);
+            Response response = call.execute();
+            //异步请求成功之后的回调
+            String responseContent = Objects.requireNonNull(response.body()).string();
+            JsonNode jsonNode = JacksonBuilder.MAPPER.readTree(responseContent);
+            if (jsonNode.has("errcode")) {
+                log.error("获取带参微信公众号二维码失败，返回内容为: {}", responseContent);
+                return;
+            }
+            String ticket = jsonNode.get("ticket").asText();
+            String url = jsonNode.get("url").asText();
+            taiKaShop.setQrCodeTicket(ticket);
+            taiKaShop.setQrCodeUrl(String.format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=%s", URLEncoder.createDefault().encode(ticket, StandardCharsets.UTF_8)));
+            taiKaShop.setUrl(url);
+        } catch (IOException e) {
+            log.error("获取微信公众号带参二维码失败: {}", taiKaId, e);
+        }
 
-        //第四步 call对象调用enqueue()方法，通过Callback()回调拿到响应体Response
+        /*//第四步 call对象调用enqueue()方法，通过Callback()回调拿到响应体Response
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -725,7 +743,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
                 taiKaShop.setQrCodeUrl(String.format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=%s", URLEncoder.createDefault().encode(ticket, StandardCharsets.UTF_8)));
                 taiKaShop.setUrl(url);
             }
-        });
+        });*/
     }
 
 
@@ -749,7 +767,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             taiKaShop.setTaiKaId(String.valueOf(taiKaParamId));
             getTaiKaWeChatOfficialQrCode(accessToken, taiKaShop);
             if (pos % 50 == 0) {
-                Thread.sleep(3 * 1000);
+//                Thread.sleep(3 * 1000);
                 accessToken = getWeChatOfficialAccessToken();
             }
         }
