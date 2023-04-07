@@ -731,8 +731,8 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             taiKaIdList.add(taiKaParamId);
             taiKaShop.setTaiKaId(String.valueOf(taiKaParamId));
             getTaiKaWeChatOfficialQrCode(accessToken, taiKaShop);
-            if (pos % 60 == 0) {
-                Thread.sleep(10 * 1000);
+            if (pos % 20 == 0) {
+                Thread.sleep(5 * 1000);
                 accessToken = getWeChatOfficialAccessToken();
             }
         }
