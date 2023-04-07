@@ -3,9 +3,11 @@ package org.jeecg.modules.ma.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.URLEncoder;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.facebook.presto.jdbc.internal.okhttp3.internal.Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -41,6 +43,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -80,7 +84,20 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
     @Value("${cg.accessTokenHost}")
     private String accessTokenHost;
 
-    public static final OkHttpClient okHttpClient = new OkHttpClient();
+    public static final ConnectionSpec TLS_SPEC = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+            .tlsVersions(TlsVersion.TLS_1_0, TlsVersion.TLS_1_1, TlsVersion.TLS_1_2)
+            .build();
+
+    public static final OkHttpClient okHttpClient =  new OkHttpClient.Builder()
+            .dispatcher(new Dispatcher(Executors.newFixedThreadPool(3)))
+            .connectionPool(new ConnectionPool(1, 60000, TimeUnit.MILLISECONDS))
+            .readTimeout(60000, TimeUnit.MILLISECONDS)
+            .connectTimeout(60000, TimeUnit.MILLISECONDS)
+            .writeTimeout(60000, TimeUnit.MILLISECONDS)
+            .protocols(Util.immutableList(Protocol.HTTP_1_1))
+            .connectionSpecs(ImmutableList.of(TLS_SPEC, ConnectionSpec.CLEARTEXT))
+            .build()
+            ;
 
 
     public static final Map<String, String> MARKET_NAME2TAG_NAME_MAP = ImmutableMap.<String, String>builder()
@@ -685,25 +702,30 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
                 .addHeader("Content-Type", "application/json")
                 .build();
 
-
-        Call call = okHttpClient.newCall(request);
-        try {
-            Response response = call.execute();
-            //异步请求成功之后的回调
-            String responseContent = Objects.requireNonNull(response.body()).string();
-            JsonNode jsonNode = JacksonBuilder.MAPPER.readTree(responseContent);
-            if (jsonNode.has("errcode")) {
-                log.error("获取带参微信公众号二维码失败，返回内容为: {}", responseContent);
-                return;
+        //第四步 call对象调用enqueue()方法，通过Callback()回调拿到响应体Response
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //异步请求失败之后的回调
+                log.error("获取微信公众号带参二维码失败: {}", taiKaId, e);
             }
-            String ticket = jsonNode.get("ticket").asText();
-            String url = jsonNode.get("url").asText();
-            taiKaShop.setQrCodeTicket(ticket);
-            taiKaShop.setQrCodeUrl(String.format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=%s", URLEncoder.createDefault().encode(ticket, StandardCharsets.UTF_8)));
-            taiKaShop.setUrl(url);
-        } catch (IOException e) {
-            log.error("获取微信公众号带参二维码失败: {}", taiKaId, e);
-        }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                //异步请求成功之后的回调
+                String responseContent = Objects.requireNonNull(response.body()).string();
+                JsonNode jsonNode = JacksonBuilder.MAPPER.readTree(responseContent);
+                if (jsonNode.has("errcode")) {
+                    log.error("获取带参微信公众号二维码失败，返回内容为: {}", responseContent);
+                    return;
+                }
+                String ticket = jsonNode.get("ticket").asText();
+                String url = jsonNode.get("url").asText();
+                taiKaShop.setQrCodeTicket(ticket);
+                taiKaShop.setQrCodeUrl(String.format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=%s", URLEncoder.createDefault().encode(ticket, StandardCharsets.UTF_8)));
+                taiKaShop.setUrl(url);
+            }
+        });
     }
 
 
@@ -727,7 +749,7 @@ public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> i
             taiKaShop.setTaiKaId(String.valueOf(taiKaParamId));
             getTaiKaWeChatOfficialQrCode(accessToken, taiKaShop);
             if (pos % 20 == 0) {
-//                Thread.sleep(5 * 1000);
+                Thread.sleep(5 * 1000);
                 accessToken = getWeChatOfficialAccessToken();
             }
         }
