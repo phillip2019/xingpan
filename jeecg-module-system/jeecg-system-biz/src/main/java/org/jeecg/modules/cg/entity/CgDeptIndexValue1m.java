@@ -1,39 +1,39 @@
 package org.jeecg.modules.cg.entity;
 
-import java.io.Serializable;
-
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.jeecgframework.poi.excel.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.io.Serializable;
 
 /**
- * @Description: 部门指标值
+ * @Description: 各部门月度KPI指标值
  * @Author: jeecg-boot
  * @Date:   2023-02-14
  * @Version: V1.0
  */
 @Data
-@TableName("cg_dept_index_value")
+@TableName("cg_dept_index_value_1m")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="CG各部门KPI指标值对象", description="部门指标值")
-public class CgDeptIndexValue implements Serializable {
+@ApiModel(value="CG各部门月度KPI值对象", description="各部门月度KPI指标值")
+public class CgDeptIndexValue1m implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**id*/
     @ApiModelProperty(value = "id")
-    private java.lang.String id;
+    private String id;
 	/**部门指标编号*/
 	@Excel(name = "部门指标编号", width = 15)
     @ApiModelProperty(value = "部门指标编号")
-    private java.lang.String deptIndexId;
+    private String deptIndexId;
     /**部门编号*/
     @Excel(name = "部门编号", width = 15)
     @ApiModelProperty(value = "部门编号")
@@ -68,10 +68,10 @@ public class CgDeptIndexValue implements Serializable {
 	/**备注*/
 	@Excel(name = "备注", width = 15)
     @ApiModelProperty(value = "备注")
-    private java.lang.String remark;
+    private String remark;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
-    private java.lang.String createBy;
+    private String createBy;
 	/**创建时间*/
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
@@ -79,7 +79,7 @@ public class CgDeptIndexValue implements Serializable {
     private java.util.Date createTime;
 	/**更新人*/
     @ApiModelProperty(value = "更新人")
-    private java.lang.String updateBy;
+    private String updateBy;
 	/**更新时间*/
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
