@@ -1,9 +1,9 @@
-package org.jeecg.modules.demo.org.jeecg.et.mapper;
+package org.jeecg.modules.et.mapper;
 
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
-import org.jeecg.modules.demo.org.jeecg.et.entity.EtEvent;
+import org.jeecg.modules.et.entity.EtEvent;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

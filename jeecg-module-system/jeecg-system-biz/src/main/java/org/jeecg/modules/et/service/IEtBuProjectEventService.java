@@ -1,6 +1,6 @@
-package org.jeecg.modules.demo.org.jeecg.et.service;
+package org.jeecg.modules.et.service;
 
-import org.jeecg.modules.demo.org.jeecg.et.entity.EtBuProjectEvent;
+import org.jeecg.modules.et.entity.EtBuProjectEvent;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

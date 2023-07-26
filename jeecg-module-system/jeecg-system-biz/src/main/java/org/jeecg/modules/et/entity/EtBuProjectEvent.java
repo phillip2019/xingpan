@@ -1,4 +1,4 @@
-package org.jeecg.modules.demo.org.jeecg.et.entity;
+package org.jeecg.modules.et.entity;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;

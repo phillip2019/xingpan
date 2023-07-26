@@ -1,8 +1,8 @@
-package org.jeecg.modules.demo.org.jeecg.et.service.impl;
+package org.jeecg.modules.et.service.impl;
 
-import org.jeecg.modules.demo.org.jeecg.et.entity.EtBuProject;
-import org.jeecg.modules.demo.org.jeecg.et.mapper.EtBuProjectMapper;
-import org.jeecg.modules.demo.org.jeecg.et.service.IEtBuProjectService;
+import org.jeecg.modules.et.entity.EtBuProject;
+import org.jeecg.modules.et.mapper.EtBuProjectMapper;
+import org.jeecg.modules.et.service.IEtBuProjectService;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

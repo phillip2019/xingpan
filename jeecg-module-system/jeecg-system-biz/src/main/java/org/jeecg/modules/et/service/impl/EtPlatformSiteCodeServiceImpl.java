@@ -1,8 +1,8 @@
-package org.jeecg.modules.demo.org.jeecg.et.service.impl;
+package org.jeecg.modules.et.service.impl;
 
-import org.jeecg.modules.demo.org.jeecg.et.entity.EtPlatformSiteCode;
-import org.jeecg.modules.demo.org.jeecg.et.mapper.EtPlatformSiteCodeMapper;
-import org.jeecg.modules.demo.org.jeecg.et.service.IEtPlatformSiteCodeService;
+import org.jeecg.modules.et.entity.EtPlatformSiteCode;
+import org.jeecg.modules.et.mapper.EtPlatformSiteCodeMapper;
+import org.jeecg.modules.et.service.IEtPlatformSiteCodeService;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

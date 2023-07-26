@@ -1,8 +1,8 @@
-package org.jeecg.modules.demo.org.jeecg.et.service.impl;
+package org.jeecg.modules.et.service.impl;
 
-import org.jeecg.modules.demo.org.jeecg.et.entity.EtClientEvent;
-import org.jeecg.modules.demo.org.jeecg.et.mapper.EtClientEventMapper;
-import org.jeecg.modules.demo.org.jeecg.et.service.IEtClientEventService;
+import org.jeecg.modules.et.entity.EtClientEvent;
+import org.jeecg.modules.et.mapper.EtClientEventMapper;
+import org.jeecg.modules.et.service.IEtClientEventService;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

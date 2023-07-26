@@ -1,4 +1,4 @@
-package org.jeecg.modules.demo.org.jeecg.et.controller;
+package org.jeecg.modules.et.controller;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.demo.org.jeecg.et.entity.EtEvent;
-import org.jeecg.modules.demo.org.jeecg.et.service.IEtEventService;
+import org.jeecg.modules.et.entity.EtEvent;
+import org.jeecg.modules.et.service.IEtEventService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
