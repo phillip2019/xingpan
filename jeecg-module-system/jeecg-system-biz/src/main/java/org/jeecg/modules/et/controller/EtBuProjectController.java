@@ -44,7 +44,7 @@ import org.jeecg.common.aspect.annotation.AutoLog;
  */
 @Api(tags="et_bu_project")
 @RestController
-@RequestMapping("/org.jeecg.et/etBuProject")
+@RequestMapping("/et/etBuProject")
 @Slf4j
 public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuProjectService> {
 	@Autowired

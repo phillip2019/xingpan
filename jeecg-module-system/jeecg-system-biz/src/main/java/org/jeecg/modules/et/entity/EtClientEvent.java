@@ -34,15 +34,15 @@ public class EtClientEvent implements Serializable {
 	/**ID，自增*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID，自增")
-    private java.lang.Integer id;
+    private java.lang.String id;
 	/**客户端编号*/
 	@Excel(name = "客户端编号", width = 15)
     @ApiModelProperty(value = "客户端编号")
-    private java.lang.Integer clientId;
+    private java.lang.String clientId;
 	/**事件编号*/
 	@Excel(name = "事件编号", width = 15)
     @ApiModelProperty(value = "事件编号")
-    private java.lang.Integer eventId;
+    private java.lang.String eventId;
 	/**状态 1-初始化 2-上线 3-下线 4-异常*/
 	@Excel(name = "状态 1-初始化 2-上线 3-下线 4-异常", width = 15)
     @ApiModelProperty(value = "状态 1-初始化 2-上线 3-下线 4-异常")
@@ -55,16 +55,16 @@ public class EtClientEvent implements Serializable {
     @ApiModelProperty(value = "创建人")
     private java.lang.String createBy;
 	/**创建时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private java.util.Date createTime;
 	/**更新人*/
     @ApiModelProperty(value = "更新人")
     private java.lang.String updateBy;
 	/**更新时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private java.util.Date updateTime;
 }

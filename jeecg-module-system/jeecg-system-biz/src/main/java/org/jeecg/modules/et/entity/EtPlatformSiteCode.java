@@ -34,23 +34,23 @@ public class EtPlatformSiteCode implements Serializable {
 	/**ID，自增*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID，自增")
-    private java.lang.Integer id;
+    private java.lang.String id;
 	/**站点类型*/
 	@Excel(name = "站点类型", width = 15)
     @ApiModelProperty(value = "站点类型")
     private java.lang.String platformSiteType;
-	/**站点中文名*/
-	@Excel(name = "站点中文名", width = 15)
-    @ApiModelProperty(value = "站点中文名")
-    private java.lang.String platformSiteZhName;
+	/**站点名称*/
+	@Excel(name = "站点名称", width = 15)
+    @ApiModelProperty(value = "站点名称")
+    private java.lang.String platformSiteName;
+    /**平台站点*/
+    @Excel(name = "平台站点", width = 15)
+    @ApiModelProperty(value = "平台站点")
+    private java.lang.String platformSite;
 	/**埋点project名称*/
 	@Excel(name = "埋点project名称", width = 15)
     @ApiModelProperty(value = "埋点project名称")
     private java.lang.String project;
-	/**平台站点*/
-	@Excel(name = "平台站点", width = 15)
-    @ApiModelProperty(value = "平台站点")
-    private java.lang.String platformSite;
 	/**平台语言*/
 	@Excel(name = "平台语言", width = 15)
     @ApiModelProperty(value = "平台语言")

@@ -34,11 +34,11 @@ public class EtEventProperty implements Serializable {
 	/**事件属性表主键,自增Id*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "事件属性表主键,自增Id")
-    private java.lang.Integer id;
+    private java.lang.String id;
 	/**所属事件的Id*/
 	@Excel(name = "所属事件的Id", width = 15)
     @ApiModelProperty(value = "所属事件的Id")
-    private java.lang.Integer eventId;
+    private java.lang.String eventId;
 	/**属性的英文名称*/
 	@Excel(name = "属性的英文名称", width = 15)
     @ApiModelProperty(value = "属性的英文名称")
@@ -63,16 +63,16 @@ public class EtEventProperty implements Serializable {
     @ApiModelProperty(value = "创建人")
     private java.lang.String createBy;
 	/**创建时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private java.util.Date createTime;
 	/**更新人*/
     @ApiModelProperty(value = "更新人")
     private java.lang.String updateBy;
 	/**更新时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private java.util.Date updateTime;
 }

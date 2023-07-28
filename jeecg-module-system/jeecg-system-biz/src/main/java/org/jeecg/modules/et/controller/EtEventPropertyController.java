@@ -44,7 +44,7 @@ import org.jeecg.common.aspect.annotation.AutoLog;
  */
 @Api(tags="et_event_property")
 @RestController
-@RequestMapping("/org.jeecg.et/etEventProperty")
+@RequestMapping("/et/etEventProperty")
 @Slf4j
 public class EtEventPropertyController extends JeecgController<EtEventProperty, IEtEventPropertyService> {
 	@Autowired

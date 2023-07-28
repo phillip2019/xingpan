@@ -37,14 +37,14 @@ import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 
  /**
- * @Description: et_client
+ * @Description: 平台客户端
  * @Author: jeecg-boot
  * @Date:   2023-07-26
  * @Version: V1.0
  */
-@Api(tags="et_client")
+@Api(tags="平台客户端")
 @RestController
-@RequestMapping("/org.jeecg.et/etClient")
+@RequestMapping("/et/etClient")
 @Slf4j
 public class EtClientController extends JeecgController<EtClient, IEtClientService> {
 	@Autowired
@@ -59,15 +59,15 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 	 * @param req
 	 * @return
 	 */
-	//@AutoLog(value = "et_client-分页列表查询")
-	@ApiOperation(value="et_client-分页列表查询", notes="et_client-分页列表查询")
+	//@AutoLog(value = "平台客户端-分页列表查询")
+	@ApiOperation(value="平台客户端-分页列表查询", notes="平台客户端-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<IPage<EtClient>> queryPageList(EtClient etClient,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
 		QueryWrapper<EtClient> queryWrapper = QueryGenerator.initQueryWrapper(etClient, req.getParameterMap());
-		Page<EtClient> page = new Page<EtClient>(pageNo, pageSize);
+		Page<EtClient> page = new Page<>(pageNo, pageSize);
 		IPage<EtClient> pageList = etClientService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
@@ -78,9 +78,9 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 	 * @param etClient
 	 * @return
 	 */
-	@AutoLog(value = "et_client-添加")
-	@ApiOperation(value="et_client-添加", notes="et_client-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_client:add")
+	@AutoLog(value = "平台客户端-添加")
+	@ApiOperation(value="平台客户端-添加", notes="平台客户端-添加")
+	//@RequiresPermissions("org.jeecg.modules.demo:平台客户端:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody EtClient etClient) {
 		etClientService.save(etClient);
@@ -93,9 +93,9 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 	 * @param etClient
 	 * @return
 	 */
-	@AutoLog(value = "et_client-编辑")
-	@ApiOperation(value="et_client-编辑", notes="et_client-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_client:edit")
+	@AutoLog(value = "平台客户端-编辑")
+	@ApiOperation(value="平台客户端-编辑", notes="平台客户端-编辑")
+	//@RequiresPermissions("org.jeecg.modules.demo:平台客户端:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody EtClient etClient) {
 		etClientService.updateById(etClient);
@@ -108,9 +108,9 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 	 * @param id
 	 * @return
 	 */
-	@AutoLog(value = "et_client-通过id删除")
-	@ApiOperation(value="et_client-通过id删除", notes="et_client-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_client:delete")
+	@AutoLog(value = "平台客户端-通过id删除")
+	@ApiOperation(value="平台客户端-通过id删除", notes="平台客户端-通过id删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:平台客户端:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		etClientService.removeById(id);
@@ -123,9 +123,9 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 	 * @param ids
 	 * @return
 	 */
-	@AutoLog(value = "et_client-批量删除")
-	@ApiOperation(value="et_client-批量删除", notes="et_client-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_client:deleteBatch")
+	@AutoLog(value = "平台客户端-批量删除")
+	@ApiOperation(value="平台客户端-批量删除", notes="平台客户端-批量删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:平台客户端:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.etClientService.removeByIds(Arrays.asList(ids.split(",")));
@@ -138,8 +138,8 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 	 * @param id
 	 * @return
 	 */
-	//@AutoLog(value = "et_client-通过id查询")
-	@ApiOperation(value="et_client-通过id查询", notes="et_client-通过id查询")
+	//@AutoLog(value = "平台客户端-通过id查询")
+	@ApiOperation(value="平台客户端-通过id查询", notes="平台客户端-通过id查询")
 	@GetMapping(value = "/queryById")
 	public Result<EtClient> queryById(@RequestParam(name="id",required=true) String id) {
 		EtClient etClient = etClientService.getById(id);
@@ -155,10 +155,10 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
     * @param request
     * @param etClient
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:et_client:exportXls")
+    //@RequiresPermissions("org.jeecg.modules.demo:平台客户端:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, EtClient etClient) {
-        return super.exportXls(request, etClient, EtClient.class, "et_client");
+        return super.exportXls(request, etClient, EtClient.class, "平台客户端");
     }
 
     /**
@@ -168,7 +168,7 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
     * @param response
     * @return
     */
-    //@RequiresPermissions("et_client:importExcel")
+    //@RequiresPermissions("平台客户端:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, EtClient.class);

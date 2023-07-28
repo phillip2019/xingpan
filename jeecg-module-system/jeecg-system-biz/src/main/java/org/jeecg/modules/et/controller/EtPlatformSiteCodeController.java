@@ -37,14 +37,14 @@ import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 
  /**
- * @Description: et_platform_site_code
+ * @Description: 平台站点编码
  * @Author: jeecg-boot
  * @Date:   2023-07-26
  * @Version: V1.0
  */
-@Api(tags="et_platform_site_code")
+@Api(tags="平台站点编码")
 @RestController
-@RequestMapping("/org.jeecg.et/etPlatformSiteCode")
+@RequestMapping("/et/etPlatformSiteCode")
 @Slf4j
 public class EtPlatformSiteCodeController extends JeecgController<EtPlatformSiteCode, IEtPlatformSiteCodeService> {
 	@Autowired
@@ -59,8 +59,8 @@ public class EtPlatformSiteCodeController extends JeecgController<EtPlatformSite
 	 * @param req
 	 * @return
 	 */
-	//@AutoLog(value = "et_platform_site_code-分页列表查询")
-	@ApiOperation(value="et_platform_site_code-分页列表查询", notes="et_platform_site_code-分页列表查询")
+	//@AutoLog(value = "平台站点编码-分页列表查询")
+	@ApiOperation(value="平台站点编码-分页列表查询", notes="平台站点编码-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<IPage<EtPlatformSiteCode>> queryPageList(EtPlatformSiteCode etPlatformSiteCode,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
@@ -78,9 +78,9 @@ public class EtPlatformSiteCodeController extends JeecgController<EtPlatformSite
 	 * @param etPlatformSiteCode
 	 * @return
 	 */
-	@AutoLog(value = "et_platform_site_code-添加")
-	@ApiOperation(value="et_platform_site_code-添加", notes="et_platform_site_code-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_platform_site_code:add")
+	@AutoLog(value = "平台站点编码-添加")
+	@ApiOperation(value="平台站点编码-添加", notes="平台站点编码-添加")
+	//@RequiresPermissions("org.jeecg.modules.demo:平台站点编码:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody EtPlatformSiteCode etPlatformSiteCode) {
 		etPlatformSiteCodeService.save(etPlatformSiteCode);
@@ -93,9 +93,9 @@ public class EtPlatformSiteCodeController extends JeecgController<EtPlatformSite
 	 * @param etPlatformSiteCode
 	 * @return
 	 */
-	@AutoLog(value = "et_platform_site_code-编辑")
-	@ApiOperation(value="et_platform_site_code-编辑", notes="et_platform_site_code-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_platform_site_code:edit")
+	@AutoLog(value = "平台站点编码-编辑")
+	@ApiOperation(value="平台站点编码-编辑", notes="平台站点编码-编辑")
+	//@RequiresPermissions("org.jeecg.modules.demo:平台站点编码:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody EtPlatformSiteCode etPlatformSiteCode) {
 		etPlatformSiteCodeService.updateById(etPlatformSiteCode);
@@ -108,9 +108,9 @@ public class EtPlatformSiteCodeController extends JeecgController<EtPlatformSite
 	 * @param id
 	 * @return
 	 */
-	@AutoLog(value = "et_platform_site_code-通过id删除")
-	@ApiOperation(value="et_platform_site_code-通过id删除", notes="et_platform_site_code-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_platform_site_code:delete")
+	@AutoLog(value = "平台站点编码-通过id删除")
+	@ApiOperation(value="平台站点编码-通过id删除", notes="平台站点编码-通过id删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:平台站点编码:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		etPlatformSiteCodeService.removeById(id);
@@ -123,9 +123,9 @@ public class EtPlatformSiteCodeController extends JeecgController<EtPlatformSite
 	 * @param ids
 	 * @return
 	 */
-	@AutoLog(value = "et_platform_site_code-批量删除")
-	@ApiOperation(value="et_platform_site_code-批量删除", notes="et_platform_site_code-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_platform_site_code:deleteBatch")
+	@AutoLog(value = "平台站点编码-批量删除")
+	@ApiOperation(value="平台站点编码-批量删除", notes="平台站点编码-批量删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:平台站点编码:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.etPlatformSiteCodeService.removeByIds(Arrays.asList(ids.split(",")));
@@ -138,8 +138,8 @@ public class EtPlatformSiteCodeController extends JeecgController<EtPlatformSite
 	 * @param id
 	 * @return
 	 */
-	//@AutoLog(value = "et_platform_site_code-通过id查询")
-	@ApiOperation(value="et_platform_site_code-通过id查询", notes="et_platform_site_code-通过id查询")
+	//@AutoLog(value = "平台站点编码-通过id查询")
+	@ApiOperation(value="平台站点编码-通过id查询", notes="平台站点编码-通过id查询")
 	@GetMapping(value = "/queryById")
 	public Result<EtPlatformSiteCode> queryById(@RequestParam(name="id",required=true) String id) {
 		EtPlatformSiteCode etPlatformSiteCode = etPlatformSiteCodeService.getById(id);
@@ -155,10 +155,10 @@ public class EtPlatformSiteCodeController extends JeecgController<EtPlatformSite
     * @param request
     * @param etPlatformSiteCode
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:et_platform_site_code:exportXls")
+    //@RequiresPermissions("org.jeecg.modules.demo:平台站点编码:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, EtPlatformSiteCode etPlatformSiteCode) {
-        return super.exportXls(request, etPlatformSiteCode, EtPlatformSiteCode.class, "et_platform_site_code");
+        return super.exportXls(request, etPlatformSiteCode, EtPlatformSiteCode.class, "平台站点编码");
     }
 
     /**
@@ -168,7 +168,7 @@ public class EtPlatformSiteCodeController extends JeecgController<EtPlatformSite
     * @param response
     * @return
     */
-    //@RequiresPermissions("et_platform_site_code:importExcel")
+    //@RequiresPermissions("平台站点编码:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, EtPlatformSiteCode.class);

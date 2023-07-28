@@ -5,10 +5,13 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.jeecg.modules.ma.entity.MaPositionAddress;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.jeecg.common.aspect.annotation.Dict;
@@ -16,6 +19,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import javax.persistence.JoinColumn;
 
 /**
  * @Description: et_client
@@ -34,7 +39,7 @@ public class EtClient implements Serializable {
 	/**客户端编号*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "客户端编号")
-    private java.lang.Integer id;
+    private java.lang.String id;
 	/**客户端名称*/
 	@Excel(name = "客户端名称", width = 15)
     @ApiModelProperty(value = "客户端名称")
@@ -47,19 +52,24 @@ public class EtClient implements Serializable {
 	@Excel(name = "是否移动端", width = 15)
     @ApiModelProperty(value = "是否移动端")
     private java.lang.Integer isMobile;
-	/**平台站点*/
-	@Excel(name = "平台站点", width = 15)
-    @ApiModelProperty(value = "平台站点")
-    private java.lang.String platformSite;
 	/**平台站点编码*/
 	@Excel(name = "平台站点编码", width = 15)
     @ApiModelProperty(value = "平台站点编码")
-    private java.lang.Integer platformSiteCodeId;
+    private java.lang.String platformSiteCodeId;
+    /**平台站点*/
+    @TableField(exist = false)
+    private String platformSiteName;
+    /**平台站点名称*/
+    @TableField(exist = false)
+    private String platformSite;
+    /**平台站点类型*/
+    @TableField(exist = false)
+    private String platformSiteType;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
     private java.lang.String createBy;
 	/**创建时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "创建时间")
     private java.util.Date createTime;
@@ -67,7 +77,7 @@ public class EtClient implements Serializable {
     @ApiModelProperty(value = "更新人")
     private java.lang.String updateBy;
 	/**更新时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "更新时间")
     private java.util.Date updateTime;

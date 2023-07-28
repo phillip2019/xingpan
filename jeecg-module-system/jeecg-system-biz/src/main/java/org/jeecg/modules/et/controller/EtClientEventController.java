@@ -44,7 +44,7 @@ import org.jeecg.common.aspect.annotation.AutoLog;
  */
 @Api(tags="et_client_event")
 @RestController
-@RequestMapping("/org.jeecg.et/etClientEvent")
+@RequestMapping("/et/etClientEvent")
 @Slf4j
 public class EtClientEventController extends JeecgController<EtClientEvent, IEtClientEventService> {
 	@Autowired
