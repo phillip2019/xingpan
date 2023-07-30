@@ -1,6 +1,8 @@
 package org.jeecg.modules.et.controller;
 
+import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.et.entity.EtBuProject;
 import org.jeecg.modules.et.service.IEtBuProjectService;
@@ -37,12 +40,12 @@ import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 
  /**
- * @Description: et_bu_project
+ * @Description: 业务项目
  * @Author: jeecg-boot
  * @Date:   2023-07-26
  * @Version: V1.0
  */
-@Api(tags="et_bu_project")
+@Api(tags="业务项目")
 @RestController
 @RequestMapping("/et/etBuProject")
 @Slf4j
@@ -59,15 +62,22 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
 	 * @param req
 	 * @return
 	 */
-	//@AutoLog(value = "et_bu_project-分页列表查询")
-	@ApiOperation(value="et_bu_project-分页列表查询", notes="et_bu_project-分页列表查询")
+	//@AutoLog(value = "业务项目-分页列表查询")
+	@ApiOperation(value="业务项目-分页列表查询", notes="业务项目-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<IPage<EtBuProject>> queryPageList(EtBuProject etBuProject,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-								   HttpServletRequest req) {
+								   HttpServletRequest req) throws ParseException {
 		QueryWrapper<EtBuProject> queryWrapper = QueryGenerator.initQueryWrapper(etBuProject, req.getParameterMap());
 		Page<EtBuProject> page = new Page<EtBuProject>(pageNo, pageSize);
+		// 基于时间查询
+		String[] createdAtArr = req.getParameterValues("onlineTimeArr[]");
+		if (createdAtArr != null && createdAtArr.length == 2) {
+			Date beginCreateTime = DateUtils.parseTimestamp(createdAtArr[0], "yyyy-MM-dd");
+			Date endCreateTime = DateUtils.parseTimestamp(createdAtArr[1], "yyyy-MM-dd");
+			queryWrapper.between("create_time", beginCreateTime, endCreateTime);
+		}
 		IPage<EtBuProject> pageList = etBuProjectService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
@@ -78,9 +88,9 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
 	 * @param etBuProject
 	 * @return
 	 */
-	@AutoLog(value = "et_bu_project-添加")
-	@ApiOperation(value="et_bu_project-添加", notes="et_bu_project-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_bu_project:add")
+	@AutoLog(value = "业务项目-添加")
+	@ApiOperation(value="业务项目-添加", notes="业务项目-添加")
+	//@RequiresPermissions("org.jeecg.modules.demo:业务项目:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody EtBuProject etBuProject) {
 		etBuProjectService.save(etBuProject);
@@ -93,9 +103,9 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
 	 * @param etBuProject
 	 * @return
 	 */
-	@AutoLog(value = "et_bu_project-编辑")
-	@ApiOperation(value="et_bu_project-编辑", notes="et_bu_project-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_bu_project:edit")
+	@AutoLog(value = "业务项目-编辑")
+	@ApiOperation(value="业务项目-编辑", notes="业务项目-编辑")
+	//@RequiresPermissions("org.jeecg.modules.demo:业务项目:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody EtBuProject etBuProject) {
 		etBuProjectService.updateById(etBuProject);
@@ -108,9 +118,9 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
 	 * @param id
 	 * @return
 	 */
-	@AutoLog(value = "et_bu_project-通过id删除")
-	@ApiOperation(value="et_bu_project-通过id删除", notes="et_bu_project-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_bu_project:delete")
+	@AutoLog(value = "业务项目-通过id删除")
+	@ApiOperation(value="业务项目-通过id删除", notes="业务项目-通过id删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:业务项目:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		etBuProjectService.removeById(id);
@@ -123,9 +133,9 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
 	 * @param ids
 	 * @return
 	 */
-	@AutoLog(value = "et_bu_project-批量删除")
-	@ApiOperation(value="et_bu_project-批量删除", notes="et_bu_project-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_bu_project:deleteBatch")
+	@AutoLog(value = "业务项目-批量删除")
+	@ApiOperation(value="业务项目-批量删除", notes="业务项目-批量删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:业务项目:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.etBuProjectService.removeByIds(Arrays.asList(ids.split(",")));
@@ -138,8 +148,8 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
 	 * @param id
 	 * @return
 	 */
-	//@AutoLog(value = "et_bu_project-通过id查询")
-	@ApiOperation(value="et_bu_project-通过id查询", notes="et_bu_project-通过id查询")
+	//@AutoLog(value = "业务项目-通过id查询")
+	@ApiOperation(value="业务项目-通过id查询", notes="业务项目-通过id查询")
 	@GetMapping(value = "/queryById")
 	public Result<EtBuProject> queryById(@RequestParam(name="id",required=true) String id) {
 		EtBuProject etBuProject = etBuProjectService.getById(id);
@@ -155,10 +165,10 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
     * @param request
     * @param etBuProject
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:et_bu_project:exportXls")
+    //@RequiresPermissions("org.jeecg.modules.demo:业务项目:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, EtBuProject etBuProject) {
-        return super.exportXls(request, etBuProject, EtBuProject.class, "et_bu_project");
+        return super.exportXls(request, etBuProject, EtBuProject.class, "业务项目");
     }
 
     /**
@@ -168,7 +178,7 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
     * @param response
     * @return
     */
-    //@RequiresPermissions("et_bu_project:importExcel")
+    //@RequiresPermissions("业务项目:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, EtBuProject.class);

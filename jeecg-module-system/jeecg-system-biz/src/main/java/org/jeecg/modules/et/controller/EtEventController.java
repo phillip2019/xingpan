@@ -37,12 +37,12 @@ import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 
  /**
- * @Description: et_event
+ * @Description: 埋点事件
  * @Author: jeecg-boot
  * @Date:   2023-07-26
  * @Version: V1.0
  */
-@Api(tags="et_event")
+@Api(tags="埋点事件")
 @RestController
 @RequestMapping("/et/etEvent")
 @Slf4j
@@ -59,8 +59,8 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 	 * @param req
 	 * @return
 	 */
-	//@AutoLog(value = "et_event-分页列表查询")
-	@ApiOperation(value="et_event-分页列表查询", notes="et_event-分页列表查询")
+	//@AutoLog(value = "埋点事件-分页列表查询")
+	@ApiOperation(value="埋点事件-分页列表查询", notes="埋点事件-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<IPage<EtEvent>> queryPageList(EtEvent etEvent,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
@@ -78,9 +78,9 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 	 * @param etEvent
 	 * @return
 	 */
-	@AutoLog(value = "et_event-添加")
-	@ApiOperation(value="et_event-添加", notes="et_event-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_event:add")
+	@AutoLog(value = "埋点事件-添加")
+	@ApiOperation(value="埋点事件-添加", notes="埋点事件-添加")
+	//@RequiresPermissions("org.jeecg.modules.demo:埋点事件:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody EtEvent etEvent) {
 		etEventService.save(etEvent);
@@ -93,9 +93,9 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 	 * @param etEvent
 	 * @return
 	 */
-	@AutoLog(value = "et_event-编辑")
-	@ApiOperation(value="et_event-编辑", notes="et_event-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_event:edit")
+	@AutoLog(value = "埋点事件-编辑")
+	@ApiOperation(value="埋点事件-编辑", notes="埋点事件-编辑")
+	//@RequiresPermissions("org.jeecg.modules.demo:埋点事件:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody EtEvent etEvent) {
 		etEventService.updateById(etEvent);
@@ -108,9 +108,9 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 	 * @param id
 	 * @return
 	 */
-	@AutoLog(value = "et_event-通过id删除")
-	@ApiOperation(value="et_event-通过id删除", notes="et_event-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_event:delete")
+	@AutoLog(value = "埋点事件-通过id删除")
+	@ApiOperation(value="埋点事件-通过id删除", notes="埋点事件-通过id删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:埋点事件:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		etEventService.removeById(id);
@@ -123,9 +123,9 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 	 * @param ids
 	 * @return
 	 */
-	@AutoLog(value = "et_event-批量删除")
-	@ApiOperation(value="et_event-批量删除", notes="et_event-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:et_event:deleteBatch")
+	@AutoLog(value = "埋点事件-批量删除")
+	@ApiOperation(value="埋点事件-批量删除", notes="埋点事件-批量删除")
+	//@RequiresPermissions("org.jeecg.modules.demo:埋点事件:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.etEventService.removeByIds(Arrays.asList(ids.split(",")));
@@ -138,8 +138,8 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 	 * @param id
 	 * @return
 	 */
-	//@AutoLog(value = "et_event-通过id查询")
-	@ApiOperation(value="et_event-通过id查询", notes="et_event-通过id查询")
+	//@AutoLog(value = "埋点事件-通过id查询")
+	@ApiOperation(value="埋点事件-通过id查询", notes="埋点事件-通过id查询")
 	@GetMapping(value = "/queryById")
 	public Result<EtEvent> queryById(@RequestParam(name="id",required=true) String id) {
 		EtEvent etEvent = etEventService.getById(id);
@@ -155,10 +155,10 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
     * @param request
     * @param etEvent
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:et_event:exportXls")
+    //@RequiresPermissions("org.jeecg.modules.demo:埋点事件:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, EtEvent etEvent) {
-        return super.exportXls(request, etEvent, EtEvent.class, "et_event");
+        return super.exportXls(request, etEvent, EtEvent.class, "埋点事件");
     }
 
     /**
@@ -168,7 +168,7 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
     * @param response
     * @return
     */
-    //@RequiresPermissions("et_event:importExcel")
+    //@RequiresPermissions("埋点事件:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, EtEvent.class);

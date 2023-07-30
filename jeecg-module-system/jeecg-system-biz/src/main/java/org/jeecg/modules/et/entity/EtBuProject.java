@@ -52,9 +52,9 @@ public class EtBuProject implements Serializable {
     @ApiModelProperty(value = "产品原型链接")
     private java.lang.String prototypeLink;
 	/**上线时间*/
-	@Excel(name = "上线时间", width = 15, format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	@Excel(name = "上线时间", width = 15, format = "yyyy-MM-dd")
+	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "上线时间")
     private java.util.Date onlineTime;
 	/**创建人*/
