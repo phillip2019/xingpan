@@ -43,10 +43,6 @@ public class EtEvent implements Serializable {
 	@Excel(name = "事件中文名称", width = 15)
     @ApiModelProperty(value = "事件中文名称")
     private java.lang.String zhName;
-	/**埋点位置*/
-	@Excel(name = "埋点位置", width = 15)
-    @ApiModelProperty(value = "埋点位置")
-    private java.lang.String position;
 	/**操作说明*/
 	@Excel(name = "操作说明", width = 15)
     @ApiModelProperty(value = "操作说明")
@@ -58,7 +54,7 @@ public class EtEvent implements Serializable {
 	/**触发时机*/
 	@Excel(name = "触发时机", width = 15)
     @ApiModelProperty(value = "触发时机")
-    private java.lang.String trigger;
+    private java.lang.String triggerTiming;
 	/**文档说明*/
 	@Excel(name = "文档说明", width = 15)
     @ApiModelProperty(value = "文档说明")
