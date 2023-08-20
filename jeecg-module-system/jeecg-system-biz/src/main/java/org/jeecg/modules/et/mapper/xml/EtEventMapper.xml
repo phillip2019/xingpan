@@ -2,4 +2,36 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.et.mapper.EtEventMapper">
 
+    <insert id="insertEventReturnId" parameterType="org.jeecg.modules.et.entity.EtEvent" useGeneratedKeys="true" keyProperty="id">
+        insert into et_event(id
+                            ,name
+                            ,zh_name
+                            ,oper_desc
+                            ,type
+                            ,trigger_timing
+                            ,event_desc
+                            ,is_preset_event
+                            ,scene
+                            ,status
+                            ,create_by
+                            ,create_time
+                            ,update_by
+                            ,update_time
+        )
+        values( #{id}
+              ,#{name}
+              ,#{zhName}
+              ,#{operDesc}
+              ,#{type}
+              ,#{triggerTiming}
+              ,#{eventDesc}
+              ,#{isPresetEvent}
+              ,#{scene}
+              ,#{status}
+              ,#{createBy}
+              ,#{createTime}
+              ,#{updateBy}
+              ,#{updateTime}
+              )
+    </insert>
 </mapper>

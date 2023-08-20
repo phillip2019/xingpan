@@ -14,4 +14,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface EtEventMapper extends BaseMapper<EtEvent> {
 
+    void insertEventReturnId(EtEvent event);
 }

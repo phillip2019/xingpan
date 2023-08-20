@@ -24,7 +24,7 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="ma_active_ylb_material对象", description="活动易拉宝物料")
+@ApiModel(value="市场活动易拉宝物料对象", description="活动易拉宝物料")
 public class MaActiveYlbMaterial implements Serializable {
     private static final long serialVersionUID = 1L;
 

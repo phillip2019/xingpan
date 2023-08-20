@@ -9,10 +9,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.SecurityUtils;
+import org.jeecg.common.api.dto.message.MessageDTO;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.et.entity.EtEvent;
+import org.jeecg.modules.et.entity.EtEventMaterial;
 import org.jeecg.modules.et.service.IEtEventService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -20,6 +25,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.ma.entity.MaActiveTaiKaMaterial;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -171,7 +177,10 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
     //@RequiresPermissions("埋点事件:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-        return super.importExcel(request, response, EtEvent.class);
+//        return super.importExcel(request, response, EtEvent.class);
+		LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		log.info("开始导入埋点事件");
+		return etEventService.importExcel(request, response, EtEventMaterial.class);
     }
 
 }

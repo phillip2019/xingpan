@@ -27,7 +27,7 @@ import lombok.experimental.Accessors;
 @TableName("et_event_property")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="et_event_property对象", description="et_event_property")
+@ApiModel(value="埋点事件屬性", description="埋点事件屬性")
 public class EtEventProperty implements Serializable {
     private static final long serialVersionUID = 1L;
 
