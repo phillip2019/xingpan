@@ -51,7 +51,7 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
     @Autowired
     private IEtEventPropertyService eventPropertyService;
 
-    @Transactional(rollbackFor = Exception.class, value = "保存埋点事件异常")
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response, Class<EtEventMaterial> clazz) {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
