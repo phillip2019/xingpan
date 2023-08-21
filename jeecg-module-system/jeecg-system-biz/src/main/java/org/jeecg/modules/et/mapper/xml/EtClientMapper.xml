@@ -3,17 +3,13 @@
 <mapper namespace="org.jeecg.modules.et.mapper.EtClientMapper">
 
     <select id="selectPage" resultType="org.jeecg.modules.et.entity.EtClient">
-        SELECT *
-             ,ps.*
+        SELECT ec.*
+              ,ps.platform_site_name
+              ,ps.platform_site
+              ,ps.platform_site_type
         FROM et_client ec
         left join et_platform_site_code ps
         on ec.platform_site_code_id = ps.id
-        where 1 = 1
-        <if test="ew != ">
-            and ps.id in
-            <foreach collection="selectionList" item="id" open="(" separator="," close=")">
-                #{id}
-            </foreach>
-        </if>
+        ${ew.customSqlSegment}
     </select>
 </mapper>
