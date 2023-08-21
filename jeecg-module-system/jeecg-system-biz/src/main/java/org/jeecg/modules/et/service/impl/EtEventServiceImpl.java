@@ -1,13 +1,16 @@
 package org.jeecg.modules.et.service.impl;
 
 import cn.hutool.core.util.IdUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.et.entity.EtEvent;
 import org.jeecg.modules.et.entity.EtEventMaterial;
 import org.jeecg.modules.et.entity.EtEventProperty;
@@ -16,21 +19,22 @@ import org.jeecg.modules.et.mapper.EtEventPropertyMapper;
 import org.jeecg.modules.et.service.IEtEventPropertyService;
 import org.jeecg.modules.et.service.IEtEventService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
+import org.jeecgframework.poi.excel.def.NormalExcelConstants;
+import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
+import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Description: 埋点事件
@@ -50,6 +54,9 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
 
     @Autowired
     private IEtEventPropertyService eventPropertyService;
+
+    @Value("${jeecg.path.upload}")
+    private String upLoadPath;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -158,5 +165,33 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
             eventPropertyService.saveBatch(eventPropertyList);
             log.info("批量保存事件属性，数量: {}完成", eventPropertyList.size());
         }
+    }
+
+    @Override
+    public ModelAndView exportXls(HttpServletRequest request, EtEvent etEvent, Class<EtEventMaterial> clazz, String title) {
+        // Step.1 组装查询条件
+        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+
+        // 过滤选中数据
+        String selections = request.getParameter("selections");
+        List<String> selectionList = new ArrayList<>();
+        if (oConvertUtils.isNotEmpty(selections)) {
+            selectionList = Arrays.asList(selections.split(","));
+        }
+        // Step.2 获取导出数据
+        List<EtEventMaterial> exportList = eventMapper.list(etEvent, selectionList);
+
+        // Step.3 AutoPoi 导出Excel
+        ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
+        //此处设置的filename无效 ,前端会重更新设置一下
+        mv.addObject(NormalExcelConstants.FILE_NAME, title);
+        mv.addObject(NormalExcelConstants.CLASS, clazz);
+        //update-begin--Author:liusq  Date:20210126 for：图片导出报错，ImageBasePath未设置--------------------
+        ExportParams exportParams=new ExportParams(title + "报表", "导出人:" + sysUser.getRealname(), title);
+        exportParams.setImageBasePath(upLoadPath);
+        //update-end--Author:liusq  Date:20210126 for：图片导出报错，ImageBasePath未设置----------------------
+        mv.addObject(NormalExcelConstants.PARAMS,exportParams);
+        mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
+        return mv;
     }
 }

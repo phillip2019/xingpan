@@ -4,6 +4,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.et.entity.EtEvent;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.modules.et.entity.EtEventMaterial;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,4 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 public interface IEtEventService extends IService<EtEvent> {
 
     Result<?> importExcel(HttpServletRequest request, HttpServletResponse response, Class<EtEventMaterial> etEventClass);
+
+    ModelAndView exportXls(HttpServletRequest request, EtEvent etEvent, Class<EtEventMaterial> etEventMaterialClass, String title);
 }

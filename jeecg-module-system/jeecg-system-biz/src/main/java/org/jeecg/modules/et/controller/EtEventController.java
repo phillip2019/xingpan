@@ -164,7 +164,8 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
     //@RequiresPermissions("org.jeecg.modules.demo:埋点事件:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, EtEvent etEvent) {
-        return super.exportXls(request, etEvent, EtEvent.class, "埋点事件");
+    	log.info("开始导出埋点事件...");
+		return etEventService.exportXls(request, etEvent, EtEventMaterial.class, "埋点事件");
     }
 
     /**

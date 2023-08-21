@@ -35,6 +35,10 @@ public class EtEvent implements Serializable {
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID")
     private java.lang.String id;
+    /**场景，事件场景*/
+    @Excel(name = "场景", width = 15)
+    @ApiModelProperty(value = "场景")
+    private java.lang.String scene;
 	/**事件名*/
 	@Excel(name = "事件名", width = 15)
     @ApiModelProperty(value = "事件名")
@@ -63,10 +67,6 @@ public class EtEvent implements Serializable {
 	@Excel(name = "是否预置事件", width = 15)
     @ApiModelProperty(value = "是否预置事件")
     private java.lang.Integer isPresetEvent;
-	/**场景，事件场景*/
-	@Excel(name = "场景", width = 15)
-    @ApiModelProperty(value = "场景")
-    private java.lang.String scene;
 	/**状态*/
 	@Excel(name = "状态", width = 15)
     @ApiModelProperty(value = "状态")
