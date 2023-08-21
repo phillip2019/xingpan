@@ -11,9 +11,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.et.entity.EtEvent;
-import org.jeecg.modules.et.entity.EtEventMaterial;
-import org.jeecg.modules.et.entity.EtEventProperty;
+import org.jeecg.modules.et.entity.*;
 import org.jeecg.modules.et.mapper.EtEventMapper;
 import org.jeecg.modules.et.mapper.EtEventPropertyMapper;
 import org.jeecg.modules.et.service.IEtEventPropertyService;
@@ -168,8 +166,10 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
     }
 
     @Override
-    public ModelAndView exportXls(HttpServletRequest request, EtEvent etEvent, Class<EtEventMaterial> clazz, String title) {
-        // Step.1 组装查询条件
+    public ModelAndView exportXls(HttpServletRequest request, EtEvent etEvent, Class<EtEventMaterial2> clazz, String title) {
+
+
+        // step.1 组装查询条件查询数据
         LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
 
         // 过滤选中数据
@@ -179,7 +179,22 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
             selectionList = Arrays.asList(selections.split(","));
         }
         // Step.2 获取导出数据
-        List<EtEventMaterial> exportList = eventMapper.list(etEvent, selectionList);
+        List<EtEventMaterial2> exportList = eventMapper.listEventMaterial2(etEvent, selectionList);
+
+        // 拼装属性值
+        EtEventProperty queryProperty = new EtEventProperty();
+        for (EtEventMaterial2 et : exportList) {
+            String id = et.getId();
+            queryProperty.setEventId(id);
+            QueryWrapper<EtEventProperty> queryWrapper = QueryGenerator.initQueryWrapper(queryProperty, null);
+            List<EtEventProperty> etPropertyList = new ArrayList<>();
+            EtEventProperty property = new EtEventProperty();
+            property.setZhName("$预置属性");
+            etPropertyList.add(property);
+            List<EtEventProperty> propertyList = eventPropertyService.list(queryWrapper);
+            etPropertyList.addAll(propertyList);
+            et.setPropertyList(etPropertyList);
+        }
 
         // Step.3 AutoPoi 导出Excel
         ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());

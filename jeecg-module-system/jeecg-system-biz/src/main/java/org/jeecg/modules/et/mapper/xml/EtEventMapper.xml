@@ -102,4 +102,66 @@
                 ,ee.zh_name
                 ,ee.create_time
     </select>
+
+    <select id="listEventMaterial2" resultType="org.jeecg.modules.et.entity.EtEventMaterial2">
+        select  ee.id
+               ,ee.scene
+               ,ee.name
+               ,ee.zh_name zh_name
+               ,ee.oper_desc oper_desc
+               ,ee.type
+               ,ee.trigger_timing
+               ,ee.event_desc
+               ,ee.is_preset_event
+               ,ee.status
+               ,ee.create_time
+               ,ee.create_by
+               ,ee.update_time
+               ,ee.update_by
+        from et_event ee
+        where 1 = 1
+        <if test="etEvent != null and etEvent.scene != null and etEvent.scene !=''">
+            and ee.scene like concat('%', #{etEvent.scene}, '%')
+        </if>
+        <if test="etEvent != null and etEvent.name != null and etEvent.name !=''">
+            and ee.name like concat('%', #{etEvent.name}, '%')
+        </if>
+        <if test="etEvent != null and etEvent.zhName != null and etEvent.zhName !=''">
+            and ee.zh_name like concat('%', #{etEvent.zhName}, '%')
+        </if>
+        <if test="etEvent != null and etEvent.operDesc != null and etEvent.operDesc !=''">
+            and ee.oper_desc like concat('%', #{etEvent.operDesc}, '%')
+        </if>
+        <if test="etEvent != null and etEvent.type != null">
+            and ee.type = #{etEvent.type}
+        </if>
+        <if test="etEvent != null and etEvent.triggerTiming != null and etEvent.triggerTiming !=''">
+            and ee.trigger_timing like concat('%', #{etEvent.triggerTiming}, '%')
+        </if>
+        <if test="etEvent != null and etEvent.eventDesc != null and etEvent.eventDesc !=''">
+            and ee.event_desc like concat('%', #{etEvent.eventDesc}, '%')
+        </if>
+        <if test="etEvent != null and etEvent.isPresetEvent != null">
+            and ee.is_preset_event = #{etEvent.isPresetEvent}
+        </if>
+        <if test="etEvent != null and etEvent.status != null">
+            and ee.status = #{etEvent.status}
+        </if>
+        <if test="etEvent != null and etEvent.createBy != null and etEvent.createBy !=''">
+            and ee.create_by like concat('%', #{etEvent.createBy}, '%')
+        </if>
+        <if test="etEvent != null and etEvent.updateBy != null and etEvent.updateBy !=''">
+            and ee.update_by like concat('%', #{etEvent.updateBy}, '%')
+        </if>
+        <if test="selectionList != null and selectionList.size() > 0">
+            and ee.id in
+            <foreach collection="selectionList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        order by ee.scene
+                ,ee.name
+                ,ee.zh_name
+                ,ee.create_time
+    </select>
 </mapper>

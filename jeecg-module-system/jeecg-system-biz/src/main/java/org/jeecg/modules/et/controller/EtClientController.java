@@ -9,10 +9,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.et.entity.EtClient;
+import org.jeecg.modules.et.entity.EtEventProperty;
+import org.jeecg.modules.et.entity.EtPlatformSiteCode;
 import org.jeecg.modules.et.service.IEtClientService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -20,6 +25,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.et.service.IEtPlatformSiteCodeService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -49,6 +55,9 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 public class EtClientController extends JeecgController<EtClient, IEtClientService> {
 	@Autowired
 	private IEtClientService etClientService;
+
+	 @Autowired
+	 private IEtPlatformSiteCodeService etPlatformSiteCodeService;
 	
 	/**
 	 * 分页列表查询
@@ -67,6 +76,31 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
 		QueryWrapper<EtClient> queryWrapper = QueryGenerator.initQueryWrapper(etClient, req.getParameterMap());
+
+		boolean siteFlag = false;
+		List<EtPlatformSiteCode> platformSiteCodeList = null;
+		EtPlatformSiteCode platformSiteCode = new EtPlatformSiteCode();
+		if (StringUtils.isNotBlank(etClient.getPlatformSite())) {
+			siteFlag = true;
+			platformSiteCode.setPlatformSite(etClient.getPlatformSite());
+		}
+
+		if (StringUtils.isNotBlank(etClient.getPlatformSiteName())) {
+			siteFlag = true;
+			platformSiteCode.setPlatformSiteName(etClient.getPlatformSiteName());
+		}
+
+		if (StringUtils.isNotBlank(etClient.getPlatformSiteType())) {
+			siteFlag = true;
+			platformSiteCode.setPlatformSiteType(etClient.getPlatformSiteType());
+		}
+
+		if (siteFlag) {
+			QueryWrapper<EtPlatformSiteCode> wrapper = QueryGenerator.initQueryWrapper(platformSiteCode, null);
+			platformSiteCodeList = etPlatformSiteCodeService.list(wrapper);
+			List<String> platformSiteCodeIdList = platformSiteCodeList.parallelStream().map(EtPlatformSiteCode::getId).collect(Collectors.toList());
+			queryWrapper.in("platform_site_code_id", platformSiteCodeIdList);
+		}
 		Page<EtClient> page = new Page<>(pageNo, pageSize);
 		IPage<EtClient> pageList = etClientService.page(page, queryWrapper);
 		return Result.OK(pageList);

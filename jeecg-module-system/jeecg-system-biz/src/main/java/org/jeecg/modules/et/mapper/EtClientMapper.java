@@ -24,6 +24,5 @@ public interface EtClientMapper extends BaseMapper<EtClient> {
      * @param page         分页查询条件（可以为 RowBounds.DEFAULT）
      * @param queryWrapper 实体对象封装操作类（可以为 null）
      */
-    @Select("SELECT *, ps.* FROM et_client ec left join et_platform_site_code ps on ec.platform_site_code_id = ps.id")
     IPage<EtClient> selectPage(Page<EtClient> page, @Param(Constants.WRAPPER) Wrapper<EtClient> queryWrapper);
 }

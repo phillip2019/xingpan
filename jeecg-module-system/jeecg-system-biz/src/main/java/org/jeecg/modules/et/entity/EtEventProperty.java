@@ -4,11 +4,16 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Objects;
+
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.jeecg.common.aspect.annotation.Dict;
@@ -16,6 +21,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import static org.jeecg.modules.et.entity.EtEventMaterial.PROPERTY_TYPE_MAP;
 
 /**
  * @Description: et_event_property
@@ -36,28 +43,32 @@ public class EtEventProperty implements Serializable {
     @ApiModelProperty(value = "事件属性表主键,自增Id")
     private java.lang.String id;
 	/**所属事件的Id*/
-	@Excel(name = "所属事件的Id", width = 15)
     @ApiModelProperty(value = "所属事件的Id")
     private java.lang.String eventId;
-	/**属性的英文名称*/
-	@Excel(name = "属性的英文名称", width = 15)
-    @ApiModelProperty(value = "属性的英文名称")
+	/**事件属性英文名*/
+	@Excel(name = "事件属性英文名", width = 15)
+    @ApiModelProperty(value = "事件属性英文名")
     private java.lang.String name;
-	/**属性的中文名称*/
-	@Excel(name = "属性的中文名称", width = 15)
-    @ApiModelProperty(value = "属性的中文名称")
+	/**事件属性中文名*/
+	@Excel(name = "事件属性中文名", width = 15)
+    @ApiModelProperty(value = "事件属性中文名")
     private java.lang.String zhName;
-	/**属性值类型,1-字符串,2-数值,3-BOOL,4-列表*/
-	@Excel(name = "属性值类型,1-字符串,2-数值,3-BOOL,4-列表", width = 15)
-    @ApiModelProperty(value = "属性值类型,1-字符串,2-数值,3-BOOL,4-列表")
+	/**事件属性值类型值*/
+    @ApiModelProperty(value = "事件属性值类型值")
     private java.lang.Integer type;
-	/**属性值示例*/
-	@Excel(name = "属性值示例", width = 15)
-    @ApiModelProperty(value = "属性值示例")
+
+    @Excel(name = "事件属性值类型", width = 15)
+    @ApiModelProperty(value = "事件属性值类型")
+    @TableField(exist = false)
+    private  java.lang.String typeStr;
+
+	/**事件属性值示例*/
+	@Excel(name = "事件属性值示例", width = 15)
+    @ApiModelProperty(value = "事件属性值示例")
     private java.lang.String example;
-	/**对属性的说明描述*/
-	@Excel(name = "对属性的说明描述", width = 15)
-    @ApiModelProperty(value = "对属性的说明描述")
+	/**事件属性说明*/
+	@Excel(name = "事件属性说明", width = 15)
+    @ApiModelProperty(value = "事件属性说明")
     private java.lang.String propertyDesc;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
@@ -75,4 +86,28 @@ public class EtEventProperty implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private java.util.Date updateTime;
+
+    public EtEventProperty setType(Integer type) {
+        this.type = type;
+        if (StringUtils.isBlank(this.typeStr)) {
+            for (Map.Entry<String, Integer> entry : PROPERTY_TYPE_MAP.entrySet()) {
+                String key = entry.getKey();
+                Integer val = entry.getValue();
+                if (val.equals(type)) {
+                    this.typeStr = key;
+                    break;
+                }
+            }
+        }
+        return this;
+    }
+
+    public EtEventProperty setTypeStr(String typeStr) {
+        this.typeStr = typeStr;
+        this.type = PROPERTY_TYPE_MAP.get(typeStr);
+        if (Objects.isNull(this.type)) {
+            this.type = 0;
+        }
+        return this;
+    }
 }
