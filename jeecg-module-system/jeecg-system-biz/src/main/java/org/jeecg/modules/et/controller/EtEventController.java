@@ -1,11 +1,13 @@
 package org.jeecg.modules.et.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -24,8 +26,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
- /**
+/**
  * @Description: 埋点事件
  * @Author: jeecg-boot
  * @Date:   2023-07-26
@@ -55,7 +59,28 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
-		QueryWrapper<EtEvent> queryWrapper = QueryGenerator.initQueryWrapper(etEvent, req.getParameterMap());
+		Map<String, String[]> requestMap = new HashMap<>(req.getParameterMap());
+		String[] reqColumnArr = requestMap.get("column");
+		String[] reqOrderArr = requestMap.get("order");
+		requestMap.remove("column");
+		requestMap.remove("order");
+		String sortColumn = null;
+		String sortSort = null;
+		if (reqColumnArr.length > 0) {
+			sortColumn = reqColumnArr[0];
+			sortSort = reqOrderArr[0];
+		}
+
+		QueryWrapper<EtEvent> queryWrapper = QueryGenerator.initQueryWrapper(etEvent, requestMap);
+		queryWrapper.orderByAsc("scene").orderByAsc("sorted");
+		if (StringUtils.isNotBlank(sortColumn) && StringUtils.isNotBlank(sortSort)) {
+			sortColumn = StrUtil.toUnderlineCase(sortColumn);
+			if (StringUtils.equalsIgnoreCase("asc", sortSort)) {
+				queryWrapper.orderByAsc(sortColumn);
+			} else {
+				queryWrapper.orderByDesc(sortColumn);
+			}
+		}
 		Page<EtEvent> page = new Page<EtEvent>(pageNo, pageSize);
 		IPage<EtEvent> pageList = etEventService.page(page, queryWrapper);
 		return Result.OK(pageList);

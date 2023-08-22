@@ -13,6 +13,7 @@
                             ,is_preset_event
                             ,scene
                             ,status
+                            ,sorted
                             ,create_by
                             ,create_time
                             ,update_by
@@ -28,6 +29,7 @@
               ,#{isPresetEvent}
               ,#{scene}
               ,#{status}
+              ,#{sorted}
               ,#{createBy}
               ,#{createTime}
               ,#{updateBy}

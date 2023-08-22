@@ -1,6 +1,7 @@
 package org.jeecg.modules.et.service.impl;
 
 import cn.hutool.core.util.IdUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -8,10 +9,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.et.entity.*;
+import org.jeecg.modules.et.entity.EtEvent;
+import org.jeecg.modules.et.entity.EtEventMaterial;
+import org.jeecg.modules.et.entity.EtEventMaterial2;
+import org.jeecg.modules.et.entity.EtEventProperty;
 import org.jeecg.modules.et.mapper.EtEventMapper;
 import org.jeecg.modules.et.mapper.EtEventPropertyMapper;
 import org.jeecg.modules.et.service.IEtEventPropertyService;
@@ -24,6 +29,8 @@ import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -32,6 +39,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -56,8 +64,8 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
     @Value("${jeecg.path.upload}")
     private String upLoadPath;
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response, Class<EtEventMaterial> clazz) {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
@@ -106,11 +114,28 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
         String propertyZhName = "";
         String scene = "";
         List<EtEventProperty> eventPropertyList = new ArrayList<>();
+        int eventPos = 0;
+        int propertyPos = 0;
+        int stepSize = 10;
         for (EtEventMaterial eventMaterial : list) {
             if (StringUtils.isNotBlank(eventMaterial.getScene())) {
                 scene = eventMaterial.getScene();
+
+                log.info("查询场景: {} 下最大序号...", scene);
+                // 获取同一个场景下最大排序序号
+                LambdaQueryWrapper<EtEvent> sceneWrapper = new LambdaQueryWrapper<EtEvent>().eq(EtEvent::getScene, scene).orderByDesc(EtEvent::getSorted).last("limit 1");
+                EtEvent maxSceneEvent = eventMapper.selectOne(sceneWrapper);
+                eventPos = 0;
+                if (Objects.nonNull(maxSceneEvent)) {
+                    eventPos = maxSceneEvent.getSorted();
+                    log.info("查询场景: {} 下最大序号: {}", scene, eventPos);
+                }
             }
             if (StringUtils.isNotBlank(eventMaterial.getName())) {
+                // 步长增加
+                eventPos += stepSize;
+                propertyPos = 0;
+
                 event = new EtEvent();
                 eventName = eventMaterial.getName();
                 eventZhName = eventMaterial.getZhName();
@@ -125,7 +150,8 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
                         .setIsPresetEvent(eventMaterial.getIsPresetEvent())
                         .setScene(scene)
                         .setStatus(eventMaterial.getStatus())
-                        ;
+                        .setSorted(eventPos)
+                ;
                 event.setCreateBy(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getUsername());
                 event.setCreateTime(new Date());
                 // TODO 进行事件查询，前置校验
@@ -138,6 +164,8 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
                 log.error("事件ID: {}, 事件: {}, 事件中文名: {}, 属性名称为空: 中文名为: {}", event.getId(), eventName, eventZhName, eventMaterial.getPropertyZhName());
                 continue;
             }
+
+            propertyPos += stepSize;
             propertyName = eventMaterial.getPropertyName();
             propertyZhName = eventMaterial.getPropertyZhName();
             log.info("开始保存事件ID: {}, 事件: {}，事件中文名: {}，属性:{}，属性中文名: {}", event.getId(), eventName, eventZhName, propertyName, propertyZhName);
@@ -154,7 +182,9 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
                     .setExample(eventMaterial.getPropertyExample())
                     .setPropertyDesc(eventMaterial.getPropertyDesc())
                     .setCreateBy(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getUsername())
-                    .setCreateTime(new Date());
+                    .setCreateTime(new Date())
+                    .setSorted(propertyPos)
+            ;
 //            eventPropertyMapper.insert(eventProperty);
             eventPropertyList.add(eventProperty);
         }
@@ -208,5 +238,34 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
         mv.addObject(NormalExcelConstants.PARAMS,exportParams);
         mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
         return mv;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean removeById(Serializable id) {
+        // 先删除属性
+        Map<String, Object> eventMap = new HashMap<>();
+        eventMap.put("event_id", id);
+        boolean retProperty = eventPropertyService.removeByMap(eventMap);
+        if (!retProperty) {
+            log.error("删除事件ID: {}, 属性失败", id);
+            throw new JeecgBootException(String.format("删除事件ID: %s, 属性失败", id));
+        }
+        return super.removeById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean removeByIds(Collection<?> list) {
+        // 先删除属性
+        EtEventProperty queryProperty = new EtEventProperty();
+        QueryWrapper<EtEventProperty> queryWrapper = QueryGenerator.initQueryWrapper(queryProperty, null);
+        queryWrapper.in("event_id", list);
+        boolean retProperty = eventPropertyService.remove(queryWrapper);
+        if (!retProperty) {
+            log.error("批量删除事件ID: {}, 属性失败", list);
+            throw new JeecgBootException(String.format("批量删除事件ID: %s, 属性失败", list));
+        }
+        return super.removeBatchByIds(list);
     }
 }

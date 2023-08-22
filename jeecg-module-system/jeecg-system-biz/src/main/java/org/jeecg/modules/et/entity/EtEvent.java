@@ -71,6 +71,9 @@ public class EtEvent implements Serializable {
 	@Excel(name = "状态", width = 15)
     @ApiModelProperty(value = "状态")
     private java.lang.Integer status;
+
+    @ApiModelProperty(value = "序号")
+    private java.lang.Integer sorted;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
     private java.lang.String createBy;

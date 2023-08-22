@@ -106,25 +106,6 @@ public class EtEventMaterial implements Serializable {
     @ApiModelProperty(value = "状态")
     private java.lang.String statusStr = "上线";
 
-    /**创建时间*/
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "创建时间", width = 15, needMerge = true, format="yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "创建时间")
-    private java.util.Date createTime;
-    /**创建人*/
-    @Excel(name = "创建人", width = 15, needMerge = true)
-    @ApiModelProperty(value = "创建人")
-    private java.lang.String createBy;
-    /**更新时间*/
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "更新时间", width = 15, needMerge = true, format="yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "更新时间")
-    private java.util.Date updateTime;
-    /**更新人*/
-    @Excel(name = "更新人", width = 15, needMerge = true)
-    @ApiModelProperty(value = "更新人")
-    private java.lang.String updateBy;
-
     public EtEventMaterial setType(Integer type) {
         this.type = type;
         if (StringUtils.isBlank(this.typeStr)) {

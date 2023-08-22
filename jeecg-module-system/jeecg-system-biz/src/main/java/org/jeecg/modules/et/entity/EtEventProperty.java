@@ -70,6 +70,10 @@ public class EtEventProperty implements Serializable {
 	@Excel(name = "事件属性说明", width = 15)
     @ApiModelProperty(value = "事件属性说明")
     private java.lang.String propertyDesc;
+    /**序号*/
+    @Excel(name = "序号", width = 15)
+    @ApiModelProperty(value = "序号")
+    private java.lang.Integer sorted;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
     private java.lang.String createBy;

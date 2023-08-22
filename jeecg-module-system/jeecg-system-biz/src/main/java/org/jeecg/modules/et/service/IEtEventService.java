@@ -1,6 +1,9 @@
 package org.jeecg.modules.et.service;
 
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.et.entity.EtEvent;
 import org.jeecg.modules.et.entity.EtEventMaterial;
@@ -9,6 +12,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * @Description: et_event
@@ -17,6 +22,12 @@ import javax.servlet.http.HttpServletResponse;
  * @Version: V1.0
  */
 public interface IEtEventService extends IService<EtEvent> {
+
+    @Override
+    boolean removeById(Serializable id);
+
+    @Override
+    boolean removeByIds(Collection<?> list);
 
     Result<?> importExcel(HttpServletRequest request, HttpServletResponse response, Class<EtEventMaterial> etEventClass);
 
