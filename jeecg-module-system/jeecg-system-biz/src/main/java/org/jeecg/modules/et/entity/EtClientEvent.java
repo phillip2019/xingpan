@@ -31,6 +31,15 @@ import lombok.experimental.Accessors;
 public class EtClientEvent implements Serializable {
     private static final long serialVersionUID = 1L;
 
+
+    public EtClientEvent() {
+    }
+
+    public EtClientEvent(String clientId, String eventId) {
+        this.clientId = clientId;
+        this.eventId = eventId;
+    }
+
 	/**ID，自增*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID，自增")
@@ -44,9 +53,9 @@ public class EtClientEvent implements Serializable {
     @ApiModelProperty(value = "事件编号")
     private java.lang.String eventId;
 	/**状态 1-初始化 2-上线 3-下线 4-异常*/
-	@Excel(name = "状态 1-初始化 2-上线 3-下线 4-异常", width = 15)
-    @ApiModelProperty(value = "状态 1-初始化 2-上线 3-下线 4-异常")
-    private java.lang.Integer status;
+	@Excel(name = "状态", width = 15)
+    @ApiModelProperty(value = "状态")
+    private java.lang.Integer status = 2;
 	/**截图地址*/
 	@Excel(name = "截图地址", width = 15)
     @ApiModelProperty(value = "截图地址")
@@ -67,4 +76,6 @@ public class EtClientEvent implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private java.util.Date updateTime;
+
+
 }

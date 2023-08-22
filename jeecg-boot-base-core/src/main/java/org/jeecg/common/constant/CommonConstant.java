@@ -429,4 +429,9 @@ public interface CommonConstant {
      */
     String PHONE_REDIS_KEY_PRE = "phone_msg";
 
+   /**
+    * 上线
+    */
+   Integer ONLINE_FLAG = 2;
+
 }

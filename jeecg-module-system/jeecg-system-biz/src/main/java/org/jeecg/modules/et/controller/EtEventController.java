@@ -1,6 +1,7 @@
 package org.jeecg.modules.et.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,14 +12,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
-import org.jeecg.modules.et.entity.EtEvent;
-import org.jeecg.modules.et.entity.EtEventMaterial;
-import org.jeecg.modules.et.entity.EtEventMaterial2;
-import org.jeecg.modules.et.entity.EtEventScene;
+import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.et.entity.*;
+import org.jeecg.modules.et.service.IEtClientEventService;
 import org.jeecg.modules.et.service.IEtEventService;
+import org.jeecg.modules.system.entity.SysPermission;
+import org.jeecg.modules.system.model.SysPermissionTree;
+import org.jeecg.modules.system.model.TreeModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -27,7 +31,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 埋点事件
@@ -42,6 +48,9 @@ import java.util.Map;
 public class EtEventController extends JeecgController<EtEvent, IEtEventService> {
 	@Autowired
 	private IEtEventService etEventService;
+
+	@Autowired
+	private IEtClientEventService etClientEventService;
 	
 	/**
 	 * 分页列表查询
@@ -192,4 +201,44 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 		return etEventService.importExcel(request, response, EtEventMaterial.class);
     }
 
+	/**
+	 * 查询角色授权
+	 *
+	 * @return
+	 */
+	@ApiOperation(value="埋点事件-查询客户端关联事件", notes="埋点事件-查询客户端关联事件")
+	@RequestMapping(value = "/queryClientEvent", method = RequestMethod.GET)
+	public Result<List<String>> queryClientEvent(@RequestParam(name = "clientId", required = true) String clientId) {
+		Result<List<String>> result = new Result<>();
+		try {
+			List<EtClientEvent> list = etClientEventService.list(new QueryWrapper<EtClientEvent>().lambda().eq(EtClientEvent::getClientId, clientId));
+			result.setResult(list.stream().map(etClientEvent -> String.valueOf(etClientEvent.getEventId())).collect(Collectors.toList()));
+			result.setSuccess(true);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return result;
+	}
+
+	/**
+	 * 保存客户端事件关联
+	 * @return
+	 */
+	@ApiOperation(value="埋点事件-保存客户端事件关联", notes="埋点事件-保存客户端事件关联")
+	@RequestMapping(value = "/saveClientEvent", method = RequestMethod.POST)
+	//@RequiresRoles({ "admin" })
+	public Result<String> saveClientEvent(@RequestBody JSONObject json) {
+		Result<String> result = new Result<>();
+		try {
+			String clientId = json.getString("clientId");
+			String eventIds = json.getString("eventIds");
+			String lastEventIds = json.getString("lastEventIds");
+			this.etClientEventService.saveClientEvent(clientId, eventIds, lastEventIds);
+			result.success("保存成功！");
+		} catch (Exception e) {
+			result.error500("保存客户端关联事件失败！");
+			log.error(e.getMessage(), e);
+		}
+		return result;
+	}
 }

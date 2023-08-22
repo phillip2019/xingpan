@@ -11,4 +11,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IEtClientEventService extends IService<EtClientEvent> {
 
+    boolean saveClientEvent(String clientId, String eventIds, String lastEventIds);
 }
