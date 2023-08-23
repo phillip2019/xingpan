@@ -20,6 +20,7 @@ import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.et.entity.*;
 import org.jeecg.modules.et.service.IEtBuProjectEventService;
 import org.jeecg.modules.et.service.IEtClientEventService;
+import org.jeecg.modules.et.service.IEtClientService;
 import org.jeecg.modules.et.service.IEtEventService;
 import org.jeecg.modules.system.entity.SysPermission;
 import org.jeecg.modules.system.model.SysPermissionTree;
@@ -30,10 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +50,9 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 
 	@Autowired
 	private IEtClientEventService etClientEventService;
+
+	@Autowired
+	private IEtClientService etClientService;
 
 
 	@Autowired
@@ -105,6 +106,40 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 		}
 		Page<EtEvent> page = new Page<EtEvent>(pageNo, pageSize);
 		IPage<EtEvent> pageList = etEventService.page(page, queryWrapper);
+		// 查询所有客户端，记录客户端ID, Name map
+		List<EtClient> etClientList = etClientService.list();
+		Map<String, String> clientId2ClientNameMap = new HashMap<>();
+		for (EtClient ec : etClientList) {
+			clientId2ClientNameMap.put(ec.getId(), ec.getName());
+		}
+
+		// 查询客户端属性，将客户端名称填充在clientNames中
+		List<EtEvent> etEventList = pageList.getRecords();
+		List<String> eventIds = etEventList.stream().map(EtEvent::getId).collect(Collectors.toList());
+
+		EtClientEvent etClientEvent = new EtClientEvent();
+		QueryWrapper<EtClientEvent>  etClientQueryWrapper = QueryGenerator.initQueryWrapper(etClientEvent, null);
+		etClientQueryWrapper.in("event_id", eventIds);
+		List<EtClientEvent> etClientEventList = etClientEventService.list(etClientQueryWrapper);
+		Map<String, Set<String>> eventClientNameListMap = new HashMap<>(5);
+		for (EtClientEvent ce : etClientEventList) {
+			String eventId = ce.getEventId();
+			String clientId = ce.getClientId();
+			if (!eventClientNameListMap.containsKey(eventId)) {
+				eventClientNameListMap.put(eventId, new HashSet<>());
+			}
+			Set<String> clientNameSet = eventClientNameListMap.get(eventId);
+			if (clientId2ClientNameMap.containsKey(clientId)) {
+				clientNameSet.add(clientId2ClientNameMap.get(clientId));
+			} else {
+				log.error("不存在改EventId:{},  ClientID: {}", eventId, clientId);
+			}
+		}
+		for (EtEvent e : etEventList) {
+			String eventId = e.getId();
+			Set<String> clientNameSet = eventClientNameListMap.get(eventId);
+			e.setClientNames(StringUtils.join(clientNameSet, ","));
+		}
 		return Result.OK(pageList);
 	}
 	
