@@ -11,4 +11,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IEtBuProjectEventService extends IService<EtBuProjectEvent> {
 
+    boolean saveBuProjectEvent(String buProjectId, String eventIds, String lastEventIds);
 }

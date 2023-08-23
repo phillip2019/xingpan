@@ -197,8 +197,6 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
 
     @Override
     public ModelAndView exportXls(HttpServletRequest request, EtEvent etEvent, Class<EtEventMaterial2> clazz, String title) {
-
-
         // step.1 组装查询条件查询数据
         LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
 

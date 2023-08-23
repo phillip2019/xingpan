@@ -18,6 +18,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.et.entity.*;
+import org.jeecg.modules.et.service.IEtBuProjectEventService;
 import org.jeecg.modules.et.service.IEtClientEventService;
 import org.jeecg.modules.et.service.IEtEventService;
 import org.jeecg.modules.system.entity.SysPermission;
@@ -51,7 +52,10 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 
 	@Autowired
 	private IEtClientEventService etClientEventService;
-	
+
+
+	@Autowired
+	private IEtBuProjectEventService etBuProjectEventService;
 	/**
 	 * 分页列表查询
 	 *
@@ -79,8 +83,17 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 			sortColumn = reqColumnArr[0];
 			sortSort = reqOrderArr[0];
 		}
-
 		QueryWrapper<EtEvent> queryWrapper = QueryGenerator.initQueryWrapper(etEvent, requestMap);
+		if (StringUtils.isNotBlank(etEvent.getBuProjectNameId())) {
+			String buProjectNameId = etEvent.getBuProjectNameId();
+			EtBuProjectEvent etBuProjectEvent = new EtBuProjectEvent();
+			QueryWrapper<EtBuProjectEvent>  etBuProjectEventQueryWrapper = QueryGenerator.initQueryWrapper(etBuProjectEvent, null);
+			List<EtBuProjectEvent> buProjectEventList = etBuProjectEventService.list(etBuProjectEventQueryWrapper);
+			List<String> eventIds = buProjectEventList.stream().map(EtBuProjectEvent::getEventId).collect(Collectors.toList());
+			if (eventIds.size() > 0) {
+				queryWrapper.in("id", eventIds);
+			}
+		}
 		queryWrapper.orderByAsc("scene").orderByAsc("sorted");
 		if (StringUtils.isNotBlank(sortColumn) && StringUtils.isNotBlank(sortSort)) {
 			sortColumn = StrUtil.toUnderlineCase(sortColumn);
@@ -202,7 +215,7 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
     }
 
 	/**
-	 * 查询角色授权
+	 * 查询客户端关联事件
 	 *
 	 * @return
 	 */
@@ -237,6 +250,47 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 			result.success("保存成功！");
 		} catch (Exception e) {
 			result.error500("保存客户端关联事件失败！");
+			log.error(e.getMessage(), e);
+		}
+		return result;
+	}
+
+	/**
+	 * 查询业务产品关联事件
+	 *
+	 * @return
+	 */
+	@ApiOperation(value="埋点事件-查询业务产品关联事件", notes="埋点事件-查询业务产品关联事件")
+	@RequestMapping(value = "/queryBuProjectEvent", method = RequestMethod.GET)
+	public Result<List<String>> queryBuProjectEvent(@RequestParam(name = "buProjectId", required = true) String buProjectId) {
+		Result<List<String>> result = new Result<>();
+		try {
+			List<EtBuProjectEvent> list = etBuProjectEventService.list(new QueryWrapper<EtBuProjectEvent>().lambda().eq(EtBuProjectEvent::getBuProjectId, buProjectId));
+			result.setResult(list.stream().map(etBuProjectEvent -> String.valueOf(etBuProjectEvent.getEventId())).collect(Collectors.toList()));
+			result.setSuccess(true);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return result;
+	}
+
+	/**
+	 * 保存业务产品事件关联
+	 * @return
+	 */
+	@ApiOperation(value="埋点事件-保存业务产品事件关联", notes="埋点事件-保存业务产品事件关联")
+	@RequestMapping(value = "/saveBuProjectEvent", method = RequestMethod.POST)
+	//@RequiresRoles({ "admin" })
+	public Result<String> saveBuProjectEvent(@RequestBody JSONObject json) {
+		Result<String> result = new Result<>();
+		try {
+			String clientId = json.getString("buProjectId");
+			String eventIds = json.getString("eventIds");
+			String lastEventIds = json.getString("lastEventIds");
+			this.etBuProjectEventService.saveBuProjectEvent(clientId, eventIds, lastEventIds);
+			result.success("保存成功！");
+		} catch (Exception e) {
+			result.error500("保存业务产品关联事件失败！");
 			log.error(e.getMessage(), e);
 		}
 		return result;

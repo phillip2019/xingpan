@@ -1,21 +1,23 @@
 package org.jeecg.modules.et.controller;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.et.entity.EtBuProject;
+import org.jeecg.modules.et.entity.EtEvent;
+import org.jeecg.modules.et.entity.EtEventMaterial2;
 import org.jeecg.modules.et.service.IEtBuProjectService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -23,6 +25,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.et.service.IEtEventService;
+import org.jeecg.modules.system.model.TreeModel;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -52,8 +56,12 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuProjectService> {
 	@Autowired
 	private IEtBuProjectService etBuProjectService;
-	
-	/**
+
+	 @Autowired
+	 private IEtEventService etEventService;
+
+
+	 /**
 	 * 分页列表查询
 	 *
 	 * @param etBuProject
@@ -168,7 +176,8 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
     //@RequiresPermissions("org.jeecg.modules.demo:业务项目:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, EtBuProject etBuProject) {
-        return super.exportXls(request, etBuProject, EtBuProject.class, "业务项目");
+		log.info("开始导出项目埋点事件...");
+		return etBuProjectService.exportXls(request, etBuProject, EtEventMaterial2.class, "埋点事件");
     }
 
     /**
@@ -184,4 +193,64 @@ public class EtBuProjectController extends JeecgController<EtBuProject, IEtBuPro
         return super.importExcel(request, response, EtBuProject.class);
     }
 
+	 /**
+	  * 业务项目关联事件功能，查看事件树
+	  * @param request
+	  * @return
+	  */
+	 @RequestMapping(value = "/queryTreeList", method = RequestMethod.GET)
+	 public Result<Map<String,Object>> queryTreeList(HttpServletRequest request) {
+		 Result<Map<String, Object>> result = new Result<>();
+		 //全部事件IDS
+		 List<String> ids = new ArrayList<>();
+		 try {
+			 LambdaQueryWrapper<EtEvent> query = new LambdaQueryWrapper<>();
+			 query.eq(EtEvent::getStatus, CommonConstant.ONLINE_FLAG);
+			 query.orderByAsc(EtEvent::getScene).orderByAsc(EtEvent::getSorted).orderByDesc(EtEvent::getCreateTime);
+			 List<EtEvent> list = etEventService.list(query);
+			 ids = list.stream().map(EtEvent::getId).collect(Collectors.toList());
+			 List<TreeModel> treeList = new ArrayList<>();
+			 getTreeModelList(treeList, list, null);
+			 Map<String, Object> resMap = new HashMap<>(5);
+			 //全部树节点数据
+			 resMap.put("treeList", treeList);
+			 //全部树ids
+			 resMap.put("ids", ids);
+			 result.setResult(resMap);
+			 result.setSuccess(true);
+		 } catch (Exception e) {
+			 log.error(e.getMessage(), e);
+		 }
+		 return result;
+	 }
+
+	 private void getTreeModelList(List<TreeModel> treeList, List<EtEvent> metaList, TreeModel temp) {
+		 // 初始化树形节点
+		 Map<String, List<EtEvent>> sceneEventMap = new HashMap<>(8);
+		 List<EtEvent> etList;
+		 for (EtEvent et : metaList) {
+			 if (!sceneEventMap.containsKey(et.getScene())) {
+				 etList = new ArrayList<>();
+				 sceneEventMap.put(et.getScene(), etList);
+			 }
+			 etList = sceneEventMap.get(et.getScene());
+			 etList.add(et);
+		 }
+
+		 // 将map转换为treeList
+		 for (Map.Entry<String, List<EtEvent>> entry : sceneEventMap.entrySet()) {
+			 String scene = entry.getKey();
+			 List<EtEvent> eventList = entry.getValue();
+
+			 // 将scene初始化成顶点tree
+			 TreeModel parentTree = new TreeModel(scene, null, scene, 0, false);
+			 treeList.add(parentTree);
+			 List<TreeModel> childTreeModelList = new ArrayList<>(eventList.size());
+			 for (EtEvent event : eventList) {
+				 TreeModel childTree = new TreeModel(event.getId(), scene, String.format("%s[%s]", event.getZhName(), event.getName()), 0, true);
+				 childTreeModelList.add(childTree);
+			 }
+			 parentTree.setChildren(childTreeModelList);
+		 }
+	 }
 }

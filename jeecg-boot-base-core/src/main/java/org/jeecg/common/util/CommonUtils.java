@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -350,5 +350,34 @@ public class CommonUtils {
         }
         log.debug("-----Common getBaseUrl----- : " + baseDomainPath);
         return baseDomainPath;
+    }
+
+    /**
+     * 从diff中找出main中没有的元素
+     * @param main
+     * @param diff
+     * @return
+     */
+    public static List<String> getDiff(String main, String diff){
+        if(oConvertUtils.isEmpty(diff)) {
+            return null;
+        }
+        if(oConvertUtils.isEmpty(main)) {
+            return Arrays.asList(diff.split(","));
+        }
+
+        String[] mainArr = main.split(",");
+        String[] diffArr = diff.split(",");
+        Map<String, Integer> map = new HashMap<>(5);
+        for (String string : mainArr) {
+            map.put(string, 1);
+        }
+        List<String> res = new ArrayList<String>();
+        for (String key : diffArr) {
+            if(oConvertUtils.isNotEmpty(key) && !map.containsKey(key)) {
+                res.add(key);
+            }
+        }
+        return res;
     }
 }

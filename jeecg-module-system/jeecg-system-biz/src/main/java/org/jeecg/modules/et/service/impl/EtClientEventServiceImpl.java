@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
+import static org.jeecg.common.util.CommonUtils.getDiff;
+
 /**
  * @Description: et_client_event
  * @Author: jeecg-boot
@@ -56,35 +58,6 @@ public class EtClientEventServiceImpl extends ServiceImpl<EtClientEventMapper, E
                 this.remove(new QueryWrapper<EtClientEvent>().lambda().eq(EtClientEvent::getClientId, clientId).eq(EtClientEvent::getEventId, eventId));
             }
         }
-        return false;
-    }
-
-    /**
-     * 从diff中找出main中没有的元素
-     * @param main
-     * @param diff
-     * @return
-     */
-    private List<String> getDiff(String main, String diff){
-        if(oConvertUtils.isEmpty(diff)) {
-            return null;
-        }
-        if(oConvertUtils.isEmpty(main)) {
-            return Arrays.asList(diff.split(","));
-        }
-
-        String[] mainArr = main.split(",");
-        String[] diffArr = diff.split(",");
-        Map<String, Integer> map = new HashMap<>(5);
-        for (String string : mainArr) {
-            map.put(string, 1);
-        }
-        List<String> res = new ArrayList<String>();
-        for (String key : diffArr) {
-            if(oConvertUtils.isNotEmpty(key) && !map.containsKey(key)) {
-                res.add(key);
-            }
-        }
-        return res;
+        return true;
     }
 }

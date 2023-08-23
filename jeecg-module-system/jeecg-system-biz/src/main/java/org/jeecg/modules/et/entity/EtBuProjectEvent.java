@@ -52,8 +52,8 @@ public class EtBuProjectEvent implements Serializable {
     @ApiModelProperty(value = "测试负责人")
     private java.lang.String teOwner;
 	/**状态 1-初始化 2-埋点中 3-测试中 4-测试完成 5-上线*/
-	@Excel(name = "状态 1-初始化 2-埋点中 3-测试中 4-测试完成 5-上线", width = 15)
-    @ApiModelProperty(value = "状态 1-初始化 2-埋点中 3-测试中 4-测试完成 5-上线")
+	@Excel(name = "状态", width = 15)
+    @ApiModelProperty(value = "状态", notes = "1-初始化 2-埋点中 3-测试中 4-测试完成 5-上线")
     private java.lang.Integer status;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
@@ -71,4 +71,13 @@ public class EtBuProjectEvent implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private java.util.Date updateTime;
+
+
+    public EtBuProjectEvent() {
+    }
+
+    public EtBuProjectEvent(String buProjectId, String eventId) {
+        this.buProjectId = buProjectId;
+        this.eventId = eventId;
+    }
 }
