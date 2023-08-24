@@ -105,6 +105,11 @@ public class EtEventLocal implements Serializable {
 	@Excel(name = "事件中文名", width = 15)
     @ApiModelProperty(value = "事件中文名")
     private java.lang.String eventZhName;
+    /**事件*/
+    @TableField(exist = false)
+    @Excel(name = "事件", width = 15)
+    @ApiModelProperty(value = "事件")
+    private EtEvent et;
 	/**事件时长*/
 	@Excel(name = "事件时长", width = 15)
     @ApiModelProperty(value = "事件时长")

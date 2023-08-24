@@ -2,10 +2,7 @@ package org.jeecg.modules.et.controller;
 
 import java.text.ParseException;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,6 +15,8 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.et.entity.EtClient;
+import org.jeecg.modules.et.entity.EtEvent;
 import org.jeecg.modules.et.entity.EtEventLocal;
 import org.jeecg.modules.et.service.IEtEventLocalService;
 
@@ -26,6 +25,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.et.service.IEtEventService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -55,6 +55,9 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 public class EtEventLocalController extends JeecgController<EtEventLocal, IEtEventLocalService> {
 	@Autowired
 	private IEtEventLocalService etEventLocalService;
+
+	 @Autowired
+	 private IEtEventService etEventService;
 	
 	/**
 	 * 分页列表查询
@@ -81,8 +84,8 @@ public class EtEventLocalController extends JeecgController<EtEventLocal, IEtEve
 		if (createdAtArr != null && createdAtArr.length == 2) {
 			long beginCreatedAt = DateUtils.parseTimestamp(createdAtArr[0], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
 			long endCreatedAt = DateUtils.parseTimestamp(createdAtArr[1], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
-			minDs = StringUtils.replace(createdAtArr[0], "-", "");
-			maxDs = StringUtils.replace(createdAtArr[1], "-", "");
+			minDs = StringUtils.replace(StringUtils.substring(createdAtArr[0], 0, 10), "-", "");
+			maxDs = StringUtils.replace(StringUtils.substring(createdAtArr[1], 0, 10), "-", "");
 			queryWrapper.between("time", beginCreatedAt, endCreatedAt);
 		}
 		// 默认查询当天数据
@@ -90,6 +93,21 @@ public class EtEventLocalController extends JeecgController<EtEventLocal, IEtEve
 		queryWrapper.orderByDesc("time");
 		Page<EtEventLocal> page = new Page<EtEventLocal>(pageNo, pageSize);
 		IPage<EtEventLocal> pageList = etEventLocalService.page(page, queryWrapper);
+
+		// 查询所有客户端，记录客户端ID, Name map
+		List<EtEvent> etClientList = etEventService.list(new QueryWrapper<EtEvent>().lambda().eq(EtEvent::getStatus, 2));
+		Map<String, EtEvent> name2EventMap = new HashMap<>(etClientList.size());
+		for (EtEvent et : etClientList) {
+			name2EventMap.put(et.getName(), et);
+		}
+		List<EtEventLocal> etEventLocalList = pageList.getRecords();
+		for (EtEventLocal el : etEventLocalList) {
+			EtEvent et = name2EventMap.get(el.getEvent());
+			if (Objects.nonNull(et)) {
+				el.setEt(et);
+				el.setEventZhName(et.getZhName());
+			}
+		}
 		return Result.OK(pageList);
 	}
 	
