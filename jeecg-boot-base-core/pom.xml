@@ -213,6 +213,14 @@
 			<groupId>com.facebook.presto</groupId>
 			<artifactId>presto-jdbc</artifactId>
 		</dependency>
+<!--		<dependency>
+			<groupId>com.clickhouse</groupId>
+			<artifactId>clickhouse-jdbc</artifactId>
+		</dependency>-->
+		<dependency>
+			<groupId>ru.yandex.clickhouse</groupId>
+			<artifactId>clickhouse-jdbc</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

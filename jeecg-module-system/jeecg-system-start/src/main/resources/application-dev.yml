@@ -130,7 +130,8 @@ spring:
         poolPreparedStatements: true
         maxPoolPreparedStatementPerConnectionSize: 20
         # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
-        filters: stat,wall,slf4j
+#        filters: stat,wall,slf4j
+        filters: stat,slf4j
         # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
 #        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       datasource:
@@ -151,6 +152,13 @@ spring:
           username: hive
           password:
           driver-class-name: com.facebook.presto.jdbc.PrestoDriver
+        ck:
+          name: ck
+          url: jdbc:clickhouse://172.18.5.47:8123/log
+          username: dev
+          password: gPQ9bs0GFKyuaXv713uN
+          driver-class-name: ru.yandex.clickhouse.ClickHouseDriver
+
   #redis 配置
   redis:
     database: 1
