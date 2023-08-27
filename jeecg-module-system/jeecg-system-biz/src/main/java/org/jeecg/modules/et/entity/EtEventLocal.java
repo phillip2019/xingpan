@@ -96,6 +96,11 @@ public class EtEventLocal implements Serializable {
 	@Excel(name = "行为类型", width = 15)
     @ApiModelProperty(value = "行为类型")
     private java.lang.String type;
+    /**事件场景*/
+    @TableField(exist = false)
+    @Excel(name = "事件场景", width = 15)
+    @ApiModelProperty(value = "事件场景")
+    private java.lang.String scene;
 	/**事件名*/
 	@Excel(name = "事件名", width = 15)
     @ApiModelProperty(value = "事件名")

@@ -25,6 +25,7 @@ import org.jeecg.modules.et.service.IEtEventService;
 import org.jeecg.modules.system.entity.SysPermission;
 import org.jeecg.modules.system.model.SysPermissionTree;
 import org.jeecg.modules.system.model.TreeModel;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -45,6 +46,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/et/etEvent")
 @Slf4j
 public class EtEventController extends JeecgController<EtEvent, IEtEventService> {
+
+	public static final String COMMA_DELIMITER = ",";
+
 	@Autowired
 	private IEtEventService etEventService;
 
@@ -57,6 +61,7 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 
 	@Autowired
 	private IEtBuProjectEventService etBuProjectEventService;
+
 	/**
 	 * 分页列表查询
 	 *
@@ -202,7 +207,32 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 		this.etEventService.removeByIds(Arrays.asList(ids.split(",")));
 		return Result.OK("批量删除成功!");
 	}
-	
+
+	/**
+	 *  批量更新
+	 * @param ids
+	 * @param et
+	 * @return
+	 */
+	@AutoLog(value = "埋点事件-批量更新")
+	@ApiOperation(value="埋点事件-批量更新", notes="埋点事件-批量更新")
+	//@RequiresPermissions("org.jeecg.modules.demo:埋点事件:updateBatch")
+	@PutMapping(value = "/updateBatch")
+	public Result<String> updateBatch(@RequestParam(name="ids",required=true) String ids, EtEvent et) {
+		List<EtEvent> etEventList = new ArrayList<>();
+		EtEvent event = null;
+		for (String id : ids.split(COMMA_DELIMITER)) {
+			event = new EtEvent();
+			if (Objects.nonNull(et)) {
+				BeanUtils.copyProperties(et, event);
+			}
+			event.setId(id);
+			etEventList.add(event);
+		}
+		this.etEventService.updateBatchById(etEventList);
+		return Result.OK("批量更新成功!");
+	}
+
 	/**
 	 * 通过id查询
 	 *
