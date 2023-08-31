@@ -177,7 +177,24 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 		etEventService.updateById(etEvent);
 		return Result.OK("编辑成功!");
 	}
-	
+
+	/**
+	 * 复制
+	 * @param etEvent
+	 * @return
+	 */
+	@AutoLog(value = "埋点事件-复制")
+	@ApiOperation(value="埋点事件-复制", notes="埋点事件-复制")
+	//@RequiresPermissions("org.jeecg.modules.demo:埋点事件:add")
+	@PostMapping(value = "/copy")
+	public Result<String> copy(@RequestBody EtEvent etEvent) {
+		boolean ret = etEventService.copy(etEvent);
+		if (!ret) {
+			return Result.error("复制失败，事件名称或事件中文名称已存在，请检查再添加！");
+		}
+		return Result.OK("复制成功！");
+	}
+
 	/**
 	 *   通过id删除
 	 *

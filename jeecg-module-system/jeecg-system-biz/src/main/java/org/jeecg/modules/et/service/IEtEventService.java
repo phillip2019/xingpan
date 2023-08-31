@@ -32,4 +32,6 @@ public interface IEtEventService extends IService<EtEvent> {
     Result<?> importExcel(HttpServletRequest request, HttpServletResponse response, Class<EtEventMaterial> etEventClass);
 
     ModelAndView exportXls(HttpServletRequest request, EtEvent etEvent, Class<EtEventMaterial2> clazz, String title);
+
+    boolean copy(EtEvent etEvent);
 }

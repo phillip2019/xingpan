@@ -29,7 +29,6 @@ import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -236,6 +235,42 @@ public class EtEventServiceImpl extends ServiceImpl<EtEventMapper, EtEvent> impl
         mv.addObject(NormalExcelConstants.PARAMS,exportParams);
         mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
         return mv;
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
+    @Override
+    public boolean copy(EtEvent etEvent) {
+        // 校验name和zhName是否重复
+        LambdaQueryWrapper<EtEvent> query = new LambdaQueryWrapper<>();
+        query.eq(EtEvent::getName, etEvent.getName())
+                .or().eq(EtEvent::getZhName, etEvent.getZhName());
+        EtEvent etDb = eventMapper.selectOne(query);
+        if (Objects.nonNull(etDb)) {
+            return false;
+        } else {
+            etDb = eventMapper.selectById(etEvent.getId());
+        }
+
+        // 保存event和复制eventProperty
+        String oldEventId = etEvent.getId();
+        String eventId = IdUtil.randomUUID();
+
+        etEvent.setId(eventId);
+
+        LambdaQueryWrapper<EtEventProperty> eventPropertyLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        eventPropertyLambdaQueryWrapper.eq(EtEventProperty::getEventId, oldEventId);
+        List<EtEventProperty> etEventPropertyList = eventPropertyMapper.selectList(eventPropertyLambdaQueryWrapper);
+        for (EtEventProperty eventProperty : etEventPropertyList) {
+            eventProperty.setId(IdUtil.randomUUID());
+            eventProperty.setEventId(eventId);
+        }
+        if (!CollectionUtils.isEmpty(etEventPropertyList)) {
+            eventPropertyService.saveBatch(etEventPropertyList);
+            log.info("批量保存事件属性，数量: {}完成", etEventPropertyList.size());
+        }
+        log.info("复制事件英文名: {} -> {}, 中文名:{} -> {} 完成", etDb.getName(), etEvent.getName(), etDb.getZhName(), etEvent.getZhName());
+        eventMapper.insert(etEvent);
+        return true;
     }
 
     @Transactional(rollbackFor = Exception.class)
