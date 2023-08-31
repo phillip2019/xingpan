@@ -93,6 +93,7 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 		if (StringUtils.isNotBlank(etEvent.getBuProjectNameId())) {
 			String buProjectNameId = etEvent.getBuProjectNameId();
 			EtBuProjectEvent etBuProjectEvent = new EtBuProjectEvent();
+			etBuProjectEvent.setBuProjectId(buProjectNameId);
 			QueryWrapper<EtBuProjectEvent>  etBuProjectEventQueryWrapper = QueryGenerator.initQueryWrapper(etBuProjectEvent, null);
 			List<EtBuProjectEvent> buProjectEventList = etBuProjectEventService.list(etBuProjectEventQueryWrapper);
 			List<String> eventIds = buProjectEventList.stream().map(EtBuProjectEvent::getEventId).collect(Collectors.toList());
