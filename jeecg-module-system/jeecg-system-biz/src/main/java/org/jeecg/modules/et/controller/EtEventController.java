@@ -124,9 +124,12 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 		List<String> eventIds = etEventList.stream().map(EtEvent::getId).collect(Collectors.toList());
 
 		EtClientEvent etClientEvent = new EtClientEvent();
-		QueryWrapper<EtClientEvent>  etClientQueryWrapper = QueryGenerator.initQueryWrapper(etClientEvent, null);
-		etClientQueryWrapper.in("event_id", eventIds);
-		List<EtClientEvent> etClientEventList = etClientEventService.list(etClientQueryWrapper);
+		QueryWrapper<EtClientEvent>  etClientEventQueryWrapper = QueryGenerator.initQueryWrapper(etClientEvent, null);
+		if (eventIds.size() > 0) {
+			etClientEventQueryWrapper.in("event_id", eventIds);
+			log.info("客户端事件编号为: {}", eventIds);
+		}
+		List<EtClientEvent> etClientEventList = etClientEventService.list(etClientEventQueryWrapper);
 		Map<String, Set<String>> eventClientNameListMap = new HashMap<>(5);
 		for (EtClientEvent ce : etClientEventList) {
 			String eventId = ce.getEventId();
