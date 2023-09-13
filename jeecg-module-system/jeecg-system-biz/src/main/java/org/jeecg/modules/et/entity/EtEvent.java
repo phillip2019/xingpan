@@ -50,6 +50,10 @@ public class EtEvent implements Serializable {
 	@Excel(name = "事件名", width = 15)
     @ApiModelProperty(value = "事件名")
     private java.lang.String name;
+    /**事件名2*/
+    @TableField(exist = false)
+    @ApiModelProperty(value = "事件名2")
+    private java.lang.String name2;
 	/**中文名*/
 	@Excel(name = "中文名", width = 15)
     @ApiModelProperty(value = "中文名")

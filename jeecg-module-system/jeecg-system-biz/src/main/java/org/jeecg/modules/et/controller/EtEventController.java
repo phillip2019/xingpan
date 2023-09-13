@@ -12,19 +12,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
-import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
-import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.et.entity.*;
 import org.jeecg.modules.et.service.IEtBuProjectEventService;
 import org.jeecg.modules.et.service.IEtClientEventService;
 import org.jeecg.modules.et.service.IEtClientService;
 import org.jeecg.modules.et.service.IEtEventService;
-import org.jeecg.modules.system.entity.SysPermission;
-import org.jeecg.modules.system.model.SysPermissionTree;
-import org.jeecg.modules.system.model.TreeModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -97,7 +92,14 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 			QueryWrapper<EtBuProjectEvent>  etBuProjectEventQueryWrapper = QueryGenerator.initQueryWrapper(etBuProjectEvent, null);
 			List<EtBuProjectEvent> buProjectEventList = etBuProjectEventService.list(etBuProjectEventQueryWrapper);
 			List<String> eventIds = buProjectEventList.stream().map(EtBuProjectEvent::getEventId).collect(Collectors.toList());
-			if (eventIds.size() > 0) {
+			if (!eventIds.isEmpty()) {
+				queryWrapper.in("id", eventIds);
+			}
+		}
+		if (StringUtils.isNotBlank(etEvent.getClientNames())) {
+			String clientName = etEvent.getClientNames();
+			List<String> eventIds = etClientEventService.listEventIdByClientName(clientName);
+			if (!eventIds.isEmpty()) {
 				queryWrapper.in("id", eventIds);
 			}
 		}
@@ -109,6 +111,10 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 			} else {
 				queryWrapper.orderByDesc(sortColumn);
 			}
+		}
+		// 支持事件英文名称精准匹配
+		if (StringUtils.isNotBlank(etEvent.getName2())) {
+			queryWrapper.eq("name", etEvent.getName2());
 		}
 		Page<EtEvent> page = new Page<EtEvent>(pageNo, pageSize);
 		IPage<EtEvent> pageList = etEventService.page(page, queryWrapper);
@@ -125,7 +131,7 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 
 		EtClientEvent etClientEvent = new EtClientEvent();
 		QueryWrapper<EtClientEvent>  etClientEventQueryWrapper = QueryGenerator.initQueryWrapper(etClientEvent, null);
-		if (eventIds.size() > 0) {
+		if (!eventIds.isEmpty()) {
 			etClientEventQueryWrapper.in("event_id", eventIds);
 			log.info("客户端事件编号为: {}", eventIds);
 		}

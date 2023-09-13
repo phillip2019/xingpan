@@ -1,24 +1,20 @@
 package org.jeecg.modules.et.service.impl;
 
-import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.system.vo.LoginUser;
-import org.jeecg.common.util.IpUtils;
-import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.et.entity.EtClientEvent;
 import org.jeecg.modules.et.mapper.EtClientEventMapper;
 import org.jeecg.modules.et.service.IEtClientEventService;
-import org.jeecg.modules.system.entity.SysRolePermission;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.annotation.Resource;
 import java.util.*;
 
 import static org.jeecg.common.util.CommonUtils.getDiff;
@@ -31,6 +27,8 @@ import static org.jeecg.common.util.CommonUtils.getDiff;
  */
 @Service
 public class EtClientEventServiceImpl extends ServiceImpl<EtClientEventMapper, EtClientEvent> implements IEtClientEventService {
+    @Resource
+    private EtClientEventMapper etClientEventMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
     @Override
@@ -59,5 +57,10 @@ public class EtClientEventServiceImpl extends ServiceImpl<EtClientEventMapper, E
             }
         }
         return true;
+    }
+
+    @Override
+    public List<String> listEventIdByClientName(String clientName) {
+        return etClientEventMapper.listEventIdByClientName(clientName);
     }
 }

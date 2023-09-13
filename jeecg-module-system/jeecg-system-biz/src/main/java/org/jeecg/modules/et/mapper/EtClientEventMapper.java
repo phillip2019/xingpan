@@ -14,4 +14,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface EtClientEventMapper extends BaseMapper<EtClientEvent> {
 
+    List<String> listEventIdByClientName(@Param("clientName") String clientName);
 }
