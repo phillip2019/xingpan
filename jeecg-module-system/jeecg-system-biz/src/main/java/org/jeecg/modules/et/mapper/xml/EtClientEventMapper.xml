@@ -2,4 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.et.mapper.EtClientEventMapper">
 
+    <select id="listEventIdByClientName" resultType="java.lang.String">
+        SELECT ec.event_id
+        FROM et_client ec
+        inner join et_client_event ce
+        on ce.client_id = ec.id
+        where 1 = 1
+        and ec.name = #{clientName}
+        group by ec.event_id
+    </select>
 </mapper>

@@ -120,6 +120,7 @@
                ,ee.create_by
                ,ee.update_time
                ,ee.update_by
+               ,ee.sorted
         from et_event ee
         where 1 = 1
         <if test="etEvent != null and etEvent.scene != null and etEvent.scene !=''">
@@ -162,6 +163,7 @@
             </foreach>
         </if>
         order by ee.scene
+                ,ee.sorted
                 ,ee.name
                 ,ee.zh_name
                 ,ee.create_time

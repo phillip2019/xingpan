@@ -16,4 +16,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EtClientEventMapper extends BaseMapper<EtClientEvent> {
 
+    List<String> listEventIdByClientName(@Param("clientName") String clientName);
 }
