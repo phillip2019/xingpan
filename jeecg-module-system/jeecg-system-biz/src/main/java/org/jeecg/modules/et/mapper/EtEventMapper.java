@@ -8,6 +8,7 @@ import org.jeecg.modules.et.entity.EtEvent;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.jeecg.modules.et.entity.EtEventMaterial;
 import org.jeecg.modules.et.entity.EtEventMaterial2;
+import org.springframework.stereotype.Repository;
 
 /**
  * @Description: et_event
@@ -15,6 +16,7 @@ import org.jeecg.modules.et.entity.EtEventMaterial2;
  * @Date:   2023-07-26
  * @Version: V1.0
  */
+@Repository
 public interface EtEventMapper extends BaseMapper<EtEvent> {
 
     void insertEventReturnId(EtEvent event);

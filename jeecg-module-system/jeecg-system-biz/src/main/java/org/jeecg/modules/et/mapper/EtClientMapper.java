@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.*;
 import org.jeecg.modules.et.entity.EtClient;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.jeecg.modules.et.entity.EtPlatformSiteCode;
+import org.springframework.stereotype.Repository;
 
 /**
  * @Description: et_client
@@ -17,6 +18,7 @@ import org.jeecg.modules.et.entity.EtPlatformSiteCode;
  * @Date:   2023-07-26
  * @Version: V1.0
  */
+@Repository
 public interface EtClientMapper extends BaseMapper<EtClient> {
     /**
      * 根据 entity 条件，查询全部记录（并翻页）

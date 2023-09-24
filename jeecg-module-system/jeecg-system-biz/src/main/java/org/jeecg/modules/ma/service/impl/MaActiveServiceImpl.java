@@ -61,22 +61,19 @@ import java.util.stream.Collectors;
 @Service
 public class MaActiveServiceImpl extends ServiceImpl<MaActiveMapper, MaActive> implements IMaActiveService {
 
-    @Autowired
+    @Resource
     private MaPositionMapper positionMapper;
 
-    @Autowired
+    @Resource
     private MaPositionAddressMapper positionAddressMapper;
 
-    @Autowired
-    private MaPositionShopMapper positionShopMapper;
-
-    @Autowired
+    @Resource
     private IMaPositionShopService positionShopService;
 
-    @Autowired
+    @Resource
     private IMaTaiKaShopService taiKaShopService;
 
-    @Autowired
+    @Resource
     private ICgShopsZfService shopsZfService;
 
     @Resource

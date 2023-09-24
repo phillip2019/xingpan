@@ -3,6 +3,7 @@ package org.jeecg.modules.ma.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.URLEncoder;
 import cn.hutool.core.util.ZipUtil;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.facebook.presto.jdbc.internal.okhttp3.internal.Util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -24,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -62,11 +61,16 @@ public class MaTaiKaShopServiceImpl extends ServiceImpl<MaTaiKaShopMapper, MaTai
     @Resource
     private ISysBaseAPI sysBaseAPI;
 
-    public static final ConnectionSpec TLS_SPEC = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-            .tlsVersions(TlsVersion.TLS_1_0, TlsVersion.TLS_1_1, TlsVersion.TLS_1_2)
+    /**
+     * The singleton TLS spec.
+     **/
+    public static final ConnectionSpec TLS_SPEC = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS).tlsVersions(TlsVersion.TLS_1_0, TlsVersion.TLS_1_1, TlsVersion.TLS_1_2)
             .build();
 
-    public static final OkHttpClient okHttpClient =  new OkHttpClient.Builder()
+    /**
+     * The singleton HTTP client.
+     **/
+    public final OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .dispatcher(new Dispatcher(Executors.newFixedThreadPool(5)))
             .connectionPool(new ConnectionPool(1, 60000, TimeUnit.MILLISECONDS))
             .readTimeout(60000, TimeUnit.MILLISECONDS)
@@ -74,8 +78,7 @@ public class MaTaiKaShopServiceImpl extends ServiceImpl<MaTaiKaShopMapper, MaTai
             .writeTimeout(60000, TimeUnit.MILLISECONDS)
             .protocols(Util.immutableList(Protocol.HTTP_1_1))
             .connectionSpecs(ImmutableList.of(TLS_SPEC, ConnectionSpec.CLEARTEXT))
-            .build()
-            ;
+            .build();
 
 
     private String getWeChatOfficialAccessToken() throws IOException, CWxAccessTokenException {
@@ -84,9 +87,11 @@ public class MaTaiKaShopServiceImpl extends ServiceImpl<MaTaiKaShopMapper, MaTai
                 .url(accessTokenHost + "/user/bindwechatofficial/getofficialaccesstoken")
                 .method("GET", null)
                 .build();
-        Response response = okHttpClient.newCall(request).execute();
-        assert response.body() != null;
-        String responseContent = response.body().string();
+        String responseContent;
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            assert response.body() != null;
+            responseContent = response.body().string();
+        }
         JsonNode jsonNode = JacksonBuilder.MAPPER.readTree(responseContent);
         if (!jsonNode.get("success").asBoolean()) {
             throw new CWxAccessTokenException(String.format("获取access_token失败，返回内容为: %s", responseContent));
@@ -119,9 +124,11 @@ public class MaTaiKaShopServiceImpl extends ServiceImpl<MaTaiKaShopMapper, MaTai
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
+        Call call = null;
+        Response response = null;
         try {
-            Call call = okHttpClient.newCall(request);
-            Response response = call.execute();
+            call = okHttpClient.newCall(request);
+            response = call.execute();
             //异步请求成功之后的回调
             String responseContent = Objects.requireNonNull(response.body()).string();
             JsonNode jsonNode = JacksonBuilder.MAPPER.readTree(responseContent);
@@ -136,6 +143,13 @@ public class MaTaiKaShopServiceImpl extends ServiceImpl<MaTaiKaShopMapper, MaTai
             taiKaShop.setUrl(url);
         } catch (IOException e) {
             log.error("获取微信公众号带参二维码失败: {}", taiKaId, e);
+        } finally {
+            if (call != null) {
+                call.cancel();
+            }
+            if (response != null) {
+                response.close();
+            }
         }
 
         /*//第四步 call对象调用enqueue()方法，通过Callback()回调拿到响应体Response

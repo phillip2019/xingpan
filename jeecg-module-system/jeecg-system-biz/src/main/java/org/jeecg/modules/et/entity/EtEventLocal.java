@@ -1,28 +1,24 @@
 package org.jeecg.modules.et.entity;
 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.jeecg.common.aspect.annotation.Dict;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.io.Serializable;
 
 /**
- * @Description: CK中实时埋点事件
- * @Author: jeecg-boot
- * @Date:   2023-08-24
- * @Version: V1.0
+ * {@code @Description:} CK中实时埋点事件
+ * {@code @Author:} jeecg-boot
+ * {@code @Date:}   2023-08-24
+ * {@code @version:} V1.0
  */
 @Data
 @TableName("s_et_event_tracking_di_local")
@@ -33,6 +29,7 @@ public class EtEventLocal implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**唯一键*/
+    @TableId
 	@Excel(name = "唯一键", width = 15)
     @ApiModelProperty(value = "唯一键")
     private java.lang.String uk;

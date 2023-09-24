@@ -7,6 +7,7 @@ import org.jeecg.modules.ma.entity.MaActiveYlbQrCodeUrl;
 import org.jeecg.modules.ma.entity.MaPosition;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.jeecg.modules.ma.mapper.dto.MaMarketFloorNumDTO;
+import org.springframework.stereotype.Repository;
 
 /**
  * @Description: 活动点位
@@ -14,6 +15,7 @@ import org.jeecg.modules.ma.mapper.dto.MaMarketFloorNumDTO;
  * @Date:   2023-01-14
  * @Version: V1.0
  */
+@Repository
 public interface MaPositionMapper extends BaseMapper<MaPosition> {
 
     /**

@@ -157,7 +157,7 @@ spring:
           url: jdbc:clickhouse://172.18.5.47:8123/log
           username: dev
           password: gPQ9bs0GFKyuaXv713uN
-          driver-class-name: ru.yandex.clickhouse.ClickHouseDriver
+          driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
 
   #redis 配置
   redis:
@@ -217,6 +217,7 @@ mybatis-plus:
     # 返回类型为Map,显示null对应的字段
     call-setters-on-nulls: true
     map-underscore-to-camel-case: true
+
 #jeecg专用配置
 minidao:
   base-package: org.jeecg.modules.jmreport.*
