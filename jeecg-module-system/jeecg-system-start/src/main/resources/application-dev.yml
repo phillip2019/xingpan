@@ -158,6 +158,11 @@ spring:
           username: dev
           password: gPQ9bs0GFKyuaXv713uN
           driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+        griffin:
+          url: jdbc:mysql://172.18.3.106:3306/griffin?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          username: cg_mall
+          password: cg_mall@123
+          driver-class-name: com.mysql.cj.jdbc.Driver
 
   #redis 配置
   redis:
