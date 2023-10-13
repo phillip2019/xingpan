@@ -1,5 +1,6 @@
 package org.jeecg.modules.dqc.controller;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +10,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.dqc.entity.RuleAlterInf;
 import org.jeecg.modules.dqc.service.IRuleAlterInfService;
@@ -65,8 +69,15 @@ public class RuleAlterInfController extends JeecgController<RuleAlterInf, IRuleA
 	public Result<IPage<RuleAlterInf>> queryPageList(RuleAlterInf ruleAlterInf,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-								   HttpServletRequest req) {
+								   HttpServletRequest req) throws ParseException {
 		QueryWrapper<RuleAlterInf> queryWrapper = QueryGenerator.initQueryWrapper(ruleAlterInf, req.getParameterMap());
+		// 基于时间查询
+		String[] createdAtArr = req.getParameterValues("createdAtArr[]");
+		if (createdAtArr != null && createdAtArr.length == 2) {
+			long beginCreatedAt = DateUtils.parseTimestamp(createdAtArr[0], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
+			long endCreatedAt = DateUtils.parseTimestamp(createdAtArr[1], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
+			queryWrapper.between("created_at", beginCreatedAt, endCreatedAt);
+		}
 		Page<RuleAlterInf> page = new Page<RuleAlterInf>(pageNo, pageSize);
 		IPage<RuleAlterInf> pageList = ruleAlterInfService.page(page, queryWrapper);
 		return Result.OK(pageList);
