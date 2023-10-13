@@ -2,6 +2,7 @@ package org.jeecg.modules.dqc.controller;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,8 +75,8 @@ public class RuleAlterInfController extends JeecgController<RuleAlterInf, IRuleA
 		// 基于时间查询
 		String[] createdAtArr = req.getParameterValues("createdAtArr[]");
 		if (createdAtArr != null && createdAtArr.length == 2) {
-			long beginCreatedAt = DateUtils.parseTimestamp(createdAtArr[0], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
-			long endCreatedAt = DateUtils.parseTimestamp(createdAtArr[1], "yyyy-MM-dd HH:mm:ss").toInstant().getEpochSecond() * 1000;
+			String beginCreatedAt = StringUtils.replace(createdAtArr[0], "+", "");
+			String endCreatedAt = StringUtils.replace(createdAtArr[1], "+", "");
 			queryWrapper.between("created_at", beginCreatedAt, endCreatedAt);
 		}
 		Page<RuleAlterInf> page = new Page<RuleAlterInf>(pageNo, pageSize);
