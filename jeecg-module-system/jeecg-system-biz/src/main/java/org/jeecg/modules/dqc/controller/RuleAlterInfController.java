@@ -75,8 +75,8 @@ public class RuleAlterInfController extends JeecgController<RuleAlterInf, IRuleA
 		// 基于时间查询
 		String[] createdAtArr = req.getParameterValues("createdAtArr[]");
 		if (createdAtArr != null && createdAtArr.length == 2) {
-			String beginCreatedAt = StringUtils.replace(createdAtArr[0], "+", "");
-			String endCreatedAt = StringUtils.replace(createdAtArr[1], "+", "");
+			String beginCreatedAt = StringUtils.replace(createdAtArr[0], "+", " ");
+			String endCreatedAt = StringUtils.replace(createdAtArr[1], "+", " ");
 			queryWrapper.between("created_at", beginCreatedAt, endCreatedAt);
 		}
 		Page<RuleAlterInf> page = new Page<RuleAlterInf>(pageNo, pageSize);
