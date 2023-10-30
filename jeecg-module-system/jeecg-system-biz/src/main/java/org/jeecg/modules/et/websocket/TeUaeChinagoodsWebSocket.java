@@ -209,7 +209,7 @@ public class TeUaeChinagoodsWebSocket {
                         .map(record -> EventTracking.of(record.value()))
                         .map(EventTracking::toChinagoods)
                         .filter(et -> {
-                            boolean ret = true;
+                            boolean ret = false;
                             if (StringUtils.isNotBlank(distinctId)) {
                                 ret = StringUtils.equals(distinctId, et.getDistinctId());
                                 if (!ret) {
