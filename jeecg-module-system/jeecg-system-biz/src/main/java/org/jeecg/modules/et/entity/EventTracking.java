@@ -338,6 +338,7 @@ public class EventTracking implements Serializable {
                 .setCreatedAt(String.valueOf(this.getTime()))
                 .setProject(this.getProject())
                 .setPlatformType(this.getPlatformType())
+                .setAnonymousId(this.getAnonymousId())
         ;
         return etChinagoods;
     }

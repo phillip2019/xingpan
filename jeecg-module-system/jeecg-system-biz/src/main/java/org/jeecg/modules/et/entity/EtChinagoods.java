@@ -125,4 +125,7 @@ public class EtChinagoods implements Serializable {
     /**platformType*/
     @TableField(exist = true)
     private String platformType;
+
+    @TableField(exist = false)
+    private String anonymousId;
 }
