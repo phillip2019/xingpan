@@ -145,8 +145,9 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/vxeSocket/**", "anon");//JVxeTable无痕刷新示例
 
         //埋点websocket排除
-        filterChainDefinitionMap.put("/et/ws/**", "anon");//系统通知和公告
-        filterChainDefinitionMap.put("/jeecgboot/et/ws/**", "anon");//系统通知和公告
+        filterChainDefinitionMap.put("/et/ws/**", "anon");
+        filterChainDefinitionMap.put("/jeecg-boot/et/ws/**", "anon");
+        filterChainDefinitionMap.put("/jeecgboot/et/ws/**", "anon");
 
 
         //性能监控，放开排除会存在安全漏洞泄露TOEKN（durid连接池也有）
