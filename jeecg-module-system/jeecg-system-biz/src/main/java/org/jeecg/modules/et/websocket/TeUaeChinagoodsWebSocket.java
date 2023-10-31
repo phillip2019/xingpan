@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @Component
 @Slf4j
-@ServerEndpoint("/jeecgboot/et/ws/{userId}")
+@ServerEndpoint("/et/ws/{userId}")
 public class TeUaeChinagoodsWebSocket {
 
     @Value("${spring.kafka.consumer.bootstrap-servers}")
