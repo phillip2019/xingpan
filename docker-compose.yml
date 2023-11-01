@@ -1,42 +1,57 @@
 version: '2'
 services:
-  jeecg-boot-mysql:
-    build:
-      context: ./db
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_ROOT_HOST: '%'
-      TZ: Asia/Shanghai
-    restart: always
-    container_name: jeecg-boot-mysql
-    image: jeecg-boot-mysql
-    command:
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_general_ci
-      --explicit_defaults_for_timestamp=true
-      --lower_case_table_names=1
-      --max_allowed_packet=128M
-      --default-authentication-plugin=caching_sha2_password
-    ports:
-      - 3306:3306
+#  jeecg-boot-mysql:
+#    build:
+#      context: ./db
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_ROOT_HOST: '%'
+#      TZ: Asia/Shanghai
+#    restart: always
+#    container_name: jeecg-boot-mysql
+#    image: jeecg-boot-mysql
+#    command:
+#      --character-set-server=utf8mb4
+#      --collation-server=utf8mb4_general_ci
+#      --explicit_defaults_for_timestamp=true
+#      --lower_case_table_names=1
+#      --max_allowed_packet=128M
+#      --default-authentication-plugin=caching_sha2_password
+#    ports:
+#      - 3306:3306
+#
+#  jeecg-boot-redis:
+#    image: redis:5.0
+#    ports:
+#      - 6379:6379
+#    restart: always
+#    hostname: jeecg-boot-redis
+#    container_name: jeecg-boot-redis
 
-  jeecg-boot-redis:
-    image: redis:5.0
-    ports:
-      - 6379:6379
-    restart: always
-    hostname: jeecg-boot-redis
-    container_name: jeecg-boot-redis
-
-  jeecg-boot-system:
+  xingpan:
     build:
       context: ./jeecg-module-system/jeecg-system-start
     restart: on-failure
     depends_on:
       - jeecg-boot-mysql
       - jeecg-boot-redis
-    container_name: jeecg-boot-system
-    image: jeecg-boot-system
-    hostname: jeecg-boot-system
+    container_name: xingpan
+    image: xingpan
+    hostname: xingpan
     ports:
-      - 8080:8080
+      - 28080:8080
+      - 80:8080
+    environment:
+      TZ: 'Asia/Shanghai'
+    extra_hosts:
+      - "bigdata-master-01.chinagoods.te:172.18.5.10"
+      - "bigdata-util-gateway-01.chinagoods.te:172.18.5.14"
+      - "bigdata-node-01.chinagoods.te:172.18.5.17"
+      - "bigdata-node-02.chinagoods.te:172.18.5.15"
+      - "bigdata-node-03.chinagoods.te:172.18.5.16"
+      - "bigdata-node-04.chinagoods.te:172.18.5.2"
+      - "bigdata-node-05.chinagoods.te:172.18.5.3"
+      - "bigdata-node-06.chinagoods.te:172.18.5.4"
+      - "bigdata-node-07.chinagoods.te:172.18.5.6"
+      - "bigdata-node-08.chinagoods.te:172.18.5.9"
+      - "bigdata-node-09.chinagoods.te:172.18.5.25"

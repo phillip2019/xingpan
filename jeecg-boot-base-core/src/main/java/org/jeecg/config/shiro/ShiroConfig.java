@@ -147,8 +147,6 @@ public class ShiroConfig {
         //埋点websocket排除
         filterChainDefinitionMap.put("/et/ws/**", "anon");
         filterChainDefinitionMap.put("/jeecg-boot/et/ws/**", "anon");
-        filterChainDefinitionMap.put("/jeecgboot/et/ws/**", "anon");
-
 
         //性能监控，放开排除会存在安全漏洞泄露TOEKN（durid连接池也有）
         //filterChainDefinitionMap.put("/actuator/**", "anon");
