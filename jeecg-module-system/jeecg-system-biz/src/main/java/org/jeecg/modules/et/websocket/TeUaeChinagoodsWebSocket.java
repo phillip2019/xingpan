@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -183,18 +185,38 @@ public class TeUaeChinagoodsWebSocket {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         // group.id，指定了消费者所属群组
         final String groupId = String.format("%s_%s", consumerGroupId, userId);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        final String shortGroupId = shortenGroupId(groupId);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, shortGroupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, batchSize);
         // 100MB
         props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, 50 * 1024 * 1024);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        // 禁用自动提交偏移量
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
         KafkaConsumer<String, String> kafkaConsumer =
                 new KafkaConsumer<>(props);
         kafkaConsumer.subscribe(Collections.singletonList(sourceTopic));
         return kafkaConsumer;
+    }
+
+    private static String shortenGroupId(String longGroupId) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(longGroupId.getBytes());
+
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) {
+                sb.append(String.format("%02x", b));
+            }
+
+            return sb.toString().substring(0, 10);  // 取前10个字符作为缩短的 group.id
+        } catch (NoSuchAlgorithmException e) {
+            log.error("Hash算法不可用", e);
+            return longGroupId;  // 如果哈希算法不可用，使用原始 group.id
+        }
     }
 
     /**
@@ -207,7 +229,8 @@ public class TeUaeChinagoodsWebSocket {
             String distinctId = wsParamChinagoods.getDistinctId();
             String anonymousId = wsParamChinagoods.getAnonymousId();
             String ip = wsParamChinagoods.getIp();
-            try (KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer(userId, 500)) {
+
+            try (KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer(userId, 100)) {
                 SESSION_POOL_KAFKA_CONSUMER_FLAG_MAP.get(userId).set(true);
                 // 判断当前用户会话是否存在，若还存在则继续循环
                 while (SESSION_POOL_KAFKA_CONSUMER_FLAG_MAP.containsKey(userId) && SESSION_POOL_KAFKA_CONSUMER_FLAG_MAP.get(userId).get()) {
