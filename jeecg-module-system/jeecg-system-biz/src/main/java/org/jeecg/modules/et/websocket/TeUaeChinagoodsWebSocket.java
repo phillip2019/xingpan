@@ -12,6 +12,7 @@ import org.jeecg.modules.et.entity.EtChinagoods;
 import org.jeecg.modules.et.entity.EventTracking;
 import org.jeecg.modules.et.entity.UaeWSParamChinagoods;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -37,14 +38,24 @@ import java.util.stream.Collectors;
 @ServerEndpoint("/et/ws/{userId}")
 public class TeUaeChinagoodsWebSocket {
 
+    private static String bootstrapServers;
+
     @Value("${spring.kafka.consumer.bootstrap-servers}")
-    private String bootstrapServers = "172.18.5.15:9092,172.18.5.16:9092,172.18.5.17:9092,172.18.5.6:9092,172.18.5.9:9092";
+    public void setBootstrapServers(String bootstrapServers) {
+        TeUaeChinagoodsWebSocket.bootstrapServers = bootstrapServers;
+    }
 
+    private static String consumerGroupId;
     @Value("${spring.kafka.consumer.group-id}")
-    private String consumerGroupId = "xingpang";
+    public void setConsumerGroupId(String consumerGroupId) {
+        TeUaeChinagoodsWebSocket.consumerGroupId = consumerGroupId;
+    }
 
+    private static String sourceTopic;
     @Value("${cg.et.topic}")
-    private String sourceTopic = "events-tracking";
+    public void setSourceTopic(String sourceTopic) {
+        TeUaeChinagoodsWebSocket.sourceTopic = sourceTopic;
+    }
 
     /**
      * 线程安全Map
@@ -53,6 +64,12 @@ public class TeUaeChinagoodsWebSocket {
     private static final ConcurrentHashMap<String, AtomicBoolean> SESSION_POOL_KAFKA_CONSUMER_FLAG_MAP = new ConcurrentHashMap<>();
 
     private static ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
+
+    private static ApplicationContext applicationContext;
+
+    public static void setApplicationContext(ApplicationContext applicationContext) {
+        TeUaeChinagoodsWebSocket.applicationContext = applicationContext;
+    }
 
 
     //==========【websocket接受、推送消息等方法 —— 具体服务节点推送ws消息】========================================================================================
