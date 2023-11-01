@@ -32,7 +32,7 @@ services:
     build:
       context: ./jeecg-module-system/jeecg-system-start
     restart: on-failure
-    depends_on:
+#    depends_on:
 #      - jeecg-boot-mysql
 #      - jeecg-boot-redis
     container_name: xingpan
