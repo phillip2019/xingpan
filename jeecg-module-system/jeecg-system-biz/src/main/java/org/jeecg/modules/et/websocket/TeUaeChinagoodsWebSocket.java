@@ -246,6 +246,7 @@ public class TeUaeChinagoodsWebSocket {
             String distinctId = wsParamChinagoods.getDistinctId();
             String anonymousId = wsParamChinagoods.getAnonymousId();
             String ip = wsParamChinagoods.getIp();
+            String event = wsParamChinagoods.getEvent();
 
             try (KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer(userId, 100)) {
                 SESSION_POOL_KAFKA_CONSUMER_FLAG_MAP.get(userId).set(true);
@@ -280,7 +281,14 @@ public class TeUaeChinagoodsWebSocket {
                                         return false;
                                     }
                                 }
-                                log.debug("UserId: {}，过滤参数为，distinctId: {}，anonymousId: {}， ip: {}", userId, distinctId, anonymousId, ip);
+
+                                if (StringUtils.isNotBlank(event)) {
+                                    ret = StringUtils.equals(event, et.getEvent());
+                                    if (!ret) {
+                                        return false;
+                                    }
+                                }
+                                log.debug("UserId: {}，过滤参数为，distinctId: {}，anonymousId: {}， ip: {}, event: {}", userId, distinctId, anonymousId, ip, event);
                                 return ret;
                             })
                             // 升序

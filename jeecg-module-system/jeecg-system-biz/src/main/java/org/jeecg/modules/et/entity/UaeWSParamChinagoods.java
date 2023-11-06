@@ -27,4 +27,6 @@ public class UaeWSParamChinagoods implements Serializable {
     private String anonymousId;
 
     private String ip;
+
+    private String event;
 }
