@@ -9,3 +9,6 @@ rebel.xml
 
 ## front
 **/*.lock
+/qodana.yaml
+**/.gitignore/**
+.github/workflows
