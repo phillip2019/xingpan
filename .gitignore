@@ -12,3 +12,4 @@ rebel.xml
 /qodana.yaml
 **/.gitignore/**
 .github/workflows
+.github/workflows/**

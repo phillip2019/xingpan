@@ -1,6 +1,8 @@
 package org.jeecg.modules.et.websocket;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Streams;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -8,9 +10,11 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.jeecg.modules.et.entity.EtChinagoods;
-import org.jeecg.modules.et.entity.EventTracking;
-import org.jeecg.modules.et.entity.UaeWSParamChinagoods;
+import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.modules.et.entity.*;
+import org.jeecg.modules.et.service.IEtBuProjectEventService;
+import org.jeecg.modules.et.service.IEtEventService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -18,10 +22,12 @@ import org.springframework.stereotype.Component;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.awt.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,6 +63,18 @@ public class TeUaeChinagoodsWebSocket {
         TeUaeChinagoodsWebSocket.sourceTopic = sourceTopic;
     }
 
+    private static IEtBuProjectEventService etBuProjectEventService;
+    @Autowired
+    public void setEtBuProjectEventService(IEtBuProjectEventService etBuProjectEventService) {
+        TeUaeChinagoodsWebSocket.etBuProjectEventService = etBuProjectEventService;
+    }
+
+    private static IEtEventService etEventService;
+    @Autowired
+    public void setEtEventService(IEtEventService etEventService) {
+        TeUaeChinagoodsWebSocket.etEventService = etEventService;
+    }
+
     /**
      * 线程安全Map
      */
@@ -64,12 +82,6 @@ public class TeUaeChinagoodsWebSocket {
     private static final ConcurrentHashMap<String, AtomicBoolean> SESSION_POOL_KAFKA_CONSUMER_FLAG_MAP = new ConcurrentHashMap<>();
 
     private static ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
-
-    private static ApplicationContext applicationContext;
-
-    public static void setApplicationContext(ApplicationContext applicationContext) {
-        TeUaeChinagoodsWebSocket.applicationContext = applicationContext;
-    }
 
 
     //==========【websocket接受、推送消息等方法 —— 具体服务节点推送ws消息】========================================================================================
@@ -89,11 +101,16 @@ public class TeUaeChinagoodsWebSocket {
         String ip = StringUtils.substringBetween(queryString, "ip=", "&");
         String distinctId = StringUtils.substringBetween(queryString, "distinctId=", "&");
         String anonymousId = StringUtils.substringBetween(queryString, "anonymousId=", "&");
+        String buProjectNameId = StringUtils.substringBetween(queryString, "buProjectNameId=", "&");
+        String scene = StringUtils.substringBetween(queryString, "scene=", "&");
 
         UaeWSParamChinagoods wsParamChinagoods = new UaeWSParamChinagoods();
         wsParamChinagoods.setDistinctId(distinctId)
                 .setAnonymousId(anonymousId)
-                .setIp(ip);
+                .setIp(ip)
+                .setScene(scene)
+                .setBuProjectNameId(buProjectNameId)
+        ;
 
         log.info("开始接受");
         //------------------------------------------------------------------------------
@@ -247,6 +264,31 @@ public class TeUaeChinagoodsWebSocket {
             String anonymousId = wsParamChinagoods.getAnonymousId();
             String ip = wsParamChinagoods.getIp();
             String event = wsParamChinagoods.getEvent();
+            String buProjectNameId = wsParamChinagoods.getBuProjectNameId();
+            String scene = wsParamChinagoods.getScene();
+            List<String> eventNameList = new ArrayList<>();
+            if (StringUtils.isBlank(event)) {
+                LambdaQueryWrapper<EtEvent> etQueryWrapper = new LambdaQueryWrapper<>();
+                if (StringUtils.isBlank(scene)) {
+                    // 查询buProjectNameId对应的event列表
+                    LambdaQueryWrapper<EtBuProjectEvent> etBuProjectEventQueryWrapper = new LambdaQueryWrapper<>();
+                    etBuProjectEventQueryWrapper.eq(EtBuProjectEvent::getBuProjectId, buProjectNameId);
+                    List<EtBuProjectEvent> buProjectEventList = etBuProjectEventService.list(etBuProjectEventQueryWrapper);
+                    List<String> eventIds = buProjectEventList.stream().map(EtBuProjectEvent::getEventId).collect(Collectors.toList());
+                    if (!eventIds.isEmpty()) {
+                        etQueryWrapper.in(EtEvent::getId, eventIds);
+                    }
+                } else {
+                    // 查询scene非空场景
+                    etQueryWrapper.eq(EtEvent::getScene, scene);
+                }
+                List<EtEvent> eventList = etEventService.list(etQueryWrapper);
+                eventNameList.addAll(eventList.stream().map(EtEvent::getName).collect(Collectors.toList()));
+            } else {
+                eventNameList.addAll(Arrays.asList(StringUtils.split(event, ",")));
+            }
+
+
 
             try (KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer(userId, 100)) {
                 SESSION_POOL_KAFKA_CONSUMER_FLAG_MAP.get(userId).set(true);
@@ -282,8 +324,8 @@ public class TeUaeChinagoodsWebSocket {
                                     }
                                 }
 
-                                if (StringUtils.isNotBlank(event)) {
-                                    ret = StringUtils.equals(event, et.getEvent());
+                                if (!eventNameList.isEmpty()) {
+                                    ret = eventNameList.contains(et.getEvent());
                                     if (!ret) {
                                         return false;
                                     }

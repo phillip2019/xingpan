@@ -29,4 +29,8 @@ public class UaeWSParamChinagoods implements Serializable {
     private String ip;
 
     private String event;
+
+    private String buProjectNameId;
+
+    private String scene;
 }
