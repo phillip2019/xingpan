@@ -68,6 +68,9 @@ public class EtClient implements Serializable {
     /**事件编号*/
     @TableField(exist = false)
     private String eventId;
+    /**客户端事件编号*/
+    @TableField(exist = false)
+    private String clientEventId;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
     private java.lang.String createBy;

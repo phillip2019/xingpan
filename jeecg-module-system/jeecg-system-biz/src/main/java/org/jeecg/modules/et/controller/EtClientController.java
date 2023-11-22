@@ -110,6 +110,7 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 			queryWrapper.in("platform_site_code_id", platformSiteCodeIdList);
 		}
 
+		Map<String, String> clientId2ClientEventIdMap;
 		// eventId非空，则先查询clientEvent表中eventId记录列表，将clientEvent clientId转换成列表
 		if (StringUtils.isNotBlank(etClient.getEventId())) {
 			// eventId查询event
@@ -118,11 +119,25 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 			List<EtClientEvent> clientEventList = etClientEventService.list(new LambdaQueryWrapper<>(etClientEvent));
 			if (!clientEventList.isEmpty()){
 				List<String> clientIds = clientEventList.stream().map(EtClientEvent::getClientId).collect(Collectors.toList());
-				queryWrapper.in("id", clientIds);
-			}
-		}
-		Page<EtClient> page = new Page<>(pageNo, pageSize);
+				clientId2ClientEventIdMap = clientEventList.stream().collect(Collectors.toMap(EtClientEvent::getClientId, EtClientEvent::getId));
+				queryWrapper.in("ec.id", clientIds);
+			} else {
+				clientId2ClientEventIdMap = null;
+            }
+        } else {
+			clientId2ClientEventIdMap = null;
+        }
+        Page<EtClient> page = new Page<>(pageNo, pageSize);
 		IPage<EtClient> pageList = etClientService.page(page, queryWrapper);
+		if (clientId2ClientEventIdMap != null) {
+			pageList.getRecords().forEach(ec -> {
+				if (clientId2ClientEventIdMap.containsKey(ec.getId())) {
+					ec.setClientEventId(clientId2ClientEventIdMap.get(ec.getId()));
+					// 回填
+					ec.setEventId(etClient.getEventId());
+				}
+			});
+		}
 		return Result.OK(pageList);
 	}
 	
