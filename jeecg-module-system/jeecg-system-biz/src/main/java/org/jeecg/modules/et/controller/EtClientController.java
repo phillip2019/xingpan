@@ -15,10 +15,8 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.et.entity.EtClient;
-import org.jeecg.modules.et.entity.EtEvent;
-import org.jeecg.modules.et.entity.EtEventProperty;
-import org.jeecg.modules.et.entity.EtPlatformSiteCode;
+import org.jeecg.modules.et.entity.*;
+import org.jeecg.modules.et.service.IEtClientEventService;
 import org.jeecg.modules.et.service.IEtClientService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -64,6 +62,9 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 	 private IEtEventService etEventService;
 
 	 @Autowired
+	 private IEtClientEventService etClientEventService;
+
+	 @Autowired
 	 private IEtPlatformSiteCodeService etPlatformSiteCodeService;
 	
 	/**
@@ -107,6 +108,18 @@ public class EtClientController extends JeecgController<EtClient, IEtClientServi
 			platformSiteCodeList = etPlatformSiteCodeService.list(wrapper);
 			List<String> platformSiteCodeIdList = platformSiteCodeList.parallelStream().map(EtPlatformSiteCode::getId).collect(Collectors.toList());
 			queryWrapper.in("platform_site_code_id", platformSiteCodeIdList);
+		}
+
+		// eventId非空，则先查询clientEvent表中eventId记录列表，将clientEvent clientId转换成列表
+		if (StringUtils.isNotBlank(etClient.getEventId())) {
+			// eventId查询event
+			EtClientEvent etClientEvent = new EtClientEvent();
+			etClientEvent.setEventId(etClient.getEventId());
+			List<EtClientEvent> clientEventList = etClientEventService.list(new LambdaQueryWrapper<>(etClientEvent));
+			if (!clientEventList.isEmpty()){
+				List<String> clientIds = clientEventList.stream().map(EtClientEvent::getClientId).collect(Collectors.toList());
+				queryWrapper.in("id", clientIds);
+			}
 		}
 		Page<EtClient> page = new Page<>(pageNo, pageSize);
 		IPage<EtClient> pageList = etClientService.page(page, queryWrapper);

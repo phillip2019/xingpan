@@ -9,10 +9,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.et.entity.EtClientEvent;
 import org.jeecg.modules.et.entity.EtClientEventScreenshot;
+import org.jeecg.modules.et.entity.EtEvent;
 import org.jeecg.modules.et.service.IEtClientEventScreenshotService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -20,6 +24,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.et.service.IEtClientEventService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -49,6 +54,9 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 public class EtClientEventScreenshotController extends JeecgController<EtClientEventScreenshot, IEtClientEventScreenshotService> {
 	@Autowired
 	private IEtClientEventScreenshotService etClientEventScreenshotService;
+
+	 @Autowired
+	 private IEtClientEventService etClientEventService;
 	
 	/**
 	 * 分页列表查询
@@ -67,6 +75,14 @@ public class EtClientEventScreenshotController extends JeecgController<EtClientE
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
 		QueryWrapper<EtClientEventScreenshot> queryWrapper = QueryGenerator.initQueryWrapper(etClientEventScreenshot, req.getParameterMap());
+		// eventId查询event
+		EtClientEvent etClientEvent = new EtClientEvent();
+		etClientEvent.setClientId(etClientEvent.getClientId());
+		List<EtClientEvent> clientEventList = etClientEventService.list(new LambdaQueryWrapper<>(etClientEvent));
+		if (!clientEventList.isEmpty()){
+			List<String> clientEventIds = clientEventList.stream().map(EtClientEvent::getId).collect(Collectors.toList());
+			queryWrapper.in("client_event_id", clientEventIds);
+		}
 		Page<EtClientEventScreenshot> page = new Page<EtClientEventScreenshot>(pageNo, pageSize);
 		IPage<EtClientEventScreenshot> pageList = etClientEventScreenshotService.page(page, queryWrapper);
 		return Result.OK(pageList);

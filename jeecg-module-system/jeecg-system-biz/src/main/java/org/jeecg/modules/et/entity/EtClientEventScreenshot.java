@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -35,13 +36,23 @@ public class EtClientEventScreenshot implements Serializable {
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID，自增")
     private java.lang.String id;
+    /**事件ID*/
+    @Excel(name = "事件ID", width = 15)
+    @ApiModelProperty(value = "事件ID")
+    @TableField(exist = false)
+    private java.lang.String eventId;
+    /**客户端ID*/
+    @Excel(name = "客户端ID", width = 15)
+    @ApiModelProperty(value = "客户端ID")
+    @TableField(exist = false)
+    private java.lang.String clientId;
 	/**事件客户端编号，关联et_client_event表的id*/
 	@Excel(name = "事件客户端编号，关联et_client_event表的id", width = 15)
     @ApiModelProperty(value = "事件客户端编号，关联et_client_event表的id")
     private java.lang.String clientEventId;
-	/**状态 0-初始化 1-正常 2-改版*/
-	@Excel(name = "状态 0-初始化 1-正常 2-改版", width = 15)
-    @ApiModelProperty(value = "状态 0-初始化 1-正常 2-改版")
+	/**状态*/
+	@Excel(name = "状态", width = 15)
+    @ApiModelProperty(value = "状态")
     private java.lang.Integer status;
 	/**模块名称*/
 	@Excel(name = "模块名称", width = 15)
