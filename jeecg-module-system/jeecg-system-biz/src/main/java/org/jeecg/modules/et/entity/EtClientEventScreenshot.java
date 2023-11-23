@@ -46,6 +46,11 @@ public class EtClientEventScreenshot implements Serializable {
     @ApiModelProperty(value = "客户端ID")
     @TableField(exist = false)
     private java.lang.String clientId;
+    /**客户端*/
+    @Excel(name = "客户端", width = 15)
+    @ApiModelProperty(value = "客户端")
+    @TableField(exist = false)
+    private EtClient client;
 	/**事件客户端编号，关联et_client_event表的id*/
 	@Excel(name = "事件客户端编号，关联et_client_event表的id", width = 15)
     @ApiModelProperty(value = "事件客户端编号，关联et_client_event表的id")

@@ -1,6 +1,7 @@
 package org.jeecg.modules.et.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.et.entity.EtClient;
 import org.jeecg.modules.et.entity.EtClientEvent;
 import org.jeecg.modules.et.entity.EtClientEventScreenshot;
 import org.jeecg.modules.et.entity.EtEvent;
@@ -25,6 +27,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.modules.et.service.IEtClientEventService;
+import org.jeecg.modules.et.service.IEtClientService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -57,6 +60,9 @@ public class EtClientEventScreenshotController extends JeecgController<EtClientE
 
 	 @Autowired
 	 private IEtClientEventService etClientEventService;
+
+	 @Autowired
+	 private IEtClientService etClientService;
 	
 	/**
 	 * 分页列表查询
@@ -77,7 +83,7 @@ public class EtClientEventScreenshotController extends JeecgController<EtClientE
 		QueryWrapper<EtClientEventScreenshot> queryWrapper = QueryGenerator.initQueryWrapper(etClientEventScreenshot, req.getParameterMap());
 		// eventId查询event
 		EtClientEvent etClientEvent = new EtClientEvent();
-		etClientEvent.setClientId(etClientEvent.getClientId());
+		etClientEvent.setEventId(etClientEventScreenshot.getEventId());
 		List<EtClientEvent> clientEventList = etClientEventService.list(new LambdaQueryWrapper<>(etClientEvent));
 		if (!clientEventList.isEmpty()){
 			List<String> clientEventIds = clientEventList.stream().map(EtClientEvent::getId).collect(Collectors.toList());
@@ -85,6 +91,26 @@ public class EtClientEventScreenshotController extends JeecgController<EtClientE
 		}
 		Page<EtClientEventScreenshot> page = new Page<EtClientEventScreenshot>(pageNo, pageSize);
 		IPage<EtClientEventScreenshot> pageList = etClientEventScreenshotService.page(page, queryWrapper);
+		// 再次查询截图对应的客户端信息
+		List<EtClient> clientList = etClientService.list();
+		List<String> etClientEventIdList = pageList.getRecords().stream().map(EtClientEventScreenshot::getClientEventId).collect(Collectors.toList());
+		List<EtClientEvent> etClientEventList = etClientEventService.list(new LambdaQueryWrapper<EtClientEvent>().in(EtClientEvent::getId, etClientEventIdList));
+		Map<String, EtClient> clientEventId2ClientMap = new HashMap<>(etClientEventList.size());
+		for (EtClientEvent ece : etClientEventList) {
+			for (EtClient ec : clientList) {
+				if (ec.getId().equals(ece.getClientId())) {
+					clientEventId2ClientMap.put(ece.getId(), ec);
+					break;
+				}
+			}
+		}
+
+		pageList.getRecords().forEach(e -> {
+			e.setClient(clientEventId2ClientMap.get(e.getClientEventId()));
+			e.setEventId(etClientEventScreenshot.getEventId());
+			e.setClientId(clientEventId2ClientMap.get(e.getClientEventId()).getId());
+		});
+
 		return Result.OK(pageList);
 	}
 	
