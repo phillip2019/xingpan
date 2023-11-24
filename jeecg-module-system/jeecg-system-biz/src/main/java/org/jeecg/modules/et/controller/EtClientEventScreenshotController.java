@@ -94,23 +94,23 @@ public class EtClientEventScreenshotController extends JeecgController<EtClientE
 		// 再次查询截图对应的客户端信息
 		List<EtClient> clientList = etClientService.list();
 		List<String> etClientEventIdList = pageList.getRecords().stream().map(EtClientEventScreenshot::getClientEventId).collect(Collectors.toList());
-		List<EtClientEvent> etClientEventList = etClientEventService.list(new LambdaQueryWrapper<EtClientEvent>().in(EtClientEvent::getId, etClientEventIdList));
-		Map<String, EtClient> clientEventId2ClientMap = new HashMap<>(etClientEventList.size());
-		for (EtClientEvent ece : etClientEventList) {
-			for (EtClient ec : clientList) {
-				if (ec.getId().equals(ece.getClientId())) {
-					clientEventId2ClientMap.put(ece.getId(), ec);
-					break;
+		if (!etClientEventIdList.isEmpty()) {
+			List<EtClientEvent> etClientEventList = etClientEventService.list(new LambdaQueryWrapper<EtClientEvent>().in(EtClientEvent::getId, etClientEventIdList));
+			Map<String, EtClient> clientEventId2ClientMap = new HashMap<>(etClientEventList.size());
+			for (EtClientEvent ece : etClientEventList) {
+				for (EtClient ec : clientList) {
+					if (ec.getId().equals(ece.getClientId())) {
+						clientEventId2ClientMap.put(ece.getId(), ec);
+						break;
+					}
 				}
 			}
+			pageList.getRecords().forEach(e -> {
+				e.setClient(clientEventId2ClientMap.get(e.getClientEventId()));
+				e.setEventId(etClientEventScreenshot.getEventId());
+				e.setClientId(clientEventId2ClientMap.get(e.getClientEventId()).getId());
+			});
 		}
-
-		pageList.getRecords().forEach(e -> {
-			e.setClient(clientEventId2ClientMap.get(e.getClientEventId()));
-			e.setEventId(etClientEventScreenshot.getEventId());
-			e.setClientId(clientEventId2ClientMap.get(e.getClientEventId()).getId());
-		});
-
 		return Result.OK(pageList);
 	}
 	
