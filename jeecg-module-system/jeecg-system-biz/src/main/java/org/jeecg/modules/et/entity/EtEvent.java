@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
+import java.util.List;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -54,6 +56,10 @@ public class EtEvent implements Serializable {
     @TableField(exist = false)
     @ApiModelProperty(value = "事件名2")
     private java.lang.String name2;
+    /**点位*/
+    @TableField(exist = false)
+    @ApiModelProperty(value = "点位")
+    private java.util.List<EtClientEventScreenshot> screenshots;
 	/**中文名*/
 	@Excel(name = "中文名", width = 15)
     @ApiModelProperty(value = "中文名")

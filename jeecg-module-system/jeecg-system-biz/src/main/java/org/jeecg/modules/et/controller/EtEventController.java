@@ -2,6 +2,7 @@ package org.jeecg.modules.et.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -16,10 +17,7 @@ import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.modules.et.entity.*;
-import org.jeecg.modules.et.service.IEtBuProjectEventService;
-import org.jeecg.modules.et.service.IEtClientEventService;
-import org.jeecg.modules.et.service.IEtClientService;
-import org.jeecg.modules.et.service.IEtEventService;
+import org.jeecg.modules.et.service.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -53,9 +51,11 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 	@Autowired
 	private IEtClientService etClientService;
 
-
 	@Autowired
 	private IEtBuProjectEventService etBuProjectEventService;
+
+	@Autowired
+	private IEtClientEventScreenshotService etClientEventScreenshotService;
 
 	/**
 	 * 分页列表查询
@@ -136,7 +136,20 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 			log.info("客户端事件编号为: {}", eventIds);
 		}
 		List<EtClientEvent> etClientEventList = etClientEventService.list(etClientEventQueryWrapper);
+		List<String> clientEventIds = etClientEventList.stream().map(EtClientEvent::getId).collect(Collectors.toList());
+		Map<String, List<EtClientEventScreenshot>> groupClientEventIdMap = new HashMap<>(5);
 		Map<String, Set<String>> eventClientNameListMap = new HashMap<>(5);
+		Map<String, List<EtClientEventScreenshot>> eventScreenshotListMap = new HashMap<>(5);
+		if (!clientEventIds.isEmpty()) {
+			List<EtClientEventScreenshot> etClientEventScreenshotList = etClientEventScreenshotService.list(new LambdaQueryWrapper<EtClientEventScreenshot>()
+					.in(EtClientEventScreenshot::getClientEventId, clientEventIds)
+					.eq(EtClientEventScreenshot::getStatus, 1));
+			for (EtClientEventScreenshot eces : etClientEventScreenshotList) {
+				// 将etClientEventScreenshotList按照clientEventId分组，相同clientEventId的分为同一组
+				groupClientEventIdMap.putIfAbsent(eces.getClientEventId(), new ArrayList<>());
+				groupClientEventIdMap.get(eces.getClientEventId()).add(eces);
+			}
+		}
 		for (EtClientEvent ce : etClientEventList) {
 			String eventId = ce.getEventId();
 			String clientId = ce.getClientId();
@@ -147,13 +160,18 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 			if (clientId2ClientNameMap.containsKey(clientId)) {
 				clientNameSet.add(clientId2ClientNameMap.get(clientId));
 			} else {
-				log.error("不存在改EventId:{},  ClientID: {}", eventId, clientId);
+				log.error("不存在该EventId:{},  ClientID: {}", eventId, clientId);
 			}
+
+			eventScreenshotListMap.putIfAbsent(eventId, new ArrayList<>());
+			eventScreenshotListMap.get(eventId).addAll(groupClientEventIdMap.getOrDefault(ce.getId(), new ArrayList<>()));
 		}
+
 		for (EtEvent e : etEventList) {
 			String eventId = e.getId();
 			Set<String> clientNameSet = eventClientNameListMap.get(eventId);
 			e.setClientNames(StringUtils.join(clientNameSet, ","));
+			e.setScreenshots(eventScreenshotListMap.get(eventId));
 		}
 		return Result.OK(pageList);
 	}

@@ -55,14 +55,16 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 @RequestMapping("/et/etClientEventScreenshot")
 @Slf4j
 public class EtClientEventScreenshotController extends JeecgController<EtClientEventScreenshot, IEtClientEventScreenshotService> {
-	@Autowired
-	private IEtClientEventScreenshotService etClientEventScreenshotService;
+
 
 	 @Autowired
 	 private IEtClientEventService etClientEventService;
 
 	 @Autowired
 	 private IEtClientService etClientService;
+
+	 @Autowired
+	 private IEtClientEventScreenshotService etClientEventScreenshotService;
 	
 	/**
 	 * 分页列表查询
