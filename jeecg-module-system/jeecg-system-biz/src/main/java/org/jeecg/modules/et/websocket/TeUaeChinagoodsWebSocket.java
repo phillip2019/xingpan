@@ -103,6 +103,7 @@ public class TeUaeChinagoodsWebSocket {
         String anonymousId = StringUtils.substringBetween(queryString, "anonymousId=", "&");
         String buProjectNameId = StringUtils.substringBetween(queryString, "buProjectNameId=", "&");
         String scene = StringUtils.substringBetween(queryString, "scene=", "&");
+        String event = StringUtils.substringBetween(queryString, "name=", "&");
 
         UaeWSParamChinagoods wsParamChinagoods = new UaeWSParamChinagoods();
         wsParamChinagoods.setDistinctId(distinctId)
@@ -110,6 +111,7 @@ public class TeUaeChinagoodsWebSocket {
                 .setIp(ip)
                 .setScene(scene)
                 .setBuProjectNameId(buProjectNameId)
+                .setEvent(event)
         ;
 
         log.info("开始接受");
