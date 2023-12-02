@@ -1,5 +1,6 @@
 package org.jeecg.modules.et.websocket;
 
+import cn.hutool.core.net.URLDecoder;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -23,6 +24,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.awt.*;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -98,6 +100,8 @@ public class TeUaeChinagoodsWebSocket {
         }
 
         String queryString = session.getQueryString() + "&";
+        queryString = URLDecoder.decode(queryString, StandardCharsets.UTF_8);
+
         String ip = StringUtils.substringBetween(queryString, "ip=", "&");
         String distinctId = StringUtils.substringBetween(queryString, "distinctId=", "&");
         String anonymousId = StringUtils.substringBetween(queryString, "anonymousId=", "&");
