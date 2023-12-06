@@ -38,10 +38,14 @@ public class MktChannelLink implements Serializable {
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "id")
     private String id;
-	/**带参链接*/
-	@Excel(name = "带参链接", width = 15)
-    @ApiModelProperty(value = "带参链接")
-    private String sourceUrl;
+	/**PC端带参链接*/
+	@Excel(name = "PC端带参链接", width = 15)
+    @ApiModelProperty(value = "PC端带参链接")
+    private String pcSourceUrl;
+    /**wap端带参链接*/
+    @Excel(name = "wap端带参链接", width = 15)
+    @ApiModelProperty(value = "wap端带参链接")
+    private String wapSourceUrl;
 	/**状态*/
 	@Excel(name = "状态", width = 15, dicCode = "CHANNEL_LINK_STATUS")
     @ApiModelProperty(value = "状态")
@@ -66,10 +70,14 @@ public class MktChannelLink implements Serializable {
 	@Excel(name = "广告内容", width = 15)
     @ApiModelProperty(value = "广告内容")
     private String utmContent;
-	/**带参链接*/
-	@Excel(name = "带参链接", width = 15)
-    @ApiModelProperty(value = "带参链接")
-    private String targetUrl;
+	/**pc端带参链接*/
+	@Excel(name = "pc端带参链接", width = 15)
+    @ApiModelProperty(value = "pc端带参链接")
+    private String pcTargetUrl;
+    /**wap端带参链接*/
+    @Excel(name = "wap端带参链接", width = 15)
+    @ApiModelProperty(value = "wap端带参链接")
+    private String wapTargetUrl;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
     private String createBy;

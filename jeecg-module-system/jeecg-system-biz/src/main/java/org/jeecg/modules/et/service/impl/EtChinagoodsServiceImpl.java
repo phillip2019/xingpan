@@ -203,12 +203,13 @@ public class EtChinagoodsServiceImpl extends ServiceImpl<EtChinagoodsMapper, EtC
         KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer(batchSize);
         // 查询每个分区1000条消息
         List<EtChinagoods> resultList = pollMessage(kafkaConsumer, etChinagoods, pageNo, pageSize, req);
+        // 按照创建时间倒叙排列
         resultList.sort((e1, e2) -> {
             long ret = (Long.parseLong(e1.getCreatedAt()) - Long.parseLong(e2.getCreatedAt()));
             if (ret > 0) {
-                return 1;
-            } else if (ret < 0) {
                 return -1;
+            } else if (ret < 0) {
+                return 1;
             }
             return 0;
         });
