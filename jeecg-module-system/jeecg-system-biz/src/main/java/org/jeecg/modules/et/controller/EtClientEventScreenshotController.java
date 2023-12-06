@@ -87,10 +87,12 @@ public class EtClientEventScreenshotController extends JeecgController<EtClientE
 		EtClientEvent etClientEvent = new EtClientEvent();
 		etClientEvent.setEventId(etClientEventScreenshot.getEventId());
 		List<EtClientEvent> clientEventList = etClientEventService.list(new LambdaQueryWrapper<>(etClientEvent));
-		if (!clientEventList.isEmpty()){
-			List<String> clientEventIds = clientEventList.stream().map(EtClientEvent::getId).collect(Collectors.toList());
-			queryWrapper.in("client_event_id", clientEventIds);
+		// 没有查询到客户端事件，则直接返回空结果
+		if (clientEventList.isEmpty()) {
+			return Result.OK(new Page<>());
 		}
+		List<String> clientEventIds = clientEventList.stream().map(EtClientEvent::getId).collect(Collectors.toList());
+		queryWrapper.in("client_event_id", clientEventIds);
 		Page<EtClientEventScreenshot> page = new Page<EtClientEventScreenshot>(pageNo, pageSize);
 		IPage<EtClientEventScreenshot> pageList = etClientEventScreenshotService.page(page, queryWrapper);
 		// 再次查询截图对应的客户端信息
@@ -118,7 +120,6 @@ public class EtClientEventScreenshotController extends JeecgController<EtClientE
 	
 	/**
 	 *   添加
-	 *
 	 * @param etClientEventScreenshot
 	 * @return
 	 */

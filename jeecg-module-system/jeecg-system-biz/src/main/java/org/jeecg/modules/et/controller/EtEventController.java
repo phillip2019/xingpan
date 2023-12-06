@@ -114,7 +114,7 @@ public class EtEventController extends JeecgController<EtEvent, IEtEventService>
 		}
 		// 支持事件英文名称精准匹配
 		if (StringUtils.isNotBlank(etEvent.getName2())) {
-			queryWrapper.eq("name", etEvent.getName2());
+			queryWrapper.in("name", Arrays.asList(etEvent.getName2().split(COMMA_DELIMITER)));
 		}
 		Page<EtEvent> page = new Page<EtEvent>(pageNo, pageSize);
 		IPage<EtEvent> pageList = etEventService.page(page, queryWrapper);
