@@ -136,10 +136,9 @@ public class MktChannelLinkController extends JeecgController<MktChannelLink, IM
 	}
 
 	 /**
-	  *  批量更新
-	  *
-	  * @param mktChannelLink
-	  * @return
+	  *  批量更新状态
+	  * @param mktChannelLink 投流链接
+	  * @return 请求参数
 	  */
 	 @AutoLog(value = "营销渠道链接-批量更新")
 	 @ApiOperation(value="营销渠道链接-批量更新", notes="营销渠道链接-批量更新")
@@ -156,6 +155,22 @@ public class MktChannelLinkController extends JeecgController<MktChannelLink, IM
 		 this.mktChannelLinkService.updateBatchById(mktChannelLinks);
 		 return Result.OK("批量更新成功!");
 	 }
+
+	/**
+	 *  批量更新
+	 * @param mktChannelLinkList
+	 * @return
+	 */
+	@AutoLog(value = "营销渠道链接-批量更新")
+	@ApiOperation(value="营销渠道链接-批量更新", notes="营销渠道链接-批量更新")
+	//@RequiresPermissions("org.jeecg.modules.demo:mkt_channel_link:updateBatch")
+	@PutMapping(value = "/updateBatch2")
+	public Result<String> updateBatch(@RequestBody(required=true) List<MktChannelLink> mktChannelLinkList) {
+		if (!mktChannelLinkList.isEmpty()) {
+			this.mktChannelLinkService.updateBatchById(mktChannelLinkList);
+		}
+		return Result.OK("批量更新成功!");
+	}
 	
 	/**
 	 * 通过id查询
