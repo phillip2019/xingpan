@@ -148,9 +148,9 @@ spring:
           driver-class-name: com.mysql.cj.jdbc.Driver
         presto:
           name: presto
-          url: jdbc:presto://172.18.5.10:28765/hive/ods
-          username: hive
-          password:
+          url: jdbc:presto://bigdata-master-01.chinagoods.te:8443/hive/ods?SSL=true&SSLKeyStorePassword=2FDLKGFUM9feJGZh&SSLKeyStorePath=D:/keystore/presto/presto_keystore.jks
+          username: dataservice
+          password: 1GAG1bI5vN5CpNw8@2021
           driver-class-name: com.facebook.presto.jdbc.PrestoDriver
         ck:
           name: ck
