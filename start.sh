@@ -10,5 +10,5 @@ docker-compose build
 echo '容器关闭'
 docker-compose down
 
-echo '启动服务q'
+echo '启动服务'
 docker-compose up -d

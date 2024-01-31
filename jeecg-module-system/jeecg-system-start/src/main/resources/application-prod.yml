@@ -20,14 +20,17 @@ management:
         include: metrics,httptrace
 
 spring:
+  application:
+    name: xingpan
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
   mail:
     host: smtp.163.com
-    username: jeecgos@163.com
-    password: ??
+    port: 465
+    username: songxiaowei@chinagoods.com
+    password: qaz123456QWER
     properties:
       mail:
         smtp:
@@ -40,7 +43,7 @@ spring:
     job-store-type: jdbc
     initialize-schema: embedded
     #定时任务启动开关，true-开  false-关
-    auto-startup: true
+    auto-startup: false
     #延迟1秒启动定时任务
     startup-delay: 1s
     #启动时更新己存在的Job
@@ -54,7 +57,7 @@ spring:
           jobStore:
             class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
             driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-            tablePrefix: QRTZ_
+            tablePrefix: qrtz_
             isClustered: true
             misfireThreshold: 12000
             clusterCheckinInterval: 15000
@@ -100,7 +103,7 @@ spring:
       stat-view-servlet:
         enabled: true
         loginUsername: admin
-        loginPassword: 123456
+        loginPassword: chinagoods@2022
         allow:
       web-stat-filter:
         enabled: true
@@ -109,7 +112,7 @@ spring:
         # 连接池的配置信息
         # 初始化大小，最小，最大
         initial-size: 5
-        min-idle: 5
+        min-idle: 2
         maxActive: 1000
         # 配置获取连接等待超时的时间
         maxWait: 60000
@@ -117,7 +120,7 @@ spring:
         timeBetweenEvictionRunsMillis: 60000
         # 配置一个连接在池中最小生存的时间，单位是毫秒
         minEvictableIdleTimeMillis: 300000
-        validationQuery: SELECT 1 FROM DUAL
+        validationQuery: SELECT 1
         testWhileIdle: true
         testOnBorrow: false
         testOnReturn: false
@@ -125,14 +128,15 @@ spring:
         poolPreparedStatements: true
         maxPoolPreparedStatementPerConnectionSize: 20
         # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
-        filters: stat,wall,slf4j
+        # filters: stat,wall,slf4j
+        filters: stat,slf4j
         # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
-        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+        #connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/jeecg-boot?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
-          username: root
-          password: root
+          url: jdbc:mysql://172.18.5.22:3306/xingpan?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          username: xingpan
+          password: 4AI9eEfFYH9qc3^A
           driver-class-name: com.mysql.cj.jdbc.Driver
           # 多数据源配置
           #multi-datasource1:
@@ -140,12 +144,68 @@ spring:
           #username: root
           #password: root
           #driver-class-name: com.mysql.cj.jdbc.Driver
+        ghostSa:
+          url: jdbc:mysql://172.18.3.126:3306/compute_db?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          username: onread_compute_d
+          password: 2)2)O804
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        presto:
+          name: presto
+          url: jdbc:presto://bigdata-master-01.chinagoods.te:8443/hive/ods?SSL=true&SSLKeyStorePassword=2FDLKGFUM9feJGZh&SSLKeyStorePath=/var/keystore/presto_keystore.jks
+          username: dataservice
+          password: 1GAG1bI5vN5CpNw8
+          driver-class-name: com.facebook.presto.jdbc.PrestoDriver
+        ck:
+          name: ck
+          url: jdbc:clickhouse://172.18.5.47:8123/log
+          username: dev
+          password: gPQ9bs0GFKyuaXv713uN
+          driver-class-name: ru.yandex.clickhouse.ClickHouseDriver
+        griffin:
+          url: jdbc:mysql://172.18.5.22:3306/griffin?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          username: griffin
+          password: am0C4$TieX
+          driver-class-name: com.mysql.cj.jdbc.Driver
   #redis 配置
   redis:
-    database: 0
-    host: 127.0.0.1
+    database: 2
+    host: 172.18.5.17
     port: 6379
-    password: ''
+    password: 'Admin@123'
+  #kafka配置
+  kafka:
+    streams:
+      application-id: ${spring.application.name}
+      properties:
+        spring.json.trusted.packages: '*'
+    bootstrap-servers:
+      - 172.18.5.15:9092
+      - 172.18.5.16:9092
+      - 172.18.5.17:9092
+      - 172.18.5.6:9092
+      - 172.18.5.9:9092
+    consumer:
+      # 会覆盖 spring.kafka.bootstrap-servers 配置
+      bootstrap-servers: 172.18.5.15:9092,172.18.5.16:9092,172.18.5.17:9092,172.18.5.6:9092,172.18.5.9:9092
+      # 消费者所属消息组
+      group-id: xingpang-test
+      # 反序列化key的类
+      key-deserializer: java.lang.String
+      # 反序列化value的类
+      value-deserializer: java.lang.String
+      enable-auto-commit: false
+      auto-offset-reset: latest
+      properties:
+        session.timeout.ms: 12000
+        heartbeat.interval.ms: 3000
+        max.poll.records: 100
+        spring.json.trusted.packages: '*'
+    listener:
+      ack-mode: manual
+      type: batch
+      concurrency: 4
+    properties:
+      max.poll.interval.ms: 300000
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml
@@ -162,6 +222,8 @@ mybatis-plus:
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     # 返回类型为Map,显示null对应的字段
     call-setters-on-nulls: true
+    map-underscore-to-camel-case: true
+
 #jeecg专用配置
 minidao:
   base-package: org.jeecg.modules.jmreport.*
@@ -169,15 +231,15 @@ jeecg:
   # 是否启用安全模式
   safeMode: false
   # 签名密钥串(前后端要一致，正式发布请自行修改)
-  signatureSecret: dd05f1c54d63749eda95f9fa6d49v442a
+  signatureSecret: dd05f1c54d63749eda95f9fa6d49v332a
   # 签名拦截接口
   signUrls: /sys/dict/getDictItems/*,/sys/dict/loadDict/*,/sys/dict/loadDictOrderByValue/*,/sys/dict/loadDictItem/*,/sys/dict/loadTreeData,/sys/api/queryTableDictItemsByCode,/sys/api/queryFilterTableDictInfo,/sys/api/queryTableDictByKeys,/sys/api/translateDictFromTable,/sys/api/translateDictFromTableByKeys
   #local\minio\alioss
-  uploadType: alioss
+  uploadType: local
   # 前端访问地址
   domainUrl:
-    pc: http://localhost:3100
-    app: http://localhost:8051
+    pc: http://172.18.5.25:13100
+    app: http://172.18.5.25:18051
   path:
     #文件上传根目录 设置
     upload: /opt/jeecg-boot/upload
@@ -196,7 +258,7 @@ jeecg:
   elasticsearch:
     cluster-name: jeecg-ES
     cluster-nodes: 127.0.0.1:9200
-    check-enabled: true
+    check-enabled: false
   # 在线预览文件服务器地址配置
   file-view-domain: http://fileview.jeecg.com
   # minio文件上传
@@ -237,17 +299,17 @@ cas:
 #Mybatis输出sql日志
 logging:
   level:
-    org.jeecg.modules.system.mapper: info
+    org.jeecg.modules.system.mapper: ERROR
 #swagger
 knife4j:
   #开启增强配置
   enable: true
   #开启生产环境屏蔽
-  production: false
+  production: true
   basic:
     enable: true
-    username: jeecg
-    password: jeecg1314
+    username: admin
+    password: admin@2022
 #第三方登录
 justauth:
   enabled: true
@@ -301,5 +363,5 @@ cg:
   et:
     # 埋点topic地址
     topic: events-tracking
-  accessTokenHost: https://testuser.chinagoods.com
+  accessTokenHost: https://user.chinagoods.com
   ylbIdHost: https://apiserver.chinagoods.com

@@ -45,6 +45,8 @@ services:
       TZ: 'Asia/Shanghai'
     volumes:
       - /var/log/xingpan:/var/log/xingpan
+      - ./upload:/opt/jeecg-boot/upload
+      - /var/keystore:/var/keystore
     extra_hosts:
       - "bigdata-master-01.chinagoods.te:172.18.5.10"
       - "bigdata-util-gateway-01.chinagoods.te:172.18.5.14"
