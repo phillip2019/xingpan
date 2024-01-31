@@ -150,7 +150,7 @@ spring:
           name: presto
           url: jdbc:presto://bigdata-master-01.chinagoods.te:8443/hive/ods?SSL=true&SSLKeyStorePassword=2FDLKGFUM9feJGZh&SSLKeyStorePath=D:/keystore/presto/presto_keystore.jks
           username: dataservice
-          password: 1GAG1bI5vN5CpNw8@2021
+          password: 1GAG1bI5vN5CpNw8
           driver-class-name: com.facebook.presto.jdbc.PrestoDriver
         ck:
           name: ck
