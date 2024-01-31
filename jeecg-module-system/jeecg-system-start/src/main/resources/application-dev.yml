@@ -164,7 +164,7 @@ spring:
           password: cg_mall@123
           driver-class-name: com.mysql.cj.jdbc.Driver
         source:
-          url: jdbc:mysql://172.18.5.22:3306/ghost_test?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://172.18.5.22:3306/source?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
           username: source
           password: jP8*dKw,bRjBVos=
           driver-class-name: com.mysql.cj.jdbc.Driver
