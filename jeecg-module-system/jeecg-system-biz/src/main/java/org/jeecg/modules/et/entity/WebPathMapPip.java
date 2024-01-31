@@ -67,4 +67,20 @@ public class WebPathMapPip implements Serializable {
 	@Excel(name = "参数", width = 15)
     @ApiModelProperty(value = "参数")
     private String parameter;
+    /**创建人*/
+    @ApiModelProperty(value = "创建人")
+    private java.lang.String createBy;
+    /**创建时间*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "创建时间")
+    private java.util.Date createTime;
+    /**更新人*/
+    @ApiModelProperty(value = "更新人")
+    private java.lang.String updateBy;
+    /**更新时间*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "更新时间")
+    private java.util.Date updateTime;
 }
