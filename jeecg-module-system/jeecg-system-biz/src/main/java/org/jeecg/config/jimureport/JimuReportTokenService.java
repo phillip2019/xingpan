@@ -43,6 +43,11 @@ public class JimuReportTokenService implements JmReportTokenServiceI {
     }
 
     @Override
+    public String[] getRoles(String role) {
+        return new String[0];
+    }
+
+    @Override
     public Boolean verifyToken(String token) {
         return TokenUtils.verifyToken(token, sysBaseApi, redisUtil);
     }
