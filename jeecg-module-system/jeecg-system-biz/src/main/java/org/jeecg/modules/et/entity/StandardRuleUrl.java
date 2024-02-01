@@ -1,9 +1,7 @@
 package org.jeecg.modules.et.entity;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.math.BigDecimal;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -11,7 +9,6 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
-import org.jeecg.common.aspect.annotation.Dict;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
@@ -24,21 +21,17 @@ import lombok.experimental.Accessors;
  * @Version: V1.0
  */
 @Data
-@TableName("web_path_map_pip")
+@TableName("standard_rule_url")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="web_path_map_pip对象", description="平台标准化页面名称规则")
-public class WebPathMapPip implements Serializable {
+@ApiModel(value="standard_rule_url对象", description="平台标准化页面名称规则")
+public class StandardRuleUrl implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**id*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "id")
     private Integer id;
-	/**项目名*/
-	@Excel(name = "项目名", width = 15)
-    @ApiModelProperty(value = "项目名")
-    private String project;
 	/**客户端类型*/
 	@Excel(name = "客户端类型", width = 15)
     @ApiModelProperty(value = "客户端类型")
@@ -46,7 +39,7 @@ public class WebPathMapPip implements Serializable {
 	/**语言*/
 	@Excel(name = "语言", width = 15)
     @ApiModelProperty(value = "语言")
-    private String platformLang;
+    private String lang;
 	/**模块*/
 	@Excel(name = "模块", width = 15)
     @ApiModelProperty(value = "模块")
@@ -59,14 +52,14 @@ public class WebPathMapPip implements Serializable {
 	@Excel(name = "访问页面备注名称", width = 15)
     @ApiModelProperty(value = "访问页面备注名称")
     private String pageName;
-	/**页面路径*/
-	@Excel(name = "页面路径", width = 15)
-    @ApiModelProperty(value = "页面路径")
-    private String path;
-	/**参数*/
-	@Excel(name = "参数", width = 15)
-    @ApiModelProperty(value = "参数")
-    private String parameter;
+	/**原始URL*/
+	@Excel(name = "原始URL", width = 15)
+    @ApiModelProperty(value = "原始URL")
+    private String scUrl;
+    /**标准URL*/
+    @Excel(name = "标准URL", width = 15)
+    @ApiModelProperty(value = "标准URL")
+    private String standardUrl;
     /**创建人*/
     @ApiModelProperty(value = "创建人")
     private java.lang.String createBy;

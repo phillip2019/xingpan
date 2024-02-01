@@ -2,9 +2,9 @@ package org.jeecg.modules.et.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.modules.et.entity.WebPathMapPip;
-import org.jeecg.modules.et.mapper.WebPathMapPipMapper;
-import org.jeecg.modules.et.service.IWebPathMapPipService;
+import org.jeecg.modules.et.entity.StandardRuleUrl;
+import org.jeecg.modules.et.mapper.StandardRuleUrlMapper;
+import org.jeecg.modules.et.service.StandardRuleUrlService;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -18,6 +18,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 @DS("source")
 @Service
 @Slf4j
-public class WebPathMapPipServiceImpl extends ServiceImpl<WebPathMapPipMapper, WebPathMapPip> implements IWebPathMapPipService {
+public class StandardRuleUrlServiceImpl extends ServiceImpl<StandardRuleUrlMapper, StandardRuleUrl> implements StandardRuleUrlService {
 
 }

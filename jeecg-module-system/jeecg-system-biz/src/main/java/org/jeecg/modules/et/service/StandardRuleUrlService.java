@@ -1,6 +1,6 @@
 package org.jeecg.modules.et.service;
 
-import org.jeecg.modules.et.entity.WebPathMapPip;
+import org.jeecg.modules.et.entity.StandardRuleUrl;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -9,6 +9,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @Date:   2024-01-31
  * @Version: V1.0
  */
-public interface IWebPathMapPipService extends IService<WebPathMapPip> {
+public interface StandardRuleUrlService extends IService<StandardRuleUrl> {
 
 }
