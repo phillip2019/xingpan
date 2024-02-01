@@ -1,9 +1,6 @@
 package org.jeecg.modules.et.mapper;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-import org.jeecg.modules.et.entity.WebPathMapPip;
+import org.jeecg.modules.et.entity.StandardRuleUrl;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -12,6 +9,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @Date:   2024-01-31
  * @Version: V1.0
  */
-public interface WebPathMapPipMapper extends BaseMapper<WebPathMapPip> {
+public interface StandardRuleUrlMapper extends BaseMapper<StandardRuleUrl> {
 
 }
