@@ -60,6 +60,14 @@ public class StandardRuleUrl implements Serializable {
     @Excel(name = "标准URL", width = 15)
     @ApiModelProperty(value = "标准URL")
     private String standardUrl;
+    /**正则表达式*/
+    @Excel(name = "正则表达式", width = 15)
+    @ApiModelProperty(value = "正则表达式")
+    private String regex;
+    /**正则替换参数*/
+    @Excel(name = "正则替换参数", width = 15)
+    @ApiModelProperty(value = "正则替换参数")
+    private String params;
     /**创建人*/
     @ApiModelProperty(value = "创建人")
     private java.lang.String createBy;
