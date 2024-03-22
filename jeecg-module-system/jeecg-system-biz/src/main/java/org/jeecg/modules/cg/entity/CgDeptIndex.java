@@ -86,13 +86,25 @@ public class CgDeptIndex implements Serializable {
     @Excel(name = "指标状态", width = 15)
     @ApiModelProperty(value = "指标状态")
     private Integer status;
-    /**指标填报状态*/
-    @Excel(name = "指标填报状态", width = 15)
-    @ApiModelProperty(value = "指标填报状态")
+    /**指标填报方式*/
+    @Excel(name = "指标填报方式", width = 15)
+    @ApiModelProperty(value = "指标填报方式")
     private Integer indexFillingMethod;
-	/**活动备注*/
-	@Excel(name = "活动备注", width = 15)
-    @ApiModelProperty(value = "活动备注")
+    /**数据来源*/
+    @Excel(name = "数据来源", width = 15)
+    @ApiModelProperty(value = "数据来源")
+    private String dataSource;
+    /**是否项目化指标*/
+    @Excel(name = "是否项目化指标", width = 15)
+    @ApiModelProperty(value = "是否项目化指标")
+    private Boolean isProjectIndex=false;
+    /**是否军令状指标*/
+    @Excel(name = "是否军令状指标", width = 15)
+    @ApiModelProperty(value = "是否军令状指标")
+    private Boolean isMilitaryOrderIndex=false;
+	/**备注*/
+	@Excel(name = "备注", width = 15)
+    @ApiModelProperty(value = "备注")
     private String remark;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
