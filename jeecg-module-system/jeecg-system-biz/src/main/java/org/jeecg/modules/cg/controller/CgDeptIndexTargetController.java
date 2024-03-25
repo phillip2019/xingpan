@@ -81,7 +81,7 @@ public class CgDeptIndexTargetController extends JeecgController<CgDeptIndexTarg
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
 		// 若请求参数中包含部门，则先查询部门编号对应的指标编号
-		List<Long> indexIdList = null;
+		List<String> indexIdList = null;
 		if (StringUtils.isNotBlank(cgDeptIndexTarget.getDeptId())) {
 			Map<String, Object> queryMapParam = new HashMap<String, Object>() {{
 				put("dept_id", cgDeptIndexTarget.getDeptId());
@@ -91,7 +91,7 @@ public class CgDeptIndexTargetController extends JeecgController<CgDeptIndexTarg
 		}
 		Result<IPage<CgDeptIndexTarget>> result = new Result<>();
 		QueryWrapper<CgDeptIndexTarget> queryWrapper = QueryGenerator.initQueryWrapper(cgDeptIndexTarget, req.getParameterMap());
-		if (indexIdList != null && indexIdList.size() > 0) {
+		if (indexIdList != null && !indexIdList.isEmpty()) {
 			queryWrapper.in("dept_index_id", indexIdList);
 		}
 		// 只保留未删除记录
@@ -113,12 +113,12 @@ public class CgDeptIndexTargetController extends JeecgController<CgDeptIndexTarg
 				deptId2DeptName.put(category.getId(), category.getName());
 			}
 
-			Map<Long, CgDeptIndex> deptIndexId2DeptIndexM = new HashMap<>(cgDeptIndexList.size());
+			Map<String, CgDeptIndex> deptIndexId2DeptIndexM = new HashMap<>(cgDeptIndexList.size());
 			for (CgDeptIndex deptIndex : cgDeptIndexList) {
 				deptIndexId2DeptIndexM.put(deptIndex.getId(), deptIndex);
 			}
 			pageList.getRecords().forEach(item->{
-				CgDeptIndex deptIndex = deptIndexId2DeptIndexM.get(Long.valueOf(item.getDeptIndexId()));
+				CgDeptIndex deptIndex = deptIndexId2DeptIndexM.get(item.getDeptIndexId());
 				item.setDeptText(deptId2DeptName.get(deptIndex.getDeptId()));
 				item.setDeptId(deptIndex.getDeptId());
 				item.setIndexNameZh(deptIndex.getIndexNameZh());
