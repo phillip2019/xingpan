@@ -21,8 +21,6 @@ import java.util.Map;
  *  * 2.自定义获取登录用户
  * @author: jeecg-boot
  */
-
-
 @Slf4j
 @Component
 public class JimuReportTokenService implements JmReportTokenServiceI {
