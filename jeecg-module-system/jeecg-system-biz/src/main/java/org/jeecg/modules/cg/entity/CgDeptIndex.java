@@ -97,11 +97,11 @@ public class CgDeptIndex implements Serializable {
     /**是否项目化指标*/
     @Excel(name = "是否项目化指标", width = 15)
     @ApiModelProperty(value = "是否项目化指标")
-    private Integer isProjectIndex=0;
+    private Integer isProjectIndex;
     /**是否军令状指标*/
     @Excel(name = "是否军令状指标", width = 15)
     @ApiModelProperty(value = "是否军令状指标")
-    private Integer isMilitaryOrderIndex=0;
+    private Integer isMilitaryOrderIndex;
 	/**备注*/
 	@Excel(name = "备注", width = 15)
     @ApiModelProperty(value = "备注")
