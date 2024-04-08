@@ -1,13 +1,11 @@
 package org.jeecg.modules.cg.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
@@ -125,8 +123,21 @@ public class CgDeptIndexValueController extends JeecgController<CgDeptIndexValue
 	//@RequiresPermissions("org.jeecg.modules.demo:cg_dept_index_value:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody CgDeptIndexValue cgDeptIndexValue) {
-		cgDeptIndexValueService.save(cgDeptIndexValue);
-		return Result.OK("添加成功！");
+		// 若周期内指标存在，则更新周期内指标
+		LambdaQueryWrapper<CgDeptIndexValue> queryWrapper = new LambdaQueryWrapper<CgDeptIndexValue>()
+				.eq(CgDeptIndexValue::getDeptIndexId, cgDeptIndexValue.getDeptIndexId())
+				.eq(CgDeptIndexValue::getBeginDate, cgDeptIndexValue.getBeginDate())
+				.eq(CgDeptIndexValue::getEndDate, cgDeptIndexValue.getEndDate());
+		Optional<CgDeptIndexValue> cgDeptIndexValueDBOptional = Optional.ofNullable(cgDeptIndexValueService.getOne(queryWrapper));
+
+		cgDeptIndexValueDBOptional.ifPresent(cgDeptIndexValueDB -> {
+			cgDeptIndexValue.setId(cgDeptIndexValueDB.getId())
+					.setDeptIndexId(cgDeptIndexValueDB.getDeptIndexId())
+					.setCreateBy(cgDeptIndexValueDB.getCreateBy())
+					.setCreateTime(cgDeptIndexValueDB.getCreateTime());
+		});
+		cgDeptIndexValueService.saveOrUpdate(cgDeptIndexValue);
+		return Result.OK("添加或更新成功！");
 	}
 	
 	/**
