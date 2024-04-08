@@ -64,6 +64,7 @@ public class DictAspect {
             result = pjp.proceed();
         } catch (Exception e) {
             log.error("excude service切面执行异常，报错为: ", e);
+            result = Result.error(e.getMessage());
         }
         long time2 = System.currentTimeMillis();
         log.debug("获取JSON数据 耗时："+(time2-time1)+"ms");
