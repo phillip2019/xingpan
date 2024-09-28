@@ -69,13 +69,13 @@ public class MaPositionAddressController extends JeecgController<MaPositionAddre
 			maPositionQueryWrapper.select("id");
 			MaPosition maPosition = positionMapper.selectOne(maPositionQueryWrapper);
 			List<MaPosition> positionList = positionMapper.selectList(maPositionQueryWrapper);
-			if (positionList == null || positionList.size() == 0) {
+			if (positionList == null || positionList.isEmpty()) {
 				return Result.error(String.format("序号: %s查询为空，请检查序号", maPositionAddress.getPositionSeqNo()));
 			}
 			positionIdList = positionList.stream().map(MaPosition::getId).collect(Collectors.toList());
 		}
 		QueryWrapper<MaPositionAddress> queryWrapper = QueryGenerator.initQueryWrapper(maPositionAddress, requestMap);
-		if (positionIdList != null && positionIdList.size() > 0) {
+		if (positionIdList != null && !positionIdList.isEmpty()) {
 			queryWrapper.in("position_id", positionIdList);
 		}
 		Page<MaPositionAddress> page = new Page<MaPositionAddress>(pageNo, pageSize);

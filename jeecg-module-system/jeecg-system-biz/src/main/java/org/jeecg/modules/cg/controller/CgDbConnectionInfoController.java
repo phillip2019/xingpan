@@ -67,7 +67,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
 		QueryWrapper<CgDbConnectionInfo> queryWrapper = QueryGenerator.initQueryWrapper(cgDbConnectionInfo, req.getParameterMap());
-		Page<CgDbConnectionInfo> page = new Page<CgDbConnectionInfo>(pageNo, pageSize);
+		Page<CgDbConnectionInfo> page = new Page<>(pageNo, pageSize);
 		IPage<CgDbConnectionInfo> pageList = cgDbConnectionInfoService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
