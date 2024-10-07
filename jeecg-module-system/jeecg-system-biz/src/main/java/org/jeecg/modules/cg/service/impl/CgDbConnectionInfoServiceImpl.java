@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import java.util.Collection;
+
 import static org.jeecg.common.util.PasswordUtil.aes256Decrypt;
 import static org.jeecg.common.util.PasswordUtil.aes256Encrypt;
 
@@ -52,6 +54,8 @@ public class CgDbConnectionInfoServiceImpl extends ServiceImpl<CgDbConnectionInf
                 throw new RuntimeException(e);
             }
         }
+        // 版本号更新
+        entity.setVersion(oldCgDbConnectionInfo.getVersion() + 1);
         return super.updateById(entity);
     }
 
@@ -63,5 +67,19 @@ public class CgDbConnectionInfoServiceImpl extends ServiceImpl<CgDbConnectionInf
             log.error("加密密码失败, 错误消息为: ", e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean saveBatch(Collection<CgDbConnectionInfo> entityList) {
+        // 加密密码
+        entityList.forEach(item -> {
+            try {
+                item.setPassword(aes256Encrypt(item.getPassword(), base64SecretKey));
+            } catch (Exception e) {
+                log.error("加密密码失败, 错误消息为: ", e);
+                throw new RuntimeException(e);
+            }
+        });
+        return super.saveBatch(entityList);
     }
 }

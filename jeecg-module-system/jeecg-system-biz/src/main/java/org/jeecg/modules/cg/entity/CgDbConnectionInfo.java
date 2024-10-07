@@ -40,32 +40,33 @@ public class CgDbConnectionInfo implements Serializable {
     private java.lang.String id;
 	/**业务线名称*/
     @Dict(dicCode = "bu_name")
-    @Excel(name = "业务线名称", width = 15, dicCode = "bu_name")
+    @Excel(name = "业务线", width = 15, dicCode = "bu_name")
     @ApiModelProperty(value = "业务线名称")
     private java.lang.String buName;
 	/**数据库连接ID(英文名)*/
-	@Excel(name = "数据库连接ID(英文名)", width = 15)
+	@Excel(name = "Con ID", width = 15)
     @ApiModelProperty(value = "数据库连接ID(英文名)")
     private java.lang.String connectionId;
 	/**状态*/
-	@Excel(name = "状态", width = 15)
+    @Dict(dicCode = "valid_status")
+    @Excel(name = "状态", width = 15, dicCode = "valid_status")
     @ApiModelProperty(value = "状态")
     private java.lang.Integer status;
 	/**数据库连接类型*/
     @Dict(dicCode = "connection_type")
-    @Excel(name = "数据库连接类型", width = 15, dicCode = "connection_type")
+    @Excel(name = "数据库类型", width = 15, dicCode = "connection_type")
     @ApiModelProperty(value = "数据库连接类型")
     private java.lang.String connectionType;
 	/**数据库连接描述内容*/
-	@Excel(name = "数据库连接描述内容", width = 15)
+	@Excel(name = "描述", width = 15)
     @ApiModelProperty(value = "数据库连接描述内容")
     private java.lang.String description;
 	/**数据库连接主机*/
-	@Excel(name = "数据库连接主机", width = 15)
+	@Excel(name = "HOST", width = 15)
     @ApiModelProperty(value = "数据库连接主机")
     private java.lang.String host;
 	/**数据库连接DB*/
-	@Excel(name = "数据库连接DB", width = 15)
+	@Excel(name = "schema", width = 15)
     @ApiModelProperty(value = "数据库连接DB")
     private java.lang.String schemaName;
 	/**用户名*/
@@ -85,15 +86,15 @@ public class CgDbConnectionInfo implements Serializable {
     @ApiModelProperty(value = "额外连接信息")
     private java.lang.String extra;
 	/**版本，记录当前修改版本，记录历史记录*/
-	@Excel(name = "版本，记录当前修改版本，记录历史记录", width = 15)
+	@Excel(name = "版本", width = 15)
     @ApiModelProperty(value = "版本，记录当前修改版本，记录历史记录")
     private java.lang.Integer version;
 	/**连接超时时间*/
-	@Excel(name = "连接超时时间", width = 15)
+	@Excel(name = "连接超时", width = 15)
     @ApiModelProperty(value = "连接超时时间")
     private java.lang.Integer connectionTimeout;
 	/**queryTimeout*/
-	@Excel(name = "queryTimeout", width = 15)
+	@Excel(name = "查询超时", width = 15)
     @ApiModelProperty(value = "queryTimeout")
     private java.lang.Integer queryTimeout;
 	/**创建人*/

@@ -3,6 +3,8 @@ package org.jeecg.modules.cg.service;
 import org.jeecg.modules.cg.entity.CgDbConnectionInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Collection;
+
 /**
  * @Description: CG数据库连接信息
  * @Author: jeecg-boot

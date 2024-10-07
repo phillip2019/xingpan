@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
@@ -99,7 +100,7 @@ public class DictAspect {
      */
     private Object parseDictText(Object result) {
         if (result instanceof Result) {
-            if (((Result) result).getResult() instanceof IPage) {
+            if (((Result<?>) result).getResult() instanceof IPage) {
                 List<JSONObject> items = new ArrayList<>();
 
                 //step.1 筛选出加了 Dict 注解的字段列表
@@ -107,9 +108,9 @@ public class DictAspect {
                 // 字典数据列表， key = 字典code，value=数据列表
                 Map<String, List<String>> dataListMap = new HashMap<>(5);
                 //取出结果集
-                List<Object> records=((IPage) ((Result) result).getResult()).getRecords();
+                List<Object> records = ((IPage) ((Result<?>) result).getResult()).getRecords();
                 //update-begin--Author:zyf -- Date:20220606 ----for：【VUEN-1230】 判断是否含有字典注解,没有注解返回-----
-                Boolean hasDict= checkHasDict(records);
+                Boolean hasDict = checkHasDict(records);
                 if(!hasDict){
                     return result;
                 }
@@ -117,14 +118,14 @@ public class DictAspect {
                 log.debug(" __ 进入字典翻译切面 DictAspect —— " );
                 //update-end--Author:zyf -- Date:20220606 ----for：【VUEN-1230】 判断是否含有字典注解,没有注解返回-----
                 for (Object record : records) {
-                    String json="{}";
+                    String json = "{}";
                     try {
                         //update-begin--Author:zyf -- Date:20220531 ----for：【issues/#3629】 DictAspect Jackson序列化报错-----
                         //解决@JsonFormat注解解析不了的问题详见SysAnnouncement类的@JsonFormat
                          json = objectMapper.writeValueAsString(record);
                         //update-end--Author:zyf -- Date:20220531 ----for：【issues/#3629】 DictAspect Jackson序列化报错-----
                     } catch (JsonProcessingException e) {
-                        log.error("json解析失败"+e.getMessage(),e);
+                        log.error("json解析失败, {} ", e.getMessage(), e);
                     }
                     //update-begin--Author:scott -- Date:20211223 ----for：【issues/3303】restcontroller返回json数据后key顺序错乱 -----
                     JSONObject item = JSONObject.parseObject(json, Feature.OrderedField);
@@ -149,7 +150,7 @@ public class DictAspect {
 
                             List<String> dataList;
                             String dictCode = code;
-                            if (!StringUtils.isEmpty(table)) {
+                            if (!ObjectUtils.isEmpty(table)) {
                                 dictCode = String.format("%s,%s,%s", table, text, code);
                             }
                             dataList = dataListMap.computeIfAbsent(dictCode, k -> new ArrayList<>());
@@ -177,14 +178,14 @@ public class DictAspect {
                         String table = field.getAnnotation(Dict.class).dictTable();
 
                         String fieldDictCode = code;
-                        if (!StringUtils.isEmpty(table)) {
+                        if (!ObjectUtils.isEmpty(table)) {
                             fieldDictCode = String.format("%s,%s,%s", table, text, code);
                         }
 
                         String value = record.getString(field.getName());
                         if (oConvertUtils.isNotEmpty(value)) {
                             List<DictModel> dictModels = translText.get(fieldDictCode);
-                            if(dictModels==null || dictModels.size()==0){
+                            if(dictModels==null || dictModels.isEmpty()){
                                 continue;
                             }
 
