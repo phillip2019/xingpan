@@ -368,3 +368,4 @@ cg:
     topic: events-tracking
   accessTokenHost: https://testuser.chinagoods.com
   ylbIdHost: https://testapiserver.chinagoods.com
+  dbConnectionSecretKey: DK7VB0ca7ewZlhqQ2O+Kq756+suJBxfJ7pQ38bss+rc=

@@ -36,7 +36,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 
- /**
+import static org.jeecg.common.util.PasswordUtil.aes256Decrypt;
+import static org.jeecg.common.util.PasswordUtil.aes256Encrypt;
+
+/**
  * @Description: CG数据库连接信息
  * @Author: jeecg-boot
  * @Date:   2024-09-26
@@ -104,7 +107,6 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 	
 	/**
 	 *   通过id删除
-	 *
 	 * @param id
 	 * @return
 	 */
@@ -146,6 +148,26 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		if(cgDbConnectionInfo==null) {
 			return Result.error("未找到对应数据");
 		}
+		// 解密密码
+		cgDbConnectionInfo.setPassword(cgDbConnectionInfoService.showRealPassword(cgDbConnectionInfo.getPassword()));
+		return Result.OK(cgDbConnectionInfo);
+	}
+
+	/**
+	 * 显示真实密码
+	 *
+	 * @param id 数据库链接信息ID
+	 */
+	@ApiOperation(value="CG数据库连接信息-通过id查询真实密码", notes="CG数据库连接信息-通过id查询")
+	@GetMapping(value = "/showRealPasswordById")
+	public Result<CgDbConnectionInfo> showRealPasswordById(@RequestParam(name="id",required=true) String id) {
+		CgDbConnectionInfo cgDbConnectionInfo = cgDbConnectionInfoService.getById(id);
+		if(cgDbConnectionInfo == null) {
+			return Result.error("未找到对应数据");
+		}
+
+		String realPassword = cgDbConnectionInfoService.showRealPassword(cgDbConnectionInfo.getPassword());
+		cgDbConnectionInfo.setPassword(realPassword);
 		return Result.OK(cgDbConnectionInfo);
 	}
 

@@ -9,6 +9,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.util.PasswordUtil;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.jeecg.common.aspect.annotation.Dict;
@@ -36,7 +39,8 @@ public class CgDbConnectionInfo implements Serializable {
     @ApiModelProperty(value = "编号")
     private java.lang.String id;
 	/**业务线名称*/
-	@Excel(name = "业务线名称", width = 15)
+    @Dict(dicCode = "bu_name")
+    @Excel(name = "业务线名称", width = 15, dicCode = "bu_name")
     @ApiModelProperty(value = "业务线名称")
     private java.lang.String buName;
 	/**数据库连接ID(英文名)*/
@@ -48,7 +52,8 @@ public class CgDbConnectionInfo implements Serializable {
     @ApiModelProperty(value = "状态")
     private java.lang.Integer status;
 	/**数据库连接类型*/
-	@Excel(name = "数据库连接类型", width = 15)
+    @Dict(dicCode = "connection_type")
+    @Excel(name = "数据库连接类型", width = 15, dicCode = "connection_type")
     @ApiModelProperty(value = "数据库连接类型")
     private java.lang.String connectionType;
 	/**数据库连接描述内容*/
@@ -107,4 +112,11 @@ public class CgDbConnectionInfo implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "更新时间")
     private java.util.Date updateTime;
+
+    @SneakyThrows({Exception.class})
+    public String setPassword(String password, String base64SecretKey) {
+        // 若是新增或密码修改，则需要重新加密密码
+        this.password = PasswordUtil.aes256Encrypt(password, base64SecretKey);
+        return this.password;
+    }
 }

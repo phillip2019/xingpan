@@ -11,4 +11,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ICgDbConnectionInfoService extends IService<CgDbConnectionInfo> {
 
+    /**
+     * 显示真实密码
+     * @param password 原始密码
+     * @return 解密密码
+     */
+    String showRealPassword(String password);
 }
