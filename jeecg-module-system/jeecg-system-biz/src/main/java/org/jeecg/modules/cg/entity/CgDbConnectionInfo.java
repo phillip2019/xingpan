@@ -43,6 +43,10 @@ public class CgDbConnectionInfo implements Serializable {
     @Excel(name = "业务线", width = 15, dicCode = "bu_name")
     @ApiModelProperty(value = "业务线名称")
     private java.lang.String buName;
+    /**系统名称*/
+    @Excel(name = "系统名称", width = 15)
+    @ApiModelProperty(value = "系统名称")
+    private java.lang.String sys;
 	/**数据库连接ID(英文名)*/
 	@Excel(name = "Con ID", width = 15)
     @ApiModelProperty(value = "数据库连接ID(英文名)")
