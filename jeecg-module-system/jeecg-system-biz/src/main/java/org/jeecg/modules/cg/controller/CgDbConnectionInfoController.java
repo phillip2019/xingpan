@@ -1,6 +1,7 @@
 package org.jeecg.modules.cg.controller;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,8 +10,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.cg.entity.CgDbConnectionInfo;
 import org.jeecg.modules.cg.service.ICgDbConnectionInfoService;
@@ -70,6 +74,12 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
 		QueryWrapper<CgDbConnectionInfo> queryWrapper = QueryGenerator.initQueryWrapper(cgDbConnectionInfo, req.getParameterMap());
+		//获取登录用户信息
+		LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		// 若用户非admin，则排除业务线为“大数据平台”的数据源记录
+		if (!"admin".equals(sysUser.getUsername())) {
+			queryWrapper.lambda().notIn(CgDbConnectionInfo::getBuName, Collections.singletonList("大数据平台"));
+		}
 		Page<CgDbConnectionInfo> page = new Page<>(pageNo, pageSize);
 		IPage<CgDbConnectionInfo> pageList = cgDbConnectionInfoService.page(page, queryWrapper);
 		return Result.OK(pageList);
