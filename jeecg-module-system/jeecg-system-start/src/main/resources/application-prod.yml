@@ -225,7 +225,7 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 #jeecg专用配置
-minidao:
+mini:
   base-package: org.jeecg.modules.jmreport.*
 jeecg:
   # 是否启用安全模式
@@ -363,5 +363,5 @@ cg:
   et:
     # 埋点topic地址
     topic: events-tracking
-  accessTokenHost: https://user.chinagoods.com
+  accessTokenHost: https://testuser.chinagoods.com
   ylbIdHost: https://apiserver.chinagoods.com

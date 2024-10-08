@@ -1,12 +1,16 @@
 package org.jeecg.common.util;
 
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Base64;
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @Description: 密码工具类
@@ -187,5 +191,44 @@ public class PasswordUtil {
 		return (byte) "0123456789ABCDEF".indexOf(c);
 	}
 
+	// AES 加密
+	public static String aes256Encrypt(String data, String base64SecretKey) throws Exception {
+		// 将 Base64 编码的密钥转换为 SecretKey 对象
+		byte[] decodedKey = Base64.getDecoder().decode(base64SecretKey);
+		SecretKey secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+
+		// 初始化加密工具
+		Cipher cipher = Cipher.getInstance("AES");
+		cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+		// 加密数据
+		byte[] encryptedData = cipher.doFinal(data.getBytes());
+		return Base64.getEncoder().encodeToString(encryptedData);
+	}
+
+	// AES 解密
+	public static String aes256Decrypt(String encryptedData, String base64SecretKey) throws Exception {
+		// 将 Base64 编码的密钥转换为 SecretKey 对象
+		byte[] decodedKey = Base64.getDecoder().decode(base64SecretKey);
+		SecretKey secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+
+		// 初始化解密工具
+		Cipher cipher = Cipher.getInstance("AES");
+		cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+		// 解密数据
+		byte[] decodedData = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+		return new String(decodedData);
+	}
+
+	public static void main(String[] args) throws NoSuchAlgorithmException {
+		KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+		keyGen.init(256); // AES-256加密
+		SecretKey secretKey = keyGen.generateKey();
+
+		// 将密钥以 Base64 编码保存
+		String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+		System.out.println("AES 密钥: " + encodedKey);
+	}
 
 }

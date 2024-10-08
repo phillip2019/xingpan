@@ -53,6 +53,10 @@ public class CgDeptIndexValue implements Serializable {
 	@Excel(name = "部门值", width = 15)
     @ApiModelProperty(value = "部门值")
     private java.math.BigDecimal indexValue;
+    /**佐证材料地址*/
+    @Excel(name = "佐证材料地址", width = 15)
+    @ApiModelProperty(value = "佐证材料地址")
+    private transient String attachFiles;
 	/**开始日期*/
 	@Excel(name = "开始日期", width = 15, format = "yyyy-MM-dd")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
