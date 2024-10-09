@@ -62,8 +62,8 @@ public class CgDbConnectionInfo implements Serializable {
     @ApiModelProperty(value = "数据库连接类型")
     private java.lang.String connectionType;
     /**数据库版本*/
-    @Excel(name = "数据库类型", width = 15)
-    @ApiModelProperty(value = "数据库连接类型")
+    @Excel(name = "引擎版本", width = 15)
+    @ApiModelProperty(value = "引擎版本")
     private java.lang.String connectionTypeVersion;
 	/**数据库连接描述内容*/
 	@Excel(name = "描述", width = 15)
