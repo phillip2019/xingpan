@@ -1,4 +1,4 @@
-package org.jeecg.modules.demo.cg.service.impl;
+package org.jeecg.modules.cg.service.impl;
 
 import org.jeecg.modules.demo.cg.entity.CgDeptIndexTarget;
 import org.jeecg.modules.demo.cg.mapper.CgDeptIndexTargetMapper;

@@ -11,6 +11,7 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
@@ -24,6 +25,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.cg.service.UniversalConnectionService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -56,6 +58,9 @@ import static org.jeecg.common.util.PasswordUtil.aes256Encrypt;
 public class CgDbConnectionInfoController extends JeecgController<CgDbConnectionInfo, ICgDbConnectionInfoService> {
 	@Autowired
 	private ICgDbConnectionInfoService cgDbConnectionInfoService;
+
+	@Autowired
+	private UniversalConnectionService connectionService;
 	
 	/**
 	 * 分页列表查询
@@ -205,5 +210,28 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, CgDbConnectionInfo.class);
     }
+
+	@ApiOperation(value="CG数据库连接信息-通过id测试服务是否正确配置", notes="CG数据库连接信息-通过id测试服务是否正确配置")
+	@PostMapping("/testConnection")
+	public Result<String> testConnection(@RequestParam(name="id",required=true) String id) {
+		CgDbConnectionInfo cgDbConnectionInfo = cgDbConnectionInfoService.getById(id);
+		if(cgDbConnectionInfo == null) {
+			return Result.error("未找到对应数据");
+		}
+
+		String dbType = cgDbConnectionInfo.getConnectionType();
+		String host = cgDbConnectionInfo.getHost();
+		String port = cgDbConnectionInfo.getPort().toString();
+		String username = cgDbConnectionInfo.getLogin();
+		String password = cgDbConnectionInfoService.showRealPassword(cgDbConnectionInfo.getPassword());
+		String dbName = cgDbConnectionInfo.getSchemaName();
+		log.info("testConnection: dbType:{}, host:{}, port:{}, username:{}, password:{}, dbName:{}", dbType, host, port, username, password, dbName);
+		String result = connectionService.testConnection(dbType, host, port, username, password, dbName);
+		log.info("testConnection result: {}", result);
+		if (StringUtils.contains(result, "successful")) {
+			return Result.OK(result);
+		}
+		return Result.error(result);
+	}
 
 }
