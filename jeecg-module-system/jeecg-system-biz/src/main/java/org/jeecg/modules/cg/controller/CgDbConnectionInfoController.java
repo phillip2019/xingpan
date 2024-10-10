@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
@@ -98,7 +99,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 	 */
 	@AutoLog(value = "CG数据库连接信息-添加")
 	@ApiOperation(value="CG数据库连接信息-添加", notes="CG数据库连接信息-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:add")
+	@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody CgDbConnectionInfo cgDbConnectionInfo) {
 		cgDbConnectionInfoService.save(cgDbConnectionInfo);
@@ -113,7 +114,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 	 */
 	@AutoLog(value = "CG数据库连接信息-编辑")
 	@ApiOperation(value="CG数据库连接信息-编辑", notes="CG数据库连接信息-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:edit")
+	@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody CgDbConnectionInfo cgDbConnectionInfo) {
 		cgDbConnectionInfoService.updateById(cgDbConnectionInfo);
@@ -127,7 +128,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 	 */
 	@AutoLog(value = "CG数据库连接信息-通过id删除")
 	@ApiOperation(value="CG数据库连接信息-通过id删除", notes="CG数据库连接信息-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:delete")
+	@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		cgDbConnectionInfoService.removeById(id);
@@ -142,7 +143,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 	 */
 	@AutoLog(value = "CG数据库连接信息-批量删除")
 	@ApiOperation(value="CG数据库连接信息-批量删除", notes="CG数据库连接信息-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:deleteBatch")
+	@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.cgDbConnectionInfoService.removeByIds(Arrays.asList(ids.split(",")));
@@ -155,8 +156,9 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 	 * @param id
 	 * @return
 	 */
-	//@AutoLog(value = "CG数据库连接信息-通过id查询")
+	@AutoLog(value = "CG数据库连接信息-通过id查询")
 	@ApiOperation(value="CG数据库连接信息-通过id查询", notes="CG数据库连接信息-通过id查询")
+	@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:queryById")
 	@GetMapping(value = "/queryById")
 	public Result<CgDbConnectionInfo> queryById(@RequestParam(name="id",required=true) String id) {
 		CgDbConnectionInfo cgDbConnectionInfo = cgDbConnectionInfoService.getById(id);
@@ -173,8 +175,10 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 	 *
 	 * @param id 数据库链接信息ID
 	 */
+	@AutoLog(value = "CG数据库连接信息-通过id查询真实密码")
 	@ApiOperation(value="CG数据库连接信息-通过id查询真实密码", notes="CG数据库连接信息-通过id查询")
 	@GetMapping(value = "/showRealPasswordById")
+	@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:showRealPasswordById")
 	public Result<CgDbConnectionInfo> showRealPasswordById(@RequestParam(name="id",required=true) String id) {
 		CgDbConnectionInfo cgDbConnectionInfo = cgDbConnectionInfoService.getById(id);
 		if(cgDbConnectionInfo == null) {
@@ -192,9 +196,10 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
     * @param request
     * @param cgDbConnectionInfo
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:exportXls")
+	@AutoLog(value = "CG数据库连接信息-导出excel文件")
+	@RequiresPermissions("org.jeecg.modules.demo:cg_db_connection_info:exportXls")
     @RequestMapping(value = "/exportXls")
-    public ModelAndView exportXls(HttpServletRequest request, CgDbConnectionInfo cgDbConnectionInfo) {
+	public ModelAndView exportXls(HttpServletRequest request, CgDbConnectionInfo cgDbConnectionInfo) {
         return super.exportXls(request, cgDbConnectionInfo, CgDbConnectionInfo.class, "CG数据库连接信息");
     }
 
@@ -205,9 +210,10 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
     * @param response
     * @return
     */
-    //@RequiresPermissions("cg_db_connection_info:importExcel")
+	@AutoLog(value = "CG数据库连接信息-导入excel文件")
+	@RequiresPermissions("cg_db_connection_info:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
-    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+	public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, CgDbConnectionInfo.class);
     }
 
@@ -225,6 +231,32 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		String username = cgDbConnectionInfo.getLogin();
 		String password = cgDbConnectionInfoService.showRealPassword(cgDbConnectionInfo.getPassword());
 		String dbName = cgDbConnectionInfo.getSchemaName();
+		log.info("testConnection: dbType:{}, host:{}, port:{}, username:{}, password:{}, dbName:{}", dbType, host, port, username, password, dbName);
+		String result = connectionService.testConnection(dbType, host, port, username, password, dbName);
+		log.info("testConnection result: {}", result);
+		if (StringUtils.contains(result, "successful")) {
+			return Result.OK(result);
+		}
+		return Result.error(result);
+	}
+
+	@ApiOperation(value="CG数据库连接信息-通过id测试服务是否正确配置，传入数据库连接信息", notes="CG数据库连接信息-通过id测试服务是否正确配置")
+	@PostMapping("/testConnection2")
+	public Result<String> testConnection(@RequestBody CgDbConnectionInfo cgDbConnectionInfo) {
+		if(cgDbConnectionInfo == null) {
+			return Result.error("未找到对应数据");
+		}
+
+		String dbType = cgDbConnectionInfo.getConnectionType();
+		String host = cgDbConnectionInfo.getHost();
+		String port = cgDbConnectionInfo.getPort().toString();
+		String username = cgDbConnectionInfo.getLogin();
+		String password = cgDbConnectionInfo.getPassword();
+		String dbName = cgDbConnectionInfo.getSchemaName();
+		// 检查必填字段
+		if (StringUtils.isEmpty(dbType) || StringUtils.isEmpty(host) || StringUtils.isEmpty(password)) {
+			return Result.error("检查输入信息错误，请填写必要完整信息再试!!!");
+		}
 		log.info("testConnection: dbType:{}, host:{}, port:{}, username:{}, password:{}, dbName:{}", dbType, host, port, username, password, dbName);
 		String result = connectionService.testConnection(dbType, host, port, username, password, dbName);
 		log.info("testConnection result: {}", result);

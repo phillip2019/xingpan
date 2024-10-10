@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 
@@ -46,7 +48,7 @@ public class CgDbConnectionInfoServiceImpl extends ServiceImpl<CgDbConnectionInf
     public boolean updateById(CgDbConnectionInfo entity) {
         // 先查询数据库中老记录，比对两个密码是否一致，若不一致，则加密原始密码
         CgDbConnectionInfo oldCgDbConnectionInfo = baseMapper.selectById(entity.getId());
-        if (!oldCgDbConnectionInfo.getPassword().equals(entity.getPassword())) {
+        if ( !ObjectUtils.isEmpty(entity.getPassword()) && !oldCgDbConnectionInfo.getPassword().equals(entity.getPassword())) {
             try {
                 entity.setPassword(aes256Encrypt(entity.getPassword(), base64SecretKey));
             } catch (Exception e) {
