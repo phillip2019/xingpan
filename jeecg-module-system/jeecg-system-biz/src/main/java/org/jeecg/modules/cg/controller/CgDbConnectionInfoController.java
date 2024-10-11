@@ -295,6 +295,10 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 			return Result.error("未找到对应数据");
 		}
 		String rst = cgDbConnectionInfoService.syncAirflowConnection(cgDbConnectionInfo);
-		return Result.OK(rst);
+		// 若rst包含"成功"，则返回OK
+		if (StringUtils.contains(rst, "成功")) {
+			return Result.OK(rst);
+		}
+		return Result.error(rst);
 	}
 }
