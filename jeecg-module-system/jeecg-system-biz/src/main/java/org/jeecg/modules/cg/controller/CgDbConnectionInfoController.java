@@ -286,4 +286,15 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		}
 		return Result.error(result);
 	}
+
+	@ApiOperation(value="CG数据库连接信息-同步Airflow连接信息", notes="CG数据库连接信息-同步Airflow连接信息")
+	@GetMapping("/syncAirflowConnection")
+	public Result<String> syncAirflowConnection(@RequestParam(name="id", required=true) String id) {
+		CgDbConnectionInfo cgDbConnectionInfo = cgDbConnectionInfoService.getById(id);
+		if(cgDbConnectionInfo == null) {
+			return Result.error("未找到对应数据");
+		}
+		String rst = cgDbConnectionInfoService.syncAirflowConnection(cgDbConnectionInfo);
+		return Result.OK(rst);
+	}
 }

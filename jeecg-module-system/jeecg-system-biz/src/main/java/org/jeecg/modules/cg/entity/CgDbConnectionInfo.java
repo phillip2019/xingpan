@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.SneakyThrows;
@@ -132,5 +133,38 @@ public class CgDbConnectionInfo implements Serializable {
         // 若是新增或密码修改，则需要重新加密密码
         this.password = PasswordUtil.aes256Encrypt(password, base64SecretKey);
         return this.password;
+    }
+
+    /**
+     * 将数据库连接信息转换为Airflow的连接JSON信息
+     * @param conn 连接实例
+     * @param base64SecretKey 密钥
+     * @return airflow连接信息
+     * @throws Exception 密码解密异常
+     */
+    public static String toAirflowConnectionJson(CgDbConnectionInfo conn, String base64SecretKey) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(CgDbConnectionInfo.toAirflowConnection(conn, base64SecretKey));
+    }
+
+    /**
+     * 将数据库连接信息转换为Airflow的连接信息
+     * @param conn 连接实例
+     * @param base64SecretKey 密钥
+     * @return airflow连接信息
+     * @throws Exception 密码解密异常
+     */
+    private static java.util.Map<String, Object> toAirflowConnection(CgDbConnectionInfo conn, String base64SecretKey) throws Exception {
+        java.util.Map<String, Object> connectionMap = new java.util.HashMap<>();
+        connectionMap.put("connection_id", conn.connectionId);
+        connectionMap.put("conn_type", conn.connectionType);
+        connectionMap.put("host", conn.host);
+        connectionMap.put("schema", conn.schemaName);
+        connectionMap.put("login", conn.login);
+        connectionMap.put("password", PasswordUtil.aes256Decrypt(conn.password, base64SecretKey));
+        connectionMap.put("port", conn.port);
+        connectionMap.put("description", conn.description);
+        connectionMap.put("extra", conn.extra);
+        return connectionMap;
     }
 }
