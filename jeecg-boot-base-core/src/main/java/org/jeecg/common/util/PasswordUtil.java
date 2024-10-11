@@ -221,7 +221,7 @@ public class PasswordUtil {
 		return new String(decodedData);
 	}
 
-	public static void main(String[] args) throws NoSuchAlgorithmException {
+	public static void main(String[] args) throws Exception {
 		KeyGenerator keyGen = KeyGenerator.getInstance("AES");
 		keyGen.init(256); // AES-256加密
 		SecretKey secretKey = keyGen.generateKey();

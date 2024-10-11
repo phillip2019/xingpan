@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -144,6 +145,7 @@ public class CgDbConnectionInfo implements Serializable {
      */
     public static String toAirflowConnectionJson(CgDbConnectionInfo conn, String base64SecretKey) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);  // 不转义非 ASCII 字符
         return objectMapper.writeValueAsString(CgDbConnectionInfo.toAirflowConnection(conn, base64SecretKey));
     }
 

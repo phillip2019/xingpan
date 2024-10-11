@@ -1,5 +1,7 @@
 package org.jeecg.modules.cg.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
@@ -7,6 +9,7 @@ import org.jeecg.modules.cg.entity.CgDbConnectionInfo;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Slf4j
@@ -17,9 +20,14 @@ public class AirflowConnectionService {
     private static final String USERNAME = "xingpan";
     private static final String PASSWORD = "n9VDpWbAkLRSKfq@";
     private final OkHttpClient httpClient;
+    private final ObjectMapper objectMapper;  // 使用 Jackson 的 ObjectMapper
 
     public AirflowConnectionService() {
         this.httpClient = new OkHttpClient();
+        this.objectMapper = new ObjectMapper();
+        // 禁止 Unicode 转义
+        this.objectMapper.configure(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, false);
+
     }
 
     public String updateAirflowConnection(CgDbConnectionInfo connectionInfo, String base64SecretKey) {
@@ -52,13 +60,15 @@ public class AirflowConnectionService {
 
             // Execute the request
             try (Response response = httpClient.newCall(request).execute()) {
+                assert response.body() != null;
+                // 使用 Jackson 解析响应体
+                String responseBody = objectMapper.readTree(response.body().string()).toString();
                 if (response.isSuccessful()) {
-                    assert response.body() != null;
-                    log.info("Con ID: {}, Connection updated successfully: {}", connectionInfo.getConnectionId(), response.body().string());
+                    log.info("Con ID: {}, Connection updated successfully: {}", connectionInfo.getConnectionId(), responseBody);
                     return String.format("同步连接ID: %s到airflow成功!", connectionInfo.getConnectionId());
                 }
                 assert response.body() != null;
-                errorMessage += response.body().string();
+                errorMessage += responseBody;
                 log.error("Failed to update connection: {}", errorMessage);
             }
         } catch (IOException e) {
@@ -83,7 +93,9 @@ public class AirflowConnectionService {
         try (Response response = httpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
                 assert response.body() != null;
-                log.info("Con ID: {}, Connection updated successfully: {}", connectionId, response.body().string());
+                // 使用 Jackson 解析响应体
+                String responseBody = objectMapper.readTree(response.body().string()).toString();
+                log.info("Con ID: {}, Connection updated successfully: {}", connectionId, responseBody);
                 return String.format("同步连接ID: %s到airflow成功!", connectionId);
             }
             assert response.body() != null;
