@@ -76,7 +76,7 @@ public class UniversalConnectionService {
             case "clickhouse":
                 return "jdbc:clickhouse://" + host + ":" + port + "/" + dbName + "?socket_timeout=" + TIMEOUT + "&connect_timeout=" + TIMEOUT;
             case "postgresql":
-                return "jdbc:postgresql://" + host + ":" + port + "/" + dbName + "?connectTimeout=" + TIMEOUT + "useUnicode=true&characterEncoding=utf8&currentSchema=public";
+                return "jdbc:postgresql://" + host + ":" + port + "/" + dbName + "?connectTimeout=" + TIMEOUT + "&useUnicode=true&characterEncoding=utf8&currentSchema=public";
             default:
                 throw new IllegalArgumentException("Unsupported database type: " + dbType);
         }

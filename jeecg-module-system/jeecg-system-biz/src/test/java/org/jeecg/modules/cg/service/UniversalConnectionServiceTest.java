@@ -19,4 +19,16 @@ class UniversalConnectionServiceTest {
         // 测试校验返回结果是否是"JDBC connection successful!"
         assertEquals("JDBC connection successful!", result);
     }
+
+    @Test
+    void testPostgresqlConnection() {
+        UniversalConnectionService service = new UniversalConnectionService();
+        // jdbc:postgresql://pc-uf67ahoip5xxv783d.rwlb.rds.aliyuncs.com:1521/booth_prod?useUnicode=true&characterEncoding=utf8&currentSchema=newmarket&oracleCase=true
+        String result = service.testConnection("postgresql", "pc-uf67ahoip5xxv783d.rwlb.rds.aliyuncs.com", "1521", "cgbi_ro", "bi@chinagoods", "booth_prod");
+        System.out.println(result);
+        assertEquals("JDBC connection successful!", result);    }
+
+    @Test
+    void buildJdbcUrl() {
+    }
 }
