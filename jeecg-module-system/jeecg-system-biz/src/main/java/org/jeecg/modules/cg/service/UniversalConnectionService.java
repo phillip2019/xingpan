@@ -35,6 +35,7 @@ public class UniversalConnectionService {
             case "mysql":
             case "sqlserver":
             case "oracle":
+            case "postgresql":
             case "clickhouse":
                 String url = buildJdbcUrl(dbType, host, port, dbName);
                 return testJdbcConnection(url, username, password);
@@ -74,6 +75,8 @@ public class UniversalConnectionService {
                 return "jdbc:oracle:thin:@" + host + ":" + port + ":orcl";
             case "clickhouse":
                 return "jdbc:clickhouse://" + host + ":" + port + "/" + dbName + "?socket_timeout=" + TIMEOUT + "&connect_timeout=" + TIMEOUT;
+            case "postgresql":
+                return "jdbc:postgresql://" + host + ":" + port + "/" + dbName + "?connectTimeout=" + TIMEOUT;
             default:
                 throw new IllegalArgumentException("Unsupported database type: " + dbType);
         }
