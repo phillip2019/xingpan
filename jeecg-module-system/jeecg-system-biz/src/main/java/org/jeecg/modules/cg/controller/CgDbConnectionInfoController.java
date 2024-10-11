@@ -240,6 +240,27 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		return Result.error(result);
 	}
 
+	@ApiOperation(value="CG数据库连接信息-导出JDBC URL复制链接", notes="CG数据库连接信息-导出JDBC URL复制链接")
+	@GetMapping("/jdbcUrl")
+	public Result<String> jdbcUrl(@RequestParam(name="id", required=true) String id) {
+		CgDbConnectionInfo cgDbConnectionInfo = cgDbConnectionInfoService.getById(id);
+		if(cgDbConnectionInfo == null) {
+			return Result.error("未找到对应数据");
+		}
+		String dbType = cgDbConnectionInfo.getConnectionType();
+		String host = cgDbConnectionInfo.getHost();
+		String port = cgDbConnectionInfo.getPort().toString();
+		String username = cgDbConnectionInfo.getLogin();
+		String password = cgDbConnectionInfo.getPassword();
+		String dbName = cgDbConnectionInfo.getSchemaName();
+		// 检查必填字段
+		if (StringUtils.isEmpty(dbType) || StringUtils.isEmpty(host) || StringUtils.isEmpty(password)) {
+			return Result.error("检查输入信息错误，请填写必要完整信息再试!!!");
+		}
+		String jdbcUrl = connectionService.buildJdbcUrl(dbType, host, port, dbName);
+		return Result.OK(jdbcUrl);
+	}
+
 	@ApiOperation(value="CG数据库连接信息-通过id测试服务是否正确配置，传入数据库连接信息", notes="CG数据库连接信息-通过id测试服务是否正确配置")
 	@PostMapping("/testConnection2")
 	public Result<String> testConnection(@RequestBody CgDbConnectionInfo cgDbConnectionInfo) {
@@ -265,5 +286,4 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		}
 		return Result.error(result);
 	}
-
 }

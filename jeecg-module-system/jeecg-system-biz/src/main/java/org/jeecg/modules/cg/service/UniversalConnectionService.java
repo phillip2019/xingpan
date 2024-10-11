@@ -3,8 +3,11 @@ package org.jeecg.modules.cg.service;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.modules.cg.entity.CgDbConnectionInfo;
 import redis.clients.jedis.Jedis;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -15,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UniversalConnectionService {
 
-    private static final int TIMEOUT = 3000; // 连接超时为 3 秒
+    private static final int TIMEOUT = 30000; // 连接超时为 3 秒
 
     /**
      * 通用的连接验证方法
@@ -46,21 +49,29 @@ public class UniversalConnectionService {
 
     // JDBC 连接测试
     private String testJdbcConnection(String url, String username, String password) {
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+        Properties props = new Properties();
+        props.setProperty("user", username);
+        props.setProperty("password", password);
+        // oracle特殊处理，设置超时时间
+        if (StringUtils.contains(url, "oracle")) {
+            props.setProperty("oracle.jdbc.ReadTimeout", String.valueOf(TIMEOUT));
+        }
+        try (Connection connection = DriverManager.getConnection(url, props)) {
             return "JDBC connection successful!";
         } catch (SQLException e) {
             return "JDBC connection failed: " + e.getMessage();
         }
     }
 
-    private String buildJdbcUrl(String dbType, String host, String port, String dbName) {
+    public String buildJdbcUrl(String dbType, String host, String port, String dbName) {
         switch (dbType.toLowerCase()) {
             case "mysql":
                 return "jdbc:mysql://" + host + ":" + port + "/" + dbName + "?connectTimeout=" + TIMEOUT;
             case "sqlserver":
                 return "jdbc:sqlserver://" + host + ":" + port + ";databaseName=" + dbName + ";loginTimeout=" + (TIMEOUT / 1000);
             case "oracle":
-                return "jdbc:oracle:thin:@" + host + ":" + port + ":" + dbName + ";oracle.net.CONNECT_TIMEOUT=" + TIMEOUT;
+//                return "jdbc:oracle:thin:@" + host + ":" + port + ":orcl" + ";oracle.net.CONNECT_TIMEOUT=" + TIMEOUT;
+                return "jdbc:oracle:thin:@" + host + ":" + port + ":orcl";
             case "clickhouse":
                 return "jdbc:clickhouse://" + host + ":" + port + "/" + dbName + "?socket_timeout=" + TIMEOUT + "&connect_timeout=" + TIMEOUT;
             default:
