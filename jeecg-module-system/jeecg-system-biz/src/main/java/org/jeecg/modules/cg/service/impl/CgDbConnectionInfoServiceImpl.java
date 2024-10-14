@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.PasswordUtil;
 import org.jeecg.modules.cg.entity.CgDbConnectionInfo;
 import org.jeecg.modules.cg.mapper.CgDbConnectionInfoMapper;
+import org.jeecg.modules.cg.service.AirflowConnectionService;
 import org.jeecg.modules.cg.service.ICgDbConnectionInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,12 +28,17 @@ import static org.jeecg.common.util.PasswordUtil.aes256Encrypt;
  * @Version: V1.0
  */
 @Slf4j
-@Service
+@Service()
+@DependsOn("airflowConnectionService")
 public class CgDbConnectionInfoServiceImpl extends ServiceImpl<CgDbConnectionInfoMapper, CgDbConnectionInfo> implements ICgDbConnectionInfoService {
 
 
     @Value("${cg.dbConnectionSecretKey}")
     private String base64SecretKey;
+
+    @Autowired
+    private AirflowConnectionService airflowConnectionService;
+
     @Override
     public boolean save(CgDbConnectionInfo entity) {
         // 获得密钥密码
@@ -69,6 +76,11 @@ public class CgDbConnectionInfoServiceImpl extends ServiceImpl<CgDbConnectionInf
             log.error("加密密码失败, 错误消息为: ", e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String syncAirflowConnection(CgDbConnectionInfo cgDbConnectionInfo) {
+        return airflowConnectionService.updateAirflowConnection(cgDbConnectionInfo, base64SecretKey);
     }
 
     @Override

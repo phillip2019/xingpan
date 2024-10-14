@@ -19,4 +19,11 @@ public interface ICgDbConnectionInfoService extends IService<CgDbConnectionInfo>
      * @return 解密密码
      */
     String showRealPassword(String password);
+
+    /**
+     * 同步airflow连接信息
+     * @param cgDbConnectionInfo 数据源连接信息
+     * @return 同步结果信息
+     */
+    String syncAirflowConnection(CgDbConnectionInfo cgDbConnectionInfo);
 }
