@@ -98,6 +98,14 @@ public class CgDbConnectionInfo implements Serializable {
 	@Excel(name = "额外连接信息", width = 15)
     @ApiModelProperty(value = "额外连接信息")
     private java.lang.String extra;
+    /**数据库对应系统地址，若有多个，逗号分割*/
+    @Excel(name = "WEB系统", width = 15)
+    @ApiModelProperty(value = "WEB系统")
+    private java.lang.String webUrlArr;
+    /**数据库缩写名称，提供给入数仓使用*/
+    @Excel(name = "库缩写名称", width = 15)
+    @ApiModelProperty(value = "库缩写名称")
+    private java.lang.String dbAbbreviation;
 	/**版本，记录当前修改版本，记录历史记录*/
 	@Excel(name = "版本", width = 15)
     @ApiModelProperty(value = "版本，记录当前修改版本，记录历史记录")
