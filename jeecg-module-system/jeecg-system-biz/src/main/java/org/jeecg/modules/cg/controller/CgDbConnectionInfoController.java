@@ -1,13 +1,9 @@
 package org.jeecg.modules.cg.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,7 +13,6 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
-import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.cg.entity.CgDbConnectionInfo;
 import org.jeecg.modules.cg.service.ICgDbConnectionInfoService;
 
@@ -27,24 +22,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.modules.cg.service.UniversalConnectionService;
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
-
-import static org.jeecg.common.util.PasswordUtil.aes256Decrypt;
-import static org.jeecg.common.util.PasswordUtil.aes256Encrypt;
 
 /**
  * @Description: CG数据库连接信息
@@ -231,13 +216,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		String username = cgDbConnectionInfo.getLogin();
 		String password = cgDbConnectionInfoService.showRealPassword(cgDbConnectionInfo.getPassword());
 		String dbName = cgDbConnectionInfo.getSchemaName();
-		log.info("testConnection: dbType:{}, host:{}, port:{}, username:{}, password:{}, dbName:{}", dbType, host, port, username, password, dbName);
-		String result = connectionService.testConnection(dbType, host, port, username, password, dbName);
-		log.info("testConnection result: {}", result);
-		if (StringUtils.contains(result, "successful")) {
-			return Result.OK(result);
-		}
-		return Result.error(result);
+		return testConnection(dbType, host, port, username, password, dbName);
 	}
 
 	@ApiOperation(value="CG数据库连接信息-导出JDBC URL复制链接", notes="CG数据库连接信息-导出JDBC URL复制链接")
@@ -267,7 +246,6 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		if(cgDbConnectionInfo == null) {
 			return Result.error("未找到对应数据");
 		}
-
 		String dbType = cgDbConnectionInfo.getConnectionType();
 		String host = cgDbConnectionInfo.getHost();
 		String port = cgDbConnectionInfo.getPort().toString();
@@ -278,6 +256,11 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		if (StringUtils.isEmpty(dbType) || StringUtils.isEmpty(host) || StringUtils.isEmpty(password)) {
 			return Result.error("检查输入信息错误，请填写必要完整信息再试!!!");
 		}
+		return testConnection(dbType, host, port, username, password, dbName);
+	}
+
+	@NotNull
+	private Result<String> testConnection(String dbType, String host, String port, String username, String password, String dbName) {
 		log.info("testConnection: dbType:{}, host:{}, port:{}, username:{}, password:{}, dbName:{}", dbType, host, port, username, password, dbName);
 		String result = connectionService.testConnection(dbType, host, port, username, password, dbName);
 		log.info("testConnection result: {}", result);
@@ -300,5 +283,96 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 			return Result.OK(rst);
 		}
 		return Result.error(rst);
+	}
+
+	/**
+	 * 批量测试服务是否正确配置及更新库的状态
+	 */
+	@ApiOperation(value="CG数据库连接信息-批量测试服务是否可用", notes="CG数据库连接信息-批量测试服务是否可用")
+	@GetMapping("/batchTestConnection")
+	public Result<String> batchTestConnection(@RequestParam(name="ids", required=false) String ids) {
+		List<CgDbConnectionInfo> cgDbConnectionInfoList;
+		if (StringUtils.isEmpty(ids)) {
+			log.info("batchTestConnection: ids is empty, query all data");
+			// 查询所有非删除状态的数据、非http数据源的数据
+			cgDbConnectionInfoList = cgDbConnectionInfoService.list(new QueryWrapper<CgDbConnectionInfo>().eq("status", "1").ne("connection_type", "http"));
+		} else {
+			log.info("batchTestConnection: ids is not empty, query data by ids: {}", ids);
+			cgDbConnectionInfoList = cgDbConnectionInfoService.listByIds(Arrays.asList(ids.split(",")));
+		}
+		// 循环测试数据库连接
+		if (cgDbConnectionInfoList.isEmpty()) {
+			return Result.error("未找到对应数据源");
+		}
+		log.info("batchTestConnection: cgDbConnectionInfoList size: {}", cgDbConnectionInfoList.size());
+		int count = 0;
+		for (CgDbConnectionInfo cgDbConnectionInfo : cgDbConnectionInfoList) {
+			log.info("batchTestConnection: test connection: {}, process position {}, total size: {}...", cgDbConnectionInfo, count++, cgDbConnectionInfoList.size());
+			String dbType = cgDbConnectionInfo.getConnectionType();
+			String host = cgDbConnectionInfo.getHost();
+			String port = cgDbConnectionInfo.getPort().toString();
+			String username = cgDbConnectionInfo.getLogin();
+			String password = cgDbConnectionInfoService.showRealPassword(cgDbConnectionInfo.getPassword());
+			String dbName = cgDbConnectionInfo.getSchemaName();
+			// 检查必填字段
+			if (StringUtils.isEmpty(dbType) || StringUtils.isEmpty(host) || StringUtils.isEmpty(password)) {
+				continue;
+			}
+			Result<String> rst = testConnection(dbType, host, port, username, password, dbName);
+			cgDbConnectionInfo.setConnectStatus("0");
+			if (rst.isSuccess()) {
+				cgDbConnectionInfo.setConnectStatus("1");
+			}
+		}
+		return Result.OK("批量测试服务是否正确配置完成");
+	}
+
+	/**
+	 * 批量更新数据源版本
+	 */
+	@ApiOperation(value="CG数据库连接信息-批量更新数据源版本", notes="CG数据库连接信息-批量更新数据源版本")
+	@GetMapping("/batchUpdateVersion")
+	public Result<String> batchUpdateVersion(@RequestParam(name="ids", required=false) String ids) {
+		// 检测数据源引擎版本
+		List<CgDbConnectionInfo> cgDbConnectionInfoList;
+		List<CgDbConnectionInfo> preUpdateDbConnectionInfoList = new ArrayList<>();
+		if (StringUtils.isEmpty(ids)) {
+			log.info("batchUpdateConnectionVersion: ids is empty, query all data");
+			// 查询所有非删除状态的数据、非http数据源的数据
+			cgDbConnectionInfoList = cgDbConnectionInfoService.list(new QueryWrapper<CgDbConnectionInfo>()
+					.eq("status", "1")
+					.eq("connect_status", "1")
+					// connection_type_version为空的
+					.isNull("connection_type_version")
+					.ne("connection_type", "http"));
+		} else {
+			log.info("batchTestConnection: ids is not empty, query data by ids: {}", ids);
+			cgDbConnectionInfoList = cgDbConnectionInfoService.listByIds(Arrays.asList(ids.split(",")));
+		}
+		// 循环测试数据库连接
+		if (cgDbConnectionInfoList.isEmpty()) {
+			return Result.error("未找到对应数据源");
+		}
+		log.info("batchUpdateConnectionVersion: cgDbConnectionInfoList size: {}", cgDbConnectionInfoList.size());
+		int count = 0;
+		for (CgDbConnectionInfo cgDbConnectionInfo : cgDbConnectionInfoList) {
+			log.info("batchUpdateConnectionVersion: connection: {}, process position {}, total size: {}...", cgDbConnectionInfo, count++, cgDbConnectionInfoList.size());
+			String dbType = cgDbConnectionInfo.getConnectionType();
+			String host = cgDbConnectionInfo.getHost();
+			String port = cgDbConnectionInfo.getPort().toString();
+			String username = cgDbConnectionInfo.getLogin();
+			String password = cgDbConnectionInfoService.showRealPassword(cgDbConnectionInfo.getPassword());
+			// 检查必填字段
+			if (StringUtils.isEmpty(dbType) || StringUtils.isEmpty(host) || StringUtils.isEmpty(password)) {
+				continue;
+			}
+			String rst = connectionService.checkEngineVersion(dbType, host, port, username, password);
+			if (StringUtils.isNotEmpty(rst)) {
+				cgDbConnectionInfo.setConnectionTypeVersion(rst);
+				preUpdateDbConnectionInfoList.add(cgDbConnectionInfo);
+			}
+		}
+		cgDbConnectionInfoService.saveBatch(preUpdateDbConnectionInfoList);
+		return Result.OK(String.format("批量更新数据源版本完成, 更新条数: %d", preUpdateDbConnectionInfoList.size()));
 	}
 }

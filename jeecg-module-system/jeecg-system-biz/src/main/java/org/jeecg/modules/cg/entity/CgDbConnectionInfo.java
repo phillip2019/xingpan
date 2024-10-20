@@ -57,12 +57,12 @@ public class CgDbConnectionInfo implements Serializable {
     @Dict(dicCode = "valid_status")
     @Excel(name = "状态", width = 15, dicCode = "valid_status")
     @ApiModelProperty(value = "状态")
-    private java.lang.Integer status;
+    private java.lang.String status;
     /**数据源连接状态*/
     @Dict(dicCode = "connect_status")
     @Excel(name = "连接状态", width = 15, dicCode = "connect_status")
     @ApiModelProperty(value = "连接状态")
-    private java.lang.Integer connectStatus;
+    private java.lang.String connectStatus;
 	/**数据库连接类型*/
     @Dict(dicCode = "connection_type")
     @Excel(name = "数据库类型", width = 15, dicCode = "connection_type")
