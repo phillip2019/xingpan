@@ -372,7 +372,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 				preUpdateDbConnectionInfoList.add(cgDbConnectionInfo);
 			}
 		}
-		cgDbConnectionInfoService.saveBatch(preUpdateDbConnectionInfoList);
+		cgDbConnectionInfoService.updateBatchById(preUpdateDbConnectionInfoList);
 		return Result.OK(String.format("批量更新数据源版本完成, 更新条数: %d", preUpdateDbConnectionInfoList.size()));
 	}
 }
