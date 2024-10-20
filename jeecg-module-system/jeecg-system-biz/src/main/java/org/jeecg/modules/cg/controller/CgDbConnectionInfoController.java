@@ -292,6 +292,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 	@GetMapping("/batchTestConnection")
 	public Result<String> batchTestConnection(@RequestParam(name="ids", required=false) String ids) {
 		List<CgDbConnectionInfo> cgDbConnectionInfoList;
+		List<CgDbConnectionInfo> preUpdateDbConnectionInfoList = new ArrayList<>();
 		if (StringUtils.isEmpty(ids)) {
 			log.info("batchTestConnection: ids is empty, query all data");
 			// 查询所有非删除状态的数据、非http数据源的数据
@@ -323,7 +324,12 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 			if (rst.isSuccess()) {
 				cgDbConnectionInfo.setConnectStatus("1");
 			}
+			preUpdateDbConnectionInfoList.add(cgDbConnectionInfo);
 		}
+		if (!preUpdateDbConnectionInfoList.isEmpty()) {
+			cgDbConnectionInfoService.updateBatchById(preUpdateDbConnectionInfoList);
+		}
+
 		return Result.OK("批量测试服务是否正确配置完成");
 	}
 
@@ -372,7 +378,9 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 				preUpdateDbConnectionInfoList.add(cgDbConnectionInfo);
 			}
 		}
-		cgDbConnectionInfoService.updateBatchById(preUpdateDbConnectionInfoList);
+		if (!preUpdateDbConnectionInfoList.isEmpty()) {
+			cgDbConnectionInfoService.updateBatchById(preUpdateDbConnectionInfoList);
+		}
 		return Result.OK(String.format("批量更新数据源版本完成, 更新条数: %d", preUpdateDbConnectionInfoList.size()));
 	}
 }
