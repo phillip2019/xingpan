@@ -63,6 +63,12 @@ public class UniversalConnectionService {
             DatabaseMetaData metaData = connection.getMetaData();
             String dbProductName = metaData.getDatabaseProductName();
             String dbProductVersion = metaData.getDatabaseProductVersion();
+            // oracle的版本信息太长了，提取版本信息 11.2.0.1.0
+            // Oracle Database 11g Enterprise Edition Release 11.2.0.1.0 - 64bit Production
+            //With the Partitioning, OLAP, Data Mining and Real Application Testing options
+            if (StringUtils.contains(url, "oracle")) {
+                dbProductVersion = StringUtils.substringBetween(dbProductVersion, "Release ", " -");
+            }
             log.info("Connected to {} version: {}", dbProductName, dbProductVersion);
             return "JDBC connection successful!  Database: " + dbProductName + ", Version: " + dbProductVersion;
         } catch (SQLException e) {
@@ -140,12 +146,11 @@ public class UniversalConnectionService {
                 String result = testJdbcConnection(url, username, password);
                 // 若检测状态为可用，则解析result中的版本信息
                 // 返回内容为JDBC connection successful!  Database: " + dbProductName + ", Version: " + dbProductVersion，提取版本信息
+                log.info("checkEngineVersion: {}", result);
                 if (result.startsWith("JDBC connection successful!")) {
                     // 提取返回信息中的版本信息
-                    String ver = StringUtils.substringBetween(result, ", Version: ", "");
-                    log.info("Version: {}", ver);
-                    log.info("Database: {}", StringUtils.substringBetween(result, "Database: ", ", Version: "));
-                    return ver;
+                    int versionIndex = result.indexOf("Version: ");
+                    return result.substring(versionIndex + "Version: ".length()).trim();
                 }
                 return null;
             case "redis":
@@ -205,5 +210,13 @@ public class UniversalConnectionService {
 
     private String checkHttpVersion() {
         return "1.0";
+    }
+
+    public static void main(String[] args) {
+        String result = "JDBC connection successful!  Database: MySQL, Version: 5.7.42-log";
+        // 提取Version: 之后的版本信息字符串
+        int versionIndex = result.indexOf("Version: ");
+        String ver = result.substring(versionIndex + "Version: ".length()).trim();
+        System.out.println(ver);
     }
 }

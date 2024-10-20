@@ -49,14 +49,10 @@ class UniversalConnectionServiceTest {
 
     @Test
     void checkEngineVersion_MySQL_ReturnsVersion() {
-        String version = "5.7.31";
+        String version = "5.7.42-log";
         try (Connection connection = mock(Connection.class)) {
-            DatabaseMetaData metaData = mock(DatabaseMetaData.class);
-            when(connection.getMetaData()).thenReturn(metaData);
-            when(metaData.getDatabaseProductName()).thenReturn("MySQL");
-            when(metaData.getDatabaseProductVersion()).thenReturn(version);
-
-            String result = service.checkEngineVersion("mysql", "localhost", "3306", "root", "password");
+//            jdbc:mysql://172.16.3.251:3306/coolgua_ems?connectTimeout=30000
+            String result = service.checkEngineVersion("mysql", "172.16.3.251", "3306", "coolgua_ems", "xieYx4kwq9Cs#sqmoe0xarYvdw7q");
             assertEquals(version, result);
         } catch (SQLException e) {
             fail("SQLException should not occur");
@@ -67,12 +63,8 @@ class UniversalConnectionServiceTest {
     void checkEngineVersion_SQLServer_ReturnsVersion() {
         String version = "14.0.3042.14";
         try (Connection connection = mock(Connection.class)) {
-            DatabaseMetaData metaData = mock(DatabaseMetaData.class);
-            when(connection.getMetaData()).thenReturn(metaData);
-            when(metaData.getDatabaseProductName()).thenReturn("SQL Server");
-            when(metaData.getDatabaseProductVersion()).thenReturn(version);
-
-            String result = service.checkEngineVersion("sqlserver", "localhost", "1433", "sa", "password");
+//            jdbc:sqlserver://172.16.221.173:1433;databaseName=Q1_Syn;loginTimeout=30
+            String result = service.checkEngineVersion("sqlserver", "172.16.221.173", "1433", "sa", "Yczn1.234");
             assertEquals(version, result);
         } catch (SQLException e) {
             fail("SQLException should not occur");
@@ -81,14 +73,10 @@ class UniversalConnectionServiceTest {
 
     @Test
     void checkEngineVersion_Oracle_ReturnsVersion() {
-        String version = "12.1.0.2.0";
+        String version = "11.2.0.1.0";
         try (Connection connection = mock(Connection.class)) {
-            DatabaseMetaData metaData = mock(DatabaseMetaData.class);
-            when(connection.getMetaData()).thenReturn(metaData);
-            when(metaData.getDatabaseProductName()).thenReturn("Oracle");
-            when(metaData.getDatabaseProductVersion()).thenReturn(version);
-
-            String result = service.checkEngineVersion("oracle", "localhost", "1521", "user", "password");
+//            jdbc:oracle:thin:@172.16.3.12:1521:orcl
+            String result = service.checkEngineVersion("oracle", "172.16.3.12", "1521", "root", "123456");
             assertEquals(version, result);
         } catch (SQLException e) {
             fail("SQLException should not occur");
@@ -130,7 +118,7 @@ class UniversalConnectionServiceTest {
     @Test
     void checkEngineVersion_Redis_ReturnsVersion() {
         String version = "7.0.5";
-        String result = service.checkEngineVersion("redis", "172.18.5.17", "6379", "", "Admin@123");
+        String result = service.checkEngineVersion("redis", "172.18.5.17", "6379", "", "123456");
         log.info("##########################");
         log.info("Actual Redis version: {}", result);
         log.info("##########################");
