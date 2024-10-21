@@ -264,7 +264,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		log.info("testConnection: dbType:{}, host:{}, port:{}, username:{}, password:{}, dbName:{}", dbType, host, port, username, password, dbName);
 		String result = connectionService.testConnection(dbType, host, port, username, password, dbName);
 		log.info("testConnection result: {}", result);
-		if (StringUtils.contains(result, "successful")) {
+		if (StringUtils.contains(result, "successful!")) {
 			return Result.OK(result);
 		}
 		return Result.error(result);
