@@ -270,7 +270,7 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 		return Result.error(result);
 	}
 
-	@ApiOperation(value="CG数据库连接信息-同步Airflow连接信息", notes="CG数据库连接信息-同步Airflow连接信息")
+	@ApiOperation(value="CG��据库连接信息-同步Airflow连接信息", notes="CG数据库连接信息-同步Airflow连接信息")
 	@GetMapping("/syncAirflowConnection")
 	public Result<String> syncAirflowConnection(@RequestParam(name="id", required=true) String id) {
 		CgDbConnectionInfo cgDbConnectionInfo = cgDbConnectionInfoService.getById(id);
@@ -382,5 +382,26 @@ public class CgDbConnectionInfoController extends JeecgController<CgDbConnection
 			cgDbConnectionInfoService.updateBatchById(preUpdateDbConnectionInfoList);
 		}
 		return Result.OK(String.format("批量更新数据源版本完成, 更新条数: %d", preUpdateDbConnectionInfoList.size()));
+	}
+
+	/**
+	 * 通过ConnID查询数据库连接信息
+	 *
+	 * @param connId 连接ID
+	 * @return Result<CgDbConnectionInfo>
+	 */
+	@AutoLog(value = "CG数据库连接信息-通过ConnID查询")
+	@ApiOperation(value="CG数据库连接信息-通过ConnID查询", notes="CG数据库连接信息-通过ConnID查询")
+	@GetMapping(value = "/queryByConnId")
+	public Result<CgDbConnectionInfo> queryByConnId(@RequestParam(name="connId",required=true) String connId) {
+		QueryWrapper<CgDbConnectionInfo> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("connection_id", connId);
+		CgDbConnectionInfo cgDbConnectionInfo = cgDbConnectionInfoService.getOne(queryWrapper);
+		if(cgDbConnectionInfo==null) {
+			return Result.error("未找到对应数据");
+		}
+		// 解密密码
+		cgDbConnectionInfo.setPassword(cgDbConnectionInfoService.showRealPassword(cgDbConnectionInfo.getPassword()));
+		return Result.OK(cgDbConnectionInfo);
 	}
 }
