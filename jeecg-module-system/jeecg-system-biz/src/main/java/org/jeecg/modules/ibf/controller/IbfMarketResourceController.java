@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -60,7 +62,7 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
 	 * @param req
 	 * @return
 	 */
-	//@AutoLog(value = "业财一体-市场资源填报表-分页列表查询")
+	@AutoLog(value = "业财一体-市场资源填报表-分页列表查询")
 	@ApiOperation(value="业财一体-市场资源填报表-分页列表查询", notes="业财一体-市场资源填报表-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<IPage<IbfMarketResource>> queryPageList(IbfMarketResource ibfMarketResource,
@@ -81,7 +83,7 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
 	 */
 	@AutoLog(value = "业财一体-市场资源填报表-添加")
 	@ApiOperation(value="业财一体-市场资源填报表-添加", notes="业财一体-市场资源填报表-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:add")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody IbfMarketResource ibfMarketResource) {
 		ibfMarketResourceService.save(ibfMarketResource);
@@ -96,7 +98,7 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
 	 */
 	@AutoLog(value = "业财一体-市场资源填报表-编辑")
 	@ApiOperation(value="业财一体-市场资源填报表-编辑", notes="业财一体-市场资源填报表-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:edit")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody IbfMarketResource ibfMarketResource) {
 		ibfMarketResourceService.updateById(ibfMarketResource);
@@ -111,7 +113,7 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
 	 */
 	@AutoLog(value = "业财一体-市场资源填报表-通过id删除")
 	@ApiOperation(value="业财一体-市场资源填报表-通过id删除", notes="业财一体-市场资源填报表-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:delete")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		ibfMarketResourceService.removeById(id);
@@ -126,7 +128,7 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
 	 */
 	@AutoLog(value = "业财一体-市场资源填报表-批量删除")
 	@ApiOperation(value="业财一体-市场资源填报表-批量删除", notes="业财一体-市场资源填报表-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:deleteBatch")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.ibfMarketResourceService.removeByIds(Arrays.asList(ids.split(",")));
@@ -156,10 +158,19 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
     * @param request
     * @param ibfMarketResource
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:exportXls")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfMarketResource ibfMarketResource) {
-        return super.exportXls(request, ibfMarketResource, IbfMarketResource.class, "市场资源看板(BOSS)-每月填报");
+		// 从url中获取businessVersion参数
+		String businessVersion = request.getParameter("businessVersion");
+		// 根据businessVersion版本参数判断，返回不同的excel模板
+		String title = "市场资源看板(BOSS)-每月填报";
+		if(businessVersion.equals("BOSS")){
+			title = "市场资源看板(BOSS)-每月填报";
+		} else if (businessVersion.equals("OPERATION")) {
+			title = "市场资源看板(运营)-每月填报";
+		}
+        return super.exportXls(request, ibfMarketResource, IbfMarketResource.class, title);
     }
 
     /**
@@ -169,7 +180,7 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
     * @param response
     * @return
     */
-    //@RequiresPermissions("ibf_market_resource:importExcel")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
 		// 从url中获取businessVersion参数

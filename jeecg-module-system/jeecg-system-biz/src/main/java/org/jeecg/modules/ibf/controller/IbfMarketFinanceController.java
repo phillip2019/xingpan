@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.ss.formula.functions.T;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -61,7 +62,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
 	 * @param req
 	 * @return
 	 */
-	//@AutoLog(value = "业务一体-财务填报-分页列表查询")
+	@AutoLog(value = "业务一体-财务填报-分页列表查询")
 	@ApiOperation(value="业务一体-财务填报-分页列表查询", notes="业务一体-财务填报-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<IPage<IbfMarketFinance>> queryPageList(IbfMarketFinance ibfMarketFinance,
@@ -82,7 +83,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
 	 */
 	@AutoLog(value = "业务一体-财务填报-添加")
 	@ApiOperation(value="业务一体-财务填报-添加", notes="业务一体-财务填报-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:add")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody IbfMarketFinance ibfMarketFinance) {
 		ibfMarketFinanceService.save(ibfMarketFinance);
@@ -97,7 +98,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
 	 */
 	@AutoLog(value = "业务一体-财务填报-编辑")
 	@ApiOperation(value="业务一体-财务填报-编辑", notes="业务一体-财务填报-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:edit")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody IbfMarketFinance ibfMarketFinance) {
 		ibfMarketFinanceService.updateById(ibfMarketFinance);
@@ -112,7 +113,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
 	 */
 	@AutoLog(value = "业务一体-财务填报-通过id删除")
 	@ApiOperation(value="业务一体-财务填报-通过id删除", notes="业务一体-财务填报-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:delete")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		ibfMarketFinanceService.removeById(id);
@@ -127,7 +128,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
 	 */
 	@AutoLog(value = "业务一体-财务填报-批量删除")
 	@ApiOperation(value="业务一体-财务填报-批量删除", notes="业务一体-财务填报-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:deleteBatch")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.ibfMarketFinanceService.removeByIds(Arrays.asList(ids.split(",")));
@@ -157,10 +158,17 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
     * @param request
     * @param ibfMarketFinance
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:exportXls")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfMarketFinance ibfMarketFinance) {
-        return super.exportXls(request, ibfMarketFinance, IbfMarketFinance.class, "财务看板(BOSS)-每月填报");
+		// 从url中获取businessVersion参数
+		String businessVersion = request.getParameter("businessVersion");
+		// 根据businessVersion版本参数判断，返回不同的excel模板
+		String title = "财务看板(BOSS)-每月填报";
+		if(businessVersion.equals("BOSS")){
+			title = "财务看板(BOSS)-每月填报";
+		}
+        return super.exportXls(request, ibfMarketFinance, IbfMarketFinance.class, title);
     }
 
     /**
@@ -170,7 +178,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
     * @param response
     * @return
     */
-    //@RequiresPermissions("ibf_market_finance:importExcel")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
 		// 从url中获取businessVersion参数

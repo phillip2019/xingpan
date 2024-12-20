@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -60,7 +62,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 	 * @param req
 	 * @return
 	 */
-	//@AutoLog(value = "业财一体-每日填报市场流量-分页列表查询")
+	@AutoLog(value = "业财一体-每日填报市场流量-分页列表查询")
 	@ApiOperation(value="业财一体-每日填报市场流量-分页列表查询", notes="业财一体-每日填报市场流量-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<IPage<IbfMarketFlow>> queryPageList(IbfMarketFlow ibfMarketFlow,
@@ -81,7 +83,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 	 */
 	@AutoLog(value = "业财一体-每日填报市场流量-添加")
 	@ApiOperation(value="业财一体-每日填报市场流量-添加", notes="业财一体-每日填报市场流量-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:add")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody IbfMarketFlow ibfMarketFlow) {
 		ibfMarketFlowService.save(ibfMarketFlow);
@@ -96,7 +98,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 	 */
 	@AutoLog(value = "业财一体-每日填报市场流量-编辑")
 	@ApiOperation(value="业财一体-每日填报市场流量-编辑", notes="业财一体-每日填报市场流量-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:edit")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody IbfMarketFlow ibfMarketFlow) {
 		ibfMarketFlowService.updateById(ibfMarketFlow);
@@ -111,7 +113,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 	 */
 	@AutoLog(value = "业财一体-每日填报市场流量-通过id删除")
 	@ApiOperation(value="业财一体-每日填报市场流量-通过id删除", notes="业财一体-每日填报市场流量-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:delete")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		ibfMarketFlowService.removeById(id);
@@ -126,7 +128,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 	 */
 	@AutoLog(value = "业财一体-每日填报市场流量-批量删除")
 	@ApiOperation(value="业财一体-每日填报市场流量-批量删除", notes="业财一体-每日填报市场流量-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:deleteBatch")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.ibfMarketFlowService.removeByIds(Arrays.asList(ids.split(",")));
@@ -156,10 +158,19 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
     * @param request
     * @param ibfMarketFlow
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:exportXls")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfMarketFlow ibfMarketFlow) {
-        return super.exportXls(request, ibfMarketFlow, IbfMarketFlow.class, "市场流量(BOSS)-每日填报");
+		// 从url中获取businessVersion参数
+		String businessVersion = request.getParameter("businessVersion");
+		// 根据businessVersion版本参数判断，返回不同的excel模板
+		String title = "市场流量(BOSS)-每日填报";
+		if(businessVersion.equals("BOSS")){
+			title = "市场流量(BOSS)-每日填报";
+		} else if (businessVersion.equals("OPERATION")) {
+			title = "市场流量(运营)-每日填报";
+		}
+		return super.exportXls(request, ibfMarketFlow, IbfMarketFlow.class, title);
     }
 
     /**
@@ -169,7 +180,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
     * @param response
     * @return
     */
-    //@RequiresPermissions("ibf_market_flow:importExcel")
+    @RequiresPermissions("ibf_market_flow:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
 		// 从url中获取businessVersion参数
