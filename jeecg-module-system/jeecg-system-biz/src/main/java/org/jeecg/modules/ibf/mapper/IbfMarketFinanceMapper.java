@@ -7,7 +7,7 @@ import org.jeecg.modules.ibf.entity.IbfMarketFinance;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
- * @Description: 业务一体-财务填报
+ * @Description: 财务看板(BOSS)-每月填报
  * @Author: jeecg-boot
  * @Date:   2024-12-19
  * @Version: V1.0

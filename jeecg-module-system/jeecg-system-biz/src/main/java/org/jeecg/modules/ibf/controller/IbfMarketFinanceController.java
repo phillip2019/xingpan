@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.ss.formula.functions.T;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -158,7 +160,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
     //@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfMarketFinance ibfMarketFinance) {
-        return super.exportXls(request, ibfMarketFinance, IbfMarketFinance.class, "业务一体-财务填报");
+        return super.exportXls(request, ibfMarketFinance, IbfMarketFinance.class, "财务看板(BOSS)-每月填报");
     }
 
     /**
@@ -171,7 +173,67 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
     //@RequiresPermissions("ibf_market_finance:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-        return super.importExcel(request, response, IbfMarketFinance.class);
+		// 从url中获取businessVersion参数
+		String businessVersion = request.getParameter("businessVersion");
+		// 只支持BOSS、OPERATION、FINANCE参数
+		if(oConvertUtils.isEmpty(businessVersion)){
+			return Result.error("业务版本不能为空");
+		}
+		if(!businessVersion.equals("BOSS") && !businessVersion.equals("OPERATION") && !businessVersion.equals("FINANCE")){
+			return Result.error("业务版本参数错误");
+		}
+        return customImportExcel(request, response, IbfMarketFinance.class, businessVersion);
     }
 
+	 /**
+	  * 通过excel导入数据
+	  *
+	  * @param request
+	  * @param response
+	  * @return
+	  */
+	 private Result<?> customImportExcel(HttpServletRequest request, HttpServletResponse response, Class<IbfMarketFinance> clazz, String businessVersion) {
+		 MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+		 Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+		 for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+			 // 获取上传文件对象
+			 MultipartFile file = entity.getValue();
+			 ImportParams params = new ImportParams();
+			 params.setTitleRows(2);
+			 params.setHeadRows(1);
+			 params.setNeedSave(true);
+			 try {
+				 List<IbfMarketFinance> list = ExcelImportUtil.importExcel(file.getInputStream(), clazz, params);
+				 // 塞入businessVersion
+				 for (IbfMarketFinance ibfMarketFinance : list) {
+					 ibfMarketFinance.setBusinessVersion(businessVersion);
+				 }
+				 //update-begin-author:taoyan date:20190528 for:批量插入数据
+				 long start = System.currentTimeMillis();
+				 service.saveBatch(list);
+				 //400条 saveBatch消耗时间1592毫秒  循环插入消耗时间1947毫秒
+				 //1200条  saveBatch消耗时间3687毫秒 循环插入消耗时间5212毫秒
+				 log.info("消耗时间" + (System.currentTimeMillis() - start) + "毫秒");
+				 //update-end-author:taoyan date:20190528 for:批量插入数据
+				 return Result.ok("文件导入成功！数据行数：" + list.size());
+			 } catch (Exception e) {
+				 //update-begin-author:taoyan date:20211124 for: 导入数据重复增加提示
+				 String msg = e.getMessage();
+				 log.error(msg, e);
+				 if(msg!=null && msg.indexOf("Duplicate entry")>=0){
+					 return Result.error("文件导入失败:有重复数据！");
+				 }else{
+					 return Result.error("文件导入失败:" + e.getMessage());
+				 }
+				 //update-end-author:taoyan date:20211124 for: 导入数据重复增加提示
+			 } finally {
+				 try {
+					 file.getInputStream().close();
+				 } catch (IOException e) {
+					 e.printStackTrace();
+				 }
+			 }
+		 }
+		 return Result.error("文件导入失败！");
+	 }
 }

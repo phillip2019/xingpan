@@ -168,6 +168,16 @@ spring:
           username: source
           password: jP8*dKw,bRjBVos=
           driver-class-name: com.mysql.cj.jdbc.Driver
+#        ibf:
+#          url: jdbc:mysql://172.18.5.22:3306/business_finance?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+#          username: business_writer
+#          password: Wr1t!9xN2bEs
+#          driver-class-name: com.mysql.cj.jdbc.Driver
+        ibf:
+          url: jdbc:mysql://172.18.3.106:3306/business_finance?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          username: cg_mall
+          password: cg_mall@123
+          driver-class-name: com.mysql.cj.jdbc.Driver
 
   #redis 配置
   redis:

@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -36,10 +37,10 @@ public class IbfMarketFlow implements Serializable {
     @ApiModelProperty(value = "ID，自增主键，无实际含义")
     private String id;
     /**业务类型*/
-    @Excel(name = "业务类型", width = 15, dicCode = "business_version")
     @ApiModelProperty(value = "业务类型")
     private String businessVersion;
 	/**市场ID*/
+    @Dict(dicCode = "short_market_id")
 	@Excel(name = "市场", width = 15, dicCode = "short_market_id")
     @ApiModelProperty(value = "市场ID")
     private java.lang.String shortMarketId;
@@ -55,14 +56,17 @@ public class IbfMarketFlow implements Serializable {
 	/**日人流量*/
 	@Excel(name = "日人流量", width = 15)
     @ApiModelProperty(value = "日人流量")
+    @TableField("market_buyer_entr_num_1d")
     private Integer marketBuyerEntrNum1d;
 	/**日车流量*/
 	@Excel(name = "日车流量", width = 15)
     @ApiModelProperty(value = "日车流量")
+    @TableField("car_entr_num_1d")
     private Integer carEntrNum1d;
 	/**日开门率*/
 	@Excel(name = "日开门率", width = 15)
     @ApiModelProperty(value = "日开门率")
+    @TableField("booth_opening_rate_1d")
     private BigDecimal boothOpeningRate1d;
 	/**创建时间*/
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
