@@ -1,6 +1,7 @@
 package org.jeecg.modules.ibf.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.jeecg.modules.ibf.entity.IbfMarketResource;
 import org.jeecg.modules.ibf.mapper.IbfMarketResourceMapper;
 import org.jeecg.modules.ibf.service.IIbfMarketResourceService;
@@ -17,5 +18,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 @DS("ibf")
 @Service
 public class IbfMarketResourceServiceImpl extends ServiceImpl<IbfMarketResourceMapper, IbfMarketResource> implements IIbfMarketResourceService {
-
+    public IbfMarketResource checkUnique(String businessVersion, String shortMarketId, String monthCol) {
+        QueryWrapper<IbfMarketResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("business_version", businessVersion)
+                .eq("short_market_id", shortMarketId)
+                .eq("month_col", monthCol);
+        return this.getOne(queryWrapper);
+    }
 }

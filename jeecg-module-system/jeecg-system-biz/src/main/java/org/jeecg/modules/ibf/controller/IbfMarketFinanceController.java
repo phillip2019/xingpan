@@ -39,209 +39,223 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 
- /**
+/**
  * @Description: 业务一体-财务填报
  * @Author: jeecg-boot
- * @Date:   2024-12-19
+ * @Date: 2024-12-19
  * @Version: V1.0
  */
-@Api(tags="业务一体-财务填报")
+@Api(tags = "业务一体-财务填报")
 @RestController
 @RequestMapping("/ibf/ibfMarketFinance")
 @Slf4j
 public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance, IIbfMarketFinanceService> {
-	@Autowired
-	private IIbfMarketFinanceService ibfMarketFinanceService;
-	
-	/**
-	 * 分页列表查询
-	 *
-	 * @param ibfMarketFinance
-	 * @param pageNo
-	 * @param pageSize
-	 * @param req
-	 * @return
-	 */
-	@AutoLog(value = "业务一体-财务填报-分页列表查询")
-	@ApiOperation(value="业务一体-财务填报-分页列表查询", notes="业务一体-财务填报-分页列表查询")
-	@GetMapping(value = "/list")
-	public Result<IPage<IbfMarketFinance>> queryPageList(IbfMarketFinance ibfMarketFinance,
-								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-								   HttpServletRequest req) {
-		QueryWrapper<IbfMarketFinance> queryWrapper = QueryGenerator.initQueryWrapper(ibfMarketFinance, req.getParameterMap());
-		Page<IbfMarketFinance> page = new Page<IbfMarketFinance>(pageNo, pageSize);
-		IPage<IbfMarketFinance> pageList = ibfMarketFinanceService.page(page, queryWrapper);
-		return Result.OK(pageList);
-	}
-	
-	/**
-	 *   添加
-	 *
-	 * @param ibfMarketFinance
-	 * @return
-	 */
-	@AutoLog(value = "业务一体-财务填报-添加")
-	@ApiOperation(value="业务一体-财务填报-添加", notes="业务一体-财务填报-添加")
-	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:add")
-	@PostMapping(value = "/add")
-	public Result<String> add(@RequestBody IbfMarketFinance ibfMarketFinance) {
-		ibfMarketFinanceService.save(ibfMarketFinance);
-		return Result.OK("添加成功！");
-	}
-	
-	/**
-	 *  编辑
-	 *
-	 * @param ibfMarketFinance
-	 * @return
-	 */
-	@AutoLog(value = "业务一体-财务填报-编辑")
-	@ApiOperation(value="业务一体-财务填报-编辑", notes="业务一体-财务填报-编辑")
-	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:edit")
-	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
-	public Result<String> edit(@RequestBody IbfMarketFinance ibfMarketFinance) {
-		ibfMarketFinanceService.updateById(ibfMarketFinance);
-		return Result.OK("编辑成功!");
-	}
-	
-	/**
-	 *   通过id删除
-	 *
-	 * @param id
-	 * @return
-	 */
-	@AutoLog(value = "业务一体-财务填报-通过id删除")
-	@ApiOperation(value="业务一体-财务填报-通过id删除", notes="业务一体-财务填报-通过id删除")
-	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:delete")
-	@DeleteMapping(value = "/delete")
-	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
-		ibfMarketFinanceService.removeById(id);
-		return Result.OK("删除成功!");
-	}
-	
-	/**
-	 *  批量删除
-	 *
-	 * @param ids
-	 * @return
-	 */
-	@AutoLog(value = "业务一体-财务填报-批量删除")
-	@ApiOperation(value="业务一体-财务填报-批量删除", notes="业务一体-财务填报-批量删除")
-	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:deleteBatch")
-	@DeleteMapping(value = "/deleteBatch")
-	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-		this.ibfMarketFinanceService.removeByIds(Arrays.asList(ids.split(",")));
-		return Result.OK("批量删除成功!");
-	}
-	
-	/**
-	 * 通过id查询
-	 *
-	 * @param id
-	 * @return
-	 */
-	//@AutoLog(value = "业务一体-财务填报-通过id查询")
-	@ApiOperation(value="业务一体-财务填报-通过id查询", notes="业务一体-财务填报-通过id查询")
-	@GetMapping(value = "/queryById")
-	public Result<IbfMarketFinance> queryById(@RequestParam(name="id",required=true) String id) {
-		IbfMarketFinance ibfMarketFinance = ibfMarketFinanceService.getById(id);
-		if(ibfMarketFinance==null) {
-			return Result.error("未找到对应数据");
-		}
-		return Result.OK(ibfMarketFinance);
-	}
+    @Autowired
+    private IIbfMarketFinanceService ibfMarketFinanceService;
 
     /**
-    * 导出excel
-    *
-    * @param request
-    * @param ibfMarketFinance
-    */
+     * 分页列表查询
+     *
+     * @param ibfMarketFinance
+     * @param pageNo
+     * @param pageSize
+     * @param req
+     * @return
+     */
+    @AutoLog(value = "业务一体-财务填报-分页列表查询")
+    @ApiOperation(value = "业务一体-财务填报-分页列表查询", notes = "业务一体-财务填报-分页列表查询")
+    @GetMapping(value = "/list")
+    public Result<IPage<IbfMarketFinance>> queryPageList(IbfMarketFinance ibfMarketFinance,
+                                                         @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                         @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                         HttpServletRequest req) {
+        QueryWrapper<IbfMarketFinance> queryWrapper = QueryGenerator.initQueryWrapper(ibfMarketFinance, req.getParameterMap());
+        Page<IbfMarketFinance> page = new Page<IbfMarketFinance>(pageNo, pageSize);
+        IPage<IbfMarketFinance> pageList = ibfMarketFinanceService.page(page, queryWrapper);
+        return Result.OK(pageList);
+    }
+
+    /**
+     * 添加
+     *
+     * @param ibfMarketFinance
+     * @return
+     */
+    @AutoLog(value = "业务一体-财务填报-添加")
+    @ApiOperation(value = "业务一体-财务填报-添加", notes = "业务一体-财务填报-添加")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:add")
+    @PostMapping(value = "/add")
+    public Result<String> add(@RequestBody IbfMarketFinance ibfMarketFinance) {
+        ibfMarketFinanceService.save(ibfMarketFinance);
+        return Result.OK("添加成功！");
+    }
+
+    /**
+     * 编辑
+     *
+     * @param ibfMarketFinance
+     * @return
+     */
+    @AutoLog(value = "业务一体-财务填报-编辑")
+    @ApiOperation(value = "业务一体-财务填报-编辑", notes = "业务一体-财务填报-编辑")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:edit")
+    @RequestMapping(value = "/edit", method = {RequestMethod.PUT, RequestMethod.POST})
+    public Result<String> edit(@RequestBody IbfMarketFinance ibfMarketFinance) {
+        ibfMarketFinanceService.updateById(ibfMarketFinance);
+        return Result.OK("编辑成功!");
+    }
+
+    /**
+     * 通过id删除
+     *
+     * @param id
+     * @return
+     */
+    @AutoLog(value = "业务一体-财务填报-通过id删除")
+    @ApiOperation(value = "业务一体-财务填报-通过id删除", notes = "业务一体-财务填报-通过id删除")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:delete")
+    @DeleteMapping(value = "/delete")
+    public Result<String> delete(@RequestParam(name = "id", required = true) String id) {
+        ibfMarketFinanceService.removeById(id);
+        return Result.OK("删除成功!");
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param ids
+     * @return
+     */
+    @AutoLog(value = "业务一体-财务填报-批量删除")
+    @ApiOperation(value = "业务一体-财务填报-批量删除", notes = "业务一体-财务填报-批量删除")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:deleteBatch")
+    @DeleteMapping(value = "/deleteBatch")
+    public Result<String> deleteBatch(@RequestParam(name = "ids", required = true) String ids) {
+        this.ibfMarketFinanceService.removeByIds(Arrays.asList(ids.split(",")));
+        return Result.OK("批量删除成功!");
+    }
+
+    /**
+     * 通过id查询
+     *
+     * @param id
+     * @return
+     */
+    //@AutoLog(value = "业务一体-财务填报-通过id查询")
+    @ApiOperation(value = "业务一体-财务填报-通过id查询", notes = "业务一体-财务填报-通过id查询")
+    @GetMapping(value = "/queryById")
+    public Result<IbfMarketFinance> queryById(@RequestParam(name = "id", required = true) String id) {
+        IbfMarketFinance ibfMarketFinance = ibfMarketFinanceService.getById(id);
+        if (ibfMarketFinance == null) {
+            return Result.error("未找到对应数据");
+        }
+        return Result.OK(ibfMarketFinance);
+    }
+
+    /**
+     * 导出excel
+     *
+     * @param request
+     * @param ibfMarketFinance
+     */
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfMarketFinance ibfMarketFinance) {
-		// 从url中获取businessVersion参数
-		String businessVersion = request.getParameter("businessVersion");
-		// 根据businessVersion版本参数判断，返回不同的excel模板
-		String title = "财务看板(BOSS)-每月填报";
-		if(businessVersion.equals("BOSS")){
-			title = "财务看板(BOSS)-每月填报";
-		}
+        // 从url中获取businessVersion参数
+        String businessVersion = request.getParameter("businessVersion");
+        // 根据businessVersion版本参数判断，返回不同的excel模板
+        String title = "财务看板(BOSS)-每月填报";
+        if (businessVersion.equals("BOSS")) {
+            title = "财务看板(BOSS)-每月填报";
+        }
         return super.exportXls(request, ibfMarketFinance, IbfMarketFinance.class, title);
     }
 
     /**
-      * 通过excel导入数据
-    *
-    * @param request
-    * @param response
-    * @return
-    */
+     * 通过excel导入数据
+     *
+     * @param request
+     * @param response
+     * @return
+     */
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-		// 从url中获取businessVersion参数
-		String businessVersion = request.getParameter("businessVersion");
-		// 只支持BOSS、OPERATION、FINANCE参数
-		if(oConvertUtils.isEmpty(businessVersion)){
-			return Result.error("业务版本不能为空");
-		}
-		if(!businessVersion.equals("BOSS") && !businessVersion.equals("OPERATION") && !businessVersion.equals("FINANCE")){
-			return Result.error("业务版本参数错误");
-		}
+        // 从url中获取businessVersion参数
+        String businessVersion = request.getParameter("businessVersion");
+        // 只支持BOSS、OPERATION、FINANCE参数
+        if (oConvertUtils.isEmpty(businessVersion)) {
+            return Result.error("业务版本不能为空");
+        }
+        if (!businessVersion.equals("BOSS") && !businessVersion.equals("OPERATION") && !businessVersion.equals("FINANCE")) {
+            return Result.error("业务版本参数错误");
+        }
         return customImportExcel(request, response, IbfMarketFinance.class, businessVersion);
     }
 
-	 /**
-	  * 通过excel导入数据
-	  *
-	  * @param request
-	  * @param response
-	  * @return
-	  */
-	 private Result<?> customImportExcel(HttpServletRequest request, HttpServletResponse response, Class<IbfMarketFinance> clazz, String businessVersion) {
-		 MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-		 Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
-		 for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
-			 // 获取上传文件对象
-			 MultipartFile file = entity.getValue();
-			 ImportParams params = new ImportParams();
-			 params.setTitleRows(2);
-			 params.setHeadRows(1);
-			 params.setNeedSave(true);
-			 try {
-				 List<IbfMarketFinance> list = ExcelImportUtil.importExcel(file.getInputStream(), clazz, params);
-				 // 塞入businessVersion
-				 for (IbfMarketFinance ibfMarketFinance : list) {
-					 ibfMarketFinance.setBusinessVersion(businessVersion);
-				 }
-				 //update-begin-author:taoyan date:20190528 for:批量插入数据
-				 long start = System.currentTimeMillis();
-				 service.saveOrUpdateBatch(list);
-				 //400条 saveBatch消耗时间1592毫秒  循环插入消耗时间1947毫秒
-				 //1200条  saveBatch消耗时间3687毫秒 循环插入消耗时间5212毫秒
-				 log.info("消耗时间" + (System.currentTimeMillis() - start) + "毫秒");
-				 //update-end-author:taoyan date:20190528 for:批量插入数据
-				 return Result.ok("文件导入成功！数据行数：" + list.size());
-			 } catch (Exception e) {
-				 //update-begin-author:taoyan date:20211124 for: 导入数据重复增加提示
-				 String msg = e.getMessage();
-				 log.error(msg, e);
-				 if(msg!=null && msg.indexOf("Duplicate entry")>=0){
-					 return Result.error("文件导入失败:有重复数据！");
-				 }else{
-					 return Result.error("文件导入失败:" + e.getMessage());
-				 }
-				 //update-end-author:taoyan date:20211124 for: 导入数据重复增加提示
-			 } finally {
-				 try {
-					 file.getInputStream().close();
-				 } catch (IOException e) {
-					 e.printStackTrace();
-				 }
-			 }
-		 }
-		 return Result.error("文件导入失败！");
-	 }
+    /**
+     * 通过excel导入数据
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    private Result<?> customImportExcel(HttpServletRequest request, HttpServletResponse response, Class<IbfMarketFinance> clazz, String businessVersion) {
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+        for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+            // 获取上传文件对象
+            MultipartFile file = entity.getValue();
+            ImportParams params = new ImportParams();
+            params.setTitleRows(2);
+            params.setHeadRows(1);
+            params.setNeedSave(true);
+            try {
+                List<IbfMarketFinance> list = ExcelImportUtil.importExcel(file.getInputStream(), clazz, params);
+                // 塞入businessVersion
+                for (IbfMarketFinance ibfMarketFinance : list) {
+                    ibfMarketFinance.setBusinessVersion(businessVersion);
+                }
+                //update-begin-author:taoyan date:20190528 for:批量插入数据
+                long start = System.currentTimeMillis();
+                service.saveOrUpdateBatch(list);
+                //400条 saveBatch消耗时间1592毫秒  循环插入消耗时间1947毫秒
+                //1200条  saveBatch消耗时间3687毫秒 循环插入消耗时间5212毫秒
+                log.info("消耗时间" + (System.currentTimeMillis() - start) + "毫秒");
+                //update-end-author:taoyan date:20190528 for:批量插入数据
+                return Result.ok("文件导入成功！数据行数：" + list.size());
+            } catch (Exception e) {
+                //update-begin-author:taoyan date:20211124 for: 导入数据重复增加提示
+                String msg = e.getMessage();
+                log.error(msg, e);
+                if (msg != null && msg.indexOf("Duplicate entry") >= 0) {
+                    return Result.error("文件导入失败:有重复数据！");
+                } else {
+                    return Result.error("文件导入失败:" + e.getMessage());
+                }
+                //update-end-author:taoyan date:20211124 for: 导入数据重复增加提示
+            } finally {
+                try {
+                    file.getInputStream().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return Result.error("文件导入失败！");
+    }
+
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:add")
+    @ApiOperation(value = "业务一体-财务填报-唯一性校验", notes = "业务一体-财务填报-唯一性校验")
+    @GetMapping(value = "/checkUnique")
+    public Result<IbfMarketFinance> checkUnique(@RequestParam(name = "businessVersion", required = true) String businessVersion,
+                                                @RequestParam(name = "shortMarketId", required = true) String shortMarketId,
+                                                @RequestParam(name = "monthCol", required = true) String monthCol) {
+        log.info("Received parameters - businessVersion: {}, shortMarketId: {}, monthCol: {}", businessVersion, shortMarketId, monthCol);
+        IbfMarketFinance ibfMarketFinance = ibfMarketFinanceService.checkUnique(businessVersion, shortMarketId, monthCol);
+        if (ibfMarketFinance == null) {
+            return Result.OK(null);
+        }
+        return Result.OK(ibfMarketFinance);
+    }
 }

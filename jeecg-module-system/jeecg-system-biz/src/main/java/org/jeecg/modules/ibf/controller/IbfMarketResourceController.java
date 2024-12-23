@@ -247,4 +247,16 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
 		 return Result.error("文件导入失败！");
 	 }
 
+	 @ApiOperation(value = "业财一体-市场资源填报-唯一性校验", notes = "业财一体-市场资源填报-唯一性校验")
+	 @GetMapping(value = "/checkUnique")
+	 public Result<IbfMarketResource> checkUnique(@RequestParam(name = "businessVersion", required = true) String businessVersion,
+												  @RequestParam(name = "shortMarketId", required = true) String shortMarketId,
+												  @RequestParam(name = "monthCol", required = true) String monthCol) {
+		 IbfMarketResource ibfMarketResource = ibfMarketResourceService.checkUnique(businessVersion, shortMarketId, monthCol);
+		 if (ibfMarketResource == null) {
+			 return Result.OK(null);
+		 }
+		 return Result.OK(ibfMarketResource);
+	 }
+
 }

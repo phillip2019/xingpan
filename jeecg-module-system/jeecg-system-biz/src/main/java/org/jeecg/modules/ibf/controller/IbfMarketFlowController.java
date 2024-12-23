@@ -247,4 +247,18 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 		 return Result.error("文件导入失败！");
 	 }
 
+	 @RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:add")
+@ApiOperation(value = "业财一体-每日填报市场流量-唯一性校验", notes = "业财一体-每日填报市场流量-唯一性校验")
+@GetMapping(value = "/checkUnique")
+public Result<IbfMarketFlow> checkUnique(@RequestParam(name = "businessVersion", required = true) String businessVersion,
+                                         @RequestParam(name = "shortMarketId", required = true) String shortMarketId,
+                                         @RequestParam(name = "dateCol", required = true) String dateCol) {
+    log.info("Received parameters - businessVersion: {}, shortMarketId: {}, dateCol: {}", businessVersion, shortMarketId, dateCol);
+    IbfMarketFlow ibfMarketFlow = ibfMarketFlowService.checkUnique(businessVersion, shortMarketId, dateCol);
+    if (ibfMarketFlow == null) {
+        return Result.OK(null);
+    }
+    return Result.OK(ibfMarketFlow);
+}
+
 }
