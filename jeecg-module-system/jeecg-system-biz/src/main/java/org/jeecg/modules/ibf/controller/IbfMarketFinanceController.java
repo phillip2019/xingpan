@@ -218,7 +218,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
 				 }
 				 //update-begin-author:taoyan date:20190528 for:批量插入数据
 				 long start = System.currentTimeMillis();
-				 service.saveBatch(list);
+				 service.saveOrUpdateBatch(list);
 				 //400条 saveBatch消耗时间1592毫秒  循环插入消耗时间1947毫秒
 				 //1200条  saveBatch消耗时间3687毫秒 循环插入消耗时间5212毫秒
 				 log.info("消耗时间" + (System.currentTimeMillis() - start) + "毫秒");
