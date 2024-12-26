@@ -180,6 +180,11 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
         if (businessVersion.equals("BOSS")) {
             title = "财务看板(BOSS)-每月填报";
         }
+        String selections = request.getParameter("selections");
+
+        if (oConvertUtils.isEmpty(selections) && oConvertUtils.isEmpty(request.getParameter("monthCol"))) {
+            ibfMarketFinance.setMonthCol("9999-12");
+        }
         return super.exportXls(request, ibfMarketFinance, IbfMarketFinance.class, title);
     }
 

@@ -172,6 +172,10 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 		} else if (businessVersion.equals("OPERATION")) {
 			title = "市场流量(运营)-每日填报";
 		}
+		String selections = request.getParameter("selections");
+		if (oConvertUtils.isEmpty(selections) && oConvertUtils.isEmpty(request.getParameter("dateCol"))) {
+			ibfMarketFlow.setDateCol("9999-12-31");
+		}
 		return super.exportXls(request, ibfMarketFlow, IbfMarketFlow.class, title);
     }
 

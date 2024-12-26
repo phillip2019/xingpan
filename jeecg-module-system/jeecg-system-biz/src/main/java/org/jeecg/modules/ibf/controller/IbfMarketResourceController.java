@@ -183,6 +183,10 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
         } else if (businessVersion.equals("OPERATION")) {
             title = "市场资源看板(运营)-每月填报";
         }
+        String selections = request.getParameter("selections");
+        if (oConvertUtils.isEmpty(selections) && oConvertUtils.isEmpty(request.getParameter("monthCol"))) {
+            ibfMarketResource.setMonthCol("9999-12");
+        }
         return super.exportXls(request, ibfMarketResource, IbfMarketResource.class, title);
     }
 
