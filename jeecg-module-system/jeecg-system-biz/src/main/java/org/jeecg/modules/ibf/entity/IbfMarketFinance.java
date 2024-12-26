@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import me.zhyd.oauth.utils.StringUtils;
 import org.jeecg.modules.system.util.ValidMonthFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
@@ -92,6 +93,10 @@ public class IbfMarketFinance implements Serializable {
     private String updateBy;
 
     public String convertsetMonthCol(String text) {
+        // 若text为空，则直接报错
+        if (StringUtils.isEmpty(text)) {
+            throw new IllegalArgumentException("月份格式不可以为空");
+        }
         // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM
         if (text.contains("T")) {
             text = text.substring(0, 7);

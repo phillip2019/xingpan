@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import me.zhyd.oauth.utils.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.jeecg.common.aspect.annotation.Dict;
@@ -83,6 +84,11 @@ public class IbfMarketFlow implements Serializable {
     private String updateBy;
 
     public String convertsetDateCol(String text) {
+        // 若text为空，则直接报错
+        if (StringUtils.isEmpty(text)) {
+            throw new IllegalArgumentException("日期格式不可以为空");
+        }
+
         // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM-dd
         if (text.contains("T")) {
             text = text.substring(0, 10);
