@@ -270,8 +270,10 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
                 // 二元组唯一性校验，businessVersion，monthCol
                 for (IbfMarketFinance ibfMarketFinance : list) {
                     String monthCol = ibfMarketFinance.getMonthCol();
+                    String shortMarketId = ibfMarketFinance.getShortMarketId();
                     // 校验唯一性
                     List<IbfMarketFinance> ibfMarketFinanceList = service.list(new QueryWrapper<IbfMarketFinance>()
+                            .eq("short_market_id", shortMarketId)
                             .eq("business_version", businessVersion)
                             .eq("month_col", monthCol)
                             .last("limit 1")

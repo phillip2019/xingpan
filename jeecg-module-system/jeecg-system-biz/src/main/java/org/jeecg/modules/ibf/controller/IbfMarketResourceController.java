@@ -264,15 +264,20 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
 
                 // 二元组唯一性校验，businessVersion，monthCol
                 for (IbfMarketResource ibfMarketResource : list) {
+                    String shortMarketId = ibfMarketResource.getShortMarketId();
                     String monthCol = ibfMarketResource.getMonthCol();
                     // 校验唯一性
                     List<IbfMarketResource> ibfMarketFinanceList = service.list(new QueryWrapper<IbfMarketResource>()
+                            .eq("short_market_id", shortMarketId)
+                            .eq("business_version", businessVersion)
                             .eq("business_version", businessVersion)
                             .eq("month_col", monthCol)
                             .last("limit 1")
                     );
                     // 默认选择第一个
                     if (!ibfMarketFinanceList.isEmpty()) {
+                        String id = ibfMarketFinanceList.get(0).getId();
+                        log.info("已存在模式: {}，月份: {}, id为：{}", businessVersion, monthCol, id);
                         ibfMarketResource.setId(ibfMarketFinanceList.get(0).getId());
                     }
                 }
