@@ -1,6 +1,8 @@
 package org.jeecg.modules.ibf.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,8 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.ss.formula.functions.T;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.ibf.entity.IbfMarketFinance;
 import org.jeecg.modules.ibf.service.IIbfMarketFinanceService;
@@ -30,6 +34,7 @@ import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -39,19 +44,26 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 
+
 /**
- * @Description: 业务一体-财务填报
+ * @Description: 业财一体-财务填报
  * @Author: jeecg-boot
  * @Date: 2024-12-19
  * @Version: V1.0
  */
-@Api(tags = "业务一体-财务填报")
+@Api(tags = "业财一体-财务填报")
 @RestController
 @RequestMapping("/ibf/ibfMarketFinance")
 @Slf4j
 public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance, IIbfMarketFinanceService> {
     @Autowired
     private IIbfMarketFinanceService ibfMarketFinanceService;
+
+    @Lazy
+    @Autowired
+    private CommonAPI commonApi;
+
+    public static final String DICT_CODE = "finance_short_market_id";
 
     /**
      * 分页列表查询
@@ -62,8 +74,8 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
      * @param req
      * @return
      */
-    @AutoLog(value = "业务一体-财务填报-分页列表查询")
-    @ApiOperation(value = "业务一体-财务填报-分页列表查询", notes = "业务一体-财务填报-分页列表查询")
+    @AutoLog(value = "业财一体-财务填报-分页列表查询")
+    @ApiOperation(value = "业财一体-财务填报-分页列表查询", notes = "业财一体-财务填报-分页列表查询")
     @GetMapping(value = "/list")
     public Result<IPage<IbfMarketFinance>> queryPageList(IbfMarketFinance ibfMarketFinance,
                                                          @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -81,8 +93,8 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
      * @param ibfMarketFinance
      * @return
      */
-    @AutoLog(value = "业务一体-财务填报-添加")
-    @ApiOperation(value = "业务一体-财务填报-添加", notes = "业务一体-财务填报-添加")
+    @AutoLog(value = "业财一体-财务填报-添加")
+    @ApiOperation(value = "业财一体-财务填报-添加", notes = "业财一体-财务填报-添加")
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:add")
     @PostMapping(value = "/add")
     public Result<String> add(@RequestBody IbfMarketFinance ibfMarketFinance) {
@@ -96,8 +108,8 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
      * @param ibfMarketFinance
      * @return
      */
-    @AutoLog(value = "业务一体-财务填报-编辑")
-    @ApiOperation(value = "业务一体-财务填报-编辑", notes = "业务一体-财务填报-编辑")
+    @AutoLog(value = "业财一体-财务填报-编辑")
+    @ApiOperation(value = "业财一体-财务填报-编辑", notes = "业财一体-财务填报-编辑")
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:edit")
     @RequestMapping(value = "/edit", method = {RequestMethod.PUT, RequestMethod.POST})
     public Result<String> edit(@RequestBody IbfMarketFinance ibfMarketFinance) {
@@ -111,8 +123,8 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
      * @param id
      * @return
      */
-    @AutoLog(value = "业务一体-财务填报-通过id删除")
-    @ApiOperation(value = "业务一体-财务填报-通过id删除", notes = "业务一体-财务填报-通过id删除")
+    @AutoLog(value = "业财一体-财务填报-通过id删除")
+    @ApiOperation(value = "业财一体-财务填报-通过id删除", notes = "业财一体-财务填报-通过id删除")
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:delete")
     @DeleteMapping(value = "/delete")
     public Result<String> delete(@RequestParam(name = "id", required = true) String id) {
@@ -126,8 +138,8 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
      * @param ids
      * @return
      */
-    @AutoLog(value = "业务一体-财务填报-批量删除")
-    @ApiOperation(value = "业务一体-财务填报-批量删除", notes = "业务一体-财务填报-批量删除")
+    @AutoLog(value = "业财一体-财务填报-批量删除")
+    @ApiOperation(value = "业财一体-财务填报-批量删除", notes = "业财一体-财务填报-批量删除")
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:deleteBatch")
     @DeleteMapping(value = "/deleteBatch")
     public Result<String> deleteBatch(@RequestParam(name = "ids", required = true) String ids) {
@@ -141,8 +153,8 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
      * @param id
      * @return
      */
-    //@AutoLog(value = "业务一体-财务填报-通过id查询")
-    @ApiOperation(value = "业务一体-财务填报-通过id查询", notes = "业务一体-财务填报-通过id查询")
+    //@AutoLog(value = "业财一体-财务填报-通过id查询")
+    @ApiOperation(value = "业财一体-财务填报-通过id查询", notes = "业财一体-财务填报-通过id查询")
     @GetMapping(value = "/queryById")
     public Result<IbfMarketFinance> queryById(@RequestParam(name = "id", required = true) String id) {
         IbfMarketFinance ibfMarketFinance = ibfMarketFinanceService.getById(id);
@@ -203,6 +215,12 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
     private Result<?> customImportExcel(HttpServletRequest request, HttpServletResponse response, Class<IbfMarketFinance> clazz, String businessVersion) {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+
+        Date now = new Date();
+        List<DictModel> dictModelList = commonApi.queryEnableDictItemsByCode(DICT_CODE);
+        // 将dictModelList的value转换成数组
+        List<String> shortMarketIdList = dictModelList.stream().map(DictModel::getValue).collect(Collectors.toList());
+
         for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
             // 获取上传文件对象
             MultipartFile file = entity.getValue();
@@ -216,6 +234,46 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
                 for (IbfMarketFinance ibfMarketFinance : list) {
                     ibfMarketFinance.setBusinessVersion(businessVersion);
                 }
+
+                // 校验市场，市场必须为 shortMarketId
+                for (IbfMarketFinance ibfMarketFinance : list) {
+                    String shortMarketId = ibfMarketFinance.getShortMarketId();
+                    // 只有列表中的shortMarketId在字典中才行
+                    if (!shortMarketIdList.contains(shortMarketId)) {
+                        return Result.error("市场编号:【" + shortMarketId + "】不存在");
+                    }
+                    // 校验月份
+                    String monthCol = ibfMarketFinance.getMonthCol();
+                    // 校验月份格式
+                    if (!monthCol.matches("\\d{4}-\\d{2}")) {
+                        return Result.error("月份格式错误:【" + monthCol + "】");
+                    }
+                    // 校验月份是否大于当前月份
+                    try {
+                        Date date = new SimpleDateFormat("yyyy-MM").parse(monthCol);
+                        if (date.after(now)) {
+                            return Result.error("月份不能大于当前月份:【" + monthCol + "】");
+                        }
+                    } catch (Exception e) {
+                        log.error("月份格式错误:【" + monthCol + "】", e);
+                        return Result.error("月份格式错误:【" + monthCol + "】");
+                    }
+                }
+
+                // 二元组唯一性校验，businessVersion，monthCol
+                for (IbfMarketFinance ibfMarketFinance : list) {
+                    String monthCol = ibfMarketFinance.getMonthCol();
+                    // 校验唯一性
+                    List<IbfMarketFinance> ibfMarketFinanceList = service.list(new QueryWrapper<IbfMarketFinance>()
+                            .eq("business_version", businessVersion)
+                            .eq("month_col", monthCol)
+                            .last("limit 1")
+                    );
+                    if (!ibfMarketFinanceList.isEmpty()) {
+                        ibfMarketFinance.setId(ibfMarketFinanceList.get(0).getId());
+                    }
+                }
+
                 //update-begin-author:taoyan date:20190528 for:批量插入数据
                 long start = System.currentTimeMillis();
                 service.saveOrUpdateBatch(list);
@@ -246,7 +304,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
     }
 
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:add")
-    @ApiOperation(value = "业务一体-财务填报-唯一性校验", notes = "业务一体-财务填报-唯一性校验")
+    @ApiOperation(value = "业财一体-财务填报-唯一性校验", notes = "业财一体-财务填报-唯一性校验")
     @GetMapping(value = "/checkUnique")
     public Result<IbfMarketFinance> checkUnique(@RequestParam(name = "businessVersion", required = true) String businessVersion,
                                                 @RequestParam(name = "shortMarketId", required = true) String shortMarketId,

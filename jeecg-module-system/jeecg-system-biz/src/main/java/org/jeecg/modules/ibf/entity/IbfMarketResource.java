@@ -54,12 +54,6 @@ public class IbfMarketResource implements Serializable {
     @ApiModelProperty(value = "市场")
     private String shortMarketId;
     /**
-     * 市场名称
-     */
-    @Excel(name = "市场名称", width = 15)
-    @ApiModelProperty(value = "市场名称")
-    private String shortMarketName;
-    /**
      * 所属年月 yyyy-MM
      */
     @Excel(name = "所属年月", width = 15)

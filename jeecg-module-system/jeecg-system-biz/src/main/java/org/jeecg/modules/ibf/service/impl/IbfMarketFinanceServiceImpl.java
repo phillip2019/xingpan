@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 /**
- * @Description: 业务一体-财务填报
+ * @Description: 业财一体-财务填报
  * @Author: jeecg-boot
  * @Date: 2024-12-19
  * @Version: V1.0

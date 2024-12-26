@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * @Description: 业务一体-财务填报
+ * @Description: 业财一体-财务填报
  * @Author: jeecg-boot
  * @Date:   2024-12-19
  * @Version: V1.0
@@ -43,8 +43,8 @@ public class IbfMarketFinance implements Serializable {
     @ApiModelProperty(value = "业务类型")
     private String businessVersion;
 	/**市场*/
-    @Dict(dicCode = "short_market_id")
-    @Excel(name = "市场", width = 15, dicCode = "short_market_id")
+    @Dict(dicCode = "finance_short_market_id")
+    @Excel(name = "市场", width = 15, dicCode = "finance_short_market_id")
     @ApiModelProperty(value = "市场ID")
     private String shortMarketId;
 	/**所属年月 yyyy-MM*/
