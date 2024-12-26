@@ -53,7 +53,7 @@ public class IbfMarketFlow implements Serializable {
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "日期 yyyy-MM-dd")
-    private Date dateCol;
+    private String dateCol;
 	/**日人流量*/
 	@Excel(name = "日人流量", width = 15)
     @ApiModelProperty(value = "日人流量")
@@ -88,6 +88,6 @@ public class IbfMarketFlow implements Serializable {
 
     public void convertsetDateCol(String text) throws ParseException {
         // 将日期格式yyyy-MM-dd格式转换为日期格式
-        this.dateCol = DateUtils.parseDate(DateUtil.convertDateCol(text), "yyyy-MM-dd");
+        this.dateCol = DateUtil.convertDateCol(text);
     }
 }

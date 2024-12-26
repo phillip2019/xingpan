@@ -109,7 +109,7 @@ public class IbfMarketResource implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "资源统计日期 yyyy-MM-dd")
-    private Date resourceStatisticsDate;
+    private String resourceStatisticsDate;
 
     /**
      * 商位使用权人
@@ -132,7 +132,7 @@ public class IbfMarketResource implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "商人统计日期 yyyy-MM-dd")
-    private Date merchantStatisticsDate;
+    private String merchantStatisticsDate;
 
     /**
      * 本年招商间数
@@ -155,7 +155,7 @@ public class IbfMarketResource implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "出租率统计日期 yyyy-MM-dd")
-    private Date remainRentRateStatisticsDate;
+    private String remainRentRateStatisticsDate;
 
     /**
      * 续租完成率统计日期 yyyy-MM-dd
@@ -164,7 +164,7 @@ public class IbfMarketResource implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "续租统计日期 yyyy-MM-dd")
-    private Date renewLeaseRateStatisticsDate;
+    private String renewLeaseRateStatisticsDate;
 
     /**
      * 人流（人次）
@@ -333,19 +333,19 @@ public class IbfMarketResource implements Serializable {
     }
 
     public void convertsetResourceStatisticsDate(String text) throws ParseException {
-         this.resourceStatisticsDate = DateUtils.parseDate(convertsetDateCol(text), "yyyy-MM-dd");
+         this.resourceStatisticsDate = convertsetDateCol(text);
     }
 
     public void convertsetMerchantStatisticsDate(String text) throws ParseException {
-         this.merchantStatisticsDate = DateUtils.parseDate(convertsetDateCol(text), "yyyy-MM-dd");
+         this.merchantStatisticsDate = convertsetDateCol(text);
     }
 
     public void convertsetRemainRentRateStatisticsDate(String text) throws ParseException {
-        this.remainRentRateStatisticsDate = DateUtils.parseDate(convertsetDateCol(text), "yyyy-MM-dd");
+        this.remainRentRateStatisticsDate = convertsetDateCol(text);
 
     }
 
     public void convertsetRenewLeaseRateStatisticsDate(String text) throws ParseException {
-        this.renewLeaseRateStatisticsDate = DateUtils.parseDate(convertsetDateCol(text), "yyyy-MM-dd");
+        this.renewLeaseRateStatisticsDate = convertsetDateCol(text);
     }
 }
