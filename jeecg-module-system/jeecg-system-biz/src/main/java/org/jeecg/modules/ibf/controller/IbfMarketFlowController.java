@@ -235,7 +235,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 
 				 // 二元组唯一性校验，businessVersion，monthCol
 				 for (IbfMarketFlow ibfMarketFlow : list) {
-					 Date dateCol = ibfMarketFlow.getDateCol();
+					 String dateCol = ibfMarketFlow.getDateCol();
 					 // 校验唯一性
 					 List<IbfMarketFlow> ibfMarketFlowList = service.list(new QueryWrapper<IbfMarketFlow>()
 							 .eq("business_version", businessVersion)
