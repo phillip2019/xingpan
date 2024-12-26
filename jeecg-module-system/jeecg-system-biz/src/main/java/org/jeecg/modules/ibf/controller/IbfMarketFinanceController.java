@@ -1,10 +1,8 @@
 package org.jeecg.modules.ibf.controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -12,6 +10,7 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javassist.tools.reflect.CannotInvokeException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -236,6 +235,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
                     ibfMarketFinance.setBusinessVersion(businessVersion);
                 }
 
+                List<IbfMarketFinance> validList = new ArrayList<>();
                 // 校验市场，市场必须为 shortMarketId
                 for (IbfMarketFinance ibfMarketFinance : list) {
                     String shortMarketId = ibfMarketFinance.getShortMarketId();
@@ -246,6 +246,10 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
                     // 校验月份
                     String monthCol = ibfMarketFinance.getMonthCol();
                     // 校验月份格式
+                    if (StringUtils.isBlank(monthCol)) {
+                        log.warn("存在月份数据为空记录, {}", ibfMarketFinance);
+                        continue;
+                    }
                     if (StringUtils.isBlank(monthCol) || !monthCol.matches("\\d{4}-\\d{2}")) {
                         return Result.error("月份格式错误:【" + monthCol + "】");
                     }
@@ -259,8 +263,10 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
                         log.error("月份格式错误:【" + monthCol + "】", e);
                         return Result.error("月份格式错误:【" + monthCol + "】");
                     }
+                    validList.add(ibfMarketFinance);
                 }
 
+                list = validList;
                 // 二元组唯一性校验，businessVersion，monthCol
                 for (IbfMarketFinance ibfMarketFinance : list) {
                     String monthCol = ibfMarketFinance.getMonthCol();
@@ -283,11 +289,14 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
                 log.info("消耗时间" + (System.currentTimeMillis() - start) + "毫秒");
                 //update-end-author:taoyan date:20190528 for:批量插入数据
                 return Result.ok("文件导入成功！数据行数：" + list.size());
+            } catch (InvocationTargetException e) {
+                log.error("文件导入失败: ", e);
+                return Result.error("文件导入失败:" + e.getTargetException().getMessage());
             } catch (Exception e) {
                 //update-begin-author:taoyan date:20211124 for: 导入数据重复增加提示
                 String msg = e.getMessage();
                 log.error(msg, e);
-                if (msg != null && msg.indexOf("Duplicate entry") >= 0) {
+                if (msg != null && msg.contains("Duplicate entry")) {
                     return Result.error("文件导入失败:有重复数据！");
                 } else {
                     return Result.error("文件导入失败:" + e.getMessage());

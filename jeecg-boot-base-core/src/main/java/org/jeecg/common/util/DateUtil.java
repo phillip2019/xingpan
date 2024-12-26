@@ -1,10 +1,13 @@
 package org.jeecg.common.util;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
+import me.zhyd.oauth.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -18,6 +21,7 @@ import java.util.regex.Pattern;
  *
  * @author xiaowei.song
  */
+@Slf4j
 public class DateUtil {
     public static final Logger logger = LoggerFactory.getLogger(DateUtil.class);
 
@@ -224,6 +228,80 @@ public class DateUtil {
     public static String getDate2DSString(long timestamp13) {
         Instant instant = Instant.ofEpochMilli(timestamp13);
         return format(LocalDateTime.ofInstant(instant, DEFAULT_ZONE_OFFSET), DATE_DS_FORMAT);
+    }
+
+    // 将 Excel 序列号转换为 LocalDate
+    private static LocalDate excelSerialToJavaLocalDate(int serialNumber) {
+        // Excel 序列号从 1 开始表示 1900-01-01
+        // 修正 1900 年 2 月 29 日的错误
+        if (serialNumber < 61) {
+            return LocalDate.of(1900, 1, 1).plusDays(serialNumber - 1);
+        } else {
+            return LocalDate.of(1900, 1, 1).plusDays(serialNumber - 2);
+        }
+    }
+
+    public static String convertDateCol(String text) {
+        // 若text为空，则直接报错
+        if (StringUtils.isEmpty(text)) {
+            throw new IllegalArgumentException("日期格式不可以为空");
+        }
+        try {
+            // 尝试解析为数值日期格式
+            if (text.matches("\\d+")) {
+                int excelDate = Integer.parseInt(text);
+                LocalDate date = excelSerialToJavaLocalDate(excelDate);
+                return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            }
+            // 尝试解析为 yyyy-MM-ddTHH:mm:ss 格式
+            else if (text.contains("T")) {
+                text = text.substring(0, 10); // 截取前10个字符，得到 yyyy-MM-dd
+            }
+            // 尝试解析为 yyyy-MM-dd 格式
+            else if (text.length() == 10 && text.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                text = text.substring(0, 10); // 截取前10个字符，得到 yyyy-MM-dd
+            }
+            else {
+                throw new IllegalArgumentException("无法识别的日期格式: " + text);
+            }
+        } catch (Exception e) {
+            log.error("日期格式转换失败, 待转换: {}; \n错误{}", text, e.getMessage());
+            throw new IllegalArgumentException("日期格式转换失败: " + e.getMessage());
+        }
+        return text;
+    }
+
+    public static String convertMonthCol(String text) {
+        // 若text为空，则直接报错
+        if (StringUtils.isEmpty(text)) {
+            throw new IllegalArgumentException("月份格式不可以为空");
+        }
+        try {
+            // 尝试解析为数值日期格式
+            if (text.matches("\\d+")) {
+                int excelDate = Integer.parseInt(text);
+                LocalDate date = excelSerialToJavaLocalDate(excelDate);
+                return date.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+            }
+            // 尝试解析为 yyyy-MM-ddTHH:mm:ss 格式
+            else if (text.contains("T")) {
+                text = text.substring(0, 7); // 截取前7个字符，得到 yyyy-MM
+            }
+            // 尝试解析为 yyyy-MM-dd 格式
+            else if (text.length() == 10 && text.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                text = text.substring(0, 7); // 截取前7个字符，得到 yyyy-MM
+            }
+            // 其他格式直接返回原值（假设已经是 yyyy-MM）
+            else if (text.length() == 7 && text.matches("\\d{4}-\\d{2}")) {
+                return text;
+            } else {
+                throw new IllegalArgumentException("无法识别的日期格式: " + text);
+            }
+        } catch (Exception e) {
+            log.error("日期格式转换失败: {}", e.getMessage());
+            throw new IllegalArgumentException("日期格式转换失败: " + e.getMessage());
+        }
+        return text;
     }
 
 

@@ -2,6 +2,7 @@ package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.util.Date;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -11,6 +12,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import me.zhyd.oauth.utils.StringUtils;
+import org.jeecg.common.util.DateUtil;
+import org.jeecg.common.util.DateUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.jeecg.common.aspect.annotation.Dict;
@@ -83,16 +86,8 @@ public class IbfMarketFlow implements Serializable {
     @ApiModelProperty(value = "修改人")
     private String updateBy;
 
-    public String convertsetDateCol(String text) {
-        // 若text为空，则直接报错
-        if (StringUtils.isEmpty(text)) {
-            throw new IllegalArgumentException("日期格式不可以为空");
-        }
-
-        // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM-dd
-        if (text.contains("T")) {
-            text = text.substring(0, 10);
-        }
-        return text;
+    public void convertsetDateCol(String text) throws ParseException {
+        // 将日期格式yyyy-MM-dd格式转换为日期格式
+        this.dateCol = DateUtils.parseDate(DateUtil.convertDateCol(text), "yyyy-MM-dd");
     }
 }

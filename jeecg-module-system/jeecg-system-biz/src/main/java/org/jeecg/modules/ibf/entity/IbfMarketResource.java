@@ -2,6 +2,7 @@ package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.util.Date;
 import java.math.BigDecimal;
 
@@ -12,6 +13,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import me.zhyd.oauth.utils.StringUtils;
+import org.jeecg.common.util.DateUtil;
+import org.jeecg.common.util.DateUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.jeecg.common.aspect.annotation.Dict;
@@ -102,11 +105,11 @@ public class IbfMarketResource implements Serializable {
     /**
      * 资源情况统计日期 yyyy-MM-dd
      */
-    @Excel(name = "资源统计日期", width = 15, format = "yyyy-MM-dd", importConvert = true)
+    @Excel(name = "资源统计日期", width = 15, importConvert = true)
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "资源统计日期 yyyy-MM-dd")
-    private String resourceStatisticsDate;
+    private Date resourceStatisticsDate;
 
     /**
      * 商位使用权人
@@ -321,43 +324,28 @@ public class IbfMarketResource implements Serializable {
     @ApiModelProperty(value = "修改人")
     private String updateBy;
 
-    public String convertsetMonthCol(String text) {
-        // 若text为空，则直接报错
-        if (StringUtils.isEmpty(text)) {
-            throw new IllegalArgumentException("月份格式不可以为空");
-        }
-
-        // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM
-        if (text.contains("T")) {
-            text = text.substring(0, 7);
-        }
-        return text;
+    public void convertsetMonthCol(String text) {
+        this.monthCol = DateUtil.convertMonthCol(text);
     }
 
     public String convertsetDateCol(String text) {
-        if (StringUtils.isEmpty(text)) {
-            throw new IllegalArgumentException("日期格式不可以为空");
-        }
-        // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM-dd
-        if (text.contains("T")) {
-            text = text.substring(0, 10);
-        }
-        return text;
+        return DateUtil.convertDateCol(text);
     }
 
-    public String convertsetResourceStatisticsDate(String text) {
-        return convertsetDateCol(text);
+    public void convertsetResourceStatisticsDate(String text) throws ParseException {
+         this.resourceStatisticsDate = DateUtils.parseDate(convertsetDateCol(text), "yyyy-MM-dd");
     }
 
-    public String convertsetMerchantStatisticsDate(String text) {
-        return convertsetDateCol(text);
+    public void convertsetMerchantStatisticsDate(String text) throws ParseException {
+         this.merchantStatisticsDate = DateUtils.parseDate(convertsetDateCol(text), "yyyy-MM-dd");
     }
 
-    public String convertsetRemainRentRateStatisticsDate(String text) {
-        return convertsetDateCol(text);
+    public void convertsetRemainRentRateStatisticsDate(String text) throws ParseException {
+        this.remainRentRateStatisticsDate = DateUtils.parseDate(convertsetDateCol(text), "yyyy-MM-dd");
+
     }
 
-    public String convertsetRenewLeaseRateStatisticsDate(String text) {
-        return convertsetDateCol(text);
+    public void convertsetRenewLeaseRateStatisticsDate(String text) throws ParseException {
+        this.renewLeaseRateStatisticsDate = DateUtils.parseDate(convertsetDateCol(text), "yyyy-MM-dd");
     }
 }

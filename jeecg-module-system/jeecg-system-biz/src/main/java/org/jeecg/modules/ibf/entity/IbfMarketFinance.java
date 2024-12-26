@@ -3,6 +3,7 @@ package org.jeecg.modules.ibf.entity;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.math.BigDecimal;
 import javax.validation.constraints.Pattern;
@@ -12,7 +13,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.utils.StringUtils;
+import org.jeecg.common.util.DateUtil;
 import org.jeecg.modules.system.util.ValidMonthFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
@@ -28,6 +31,7 @@ import lombok.experimental.Accessors;
  * @Date:   2024-12-19
  * @Version: V1.0
  */
+@Slf4j
 @Data
 @TableName("ibf_market_finance")
 @Accessors(chain = true)
@@ -49,10 +53,8 @@ public class IbfMarketFinance implements Serializable {
     @ApiModelProperty(value = "市场ID")
     private String shortMarketId;
 	/**所属年月 yyyy-MM*/
-	@Excel(name = "月份", width = 15, databaseFormat="yyyy-MM", importFormat="yyyy-MM", importConvert = true)
+	@Excel(name = "月份", width = 15, importConvert = true)
     @ApiModelProperty(value = "所属年月 yyyy-MM")
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM")
-    @DateTimeFormat(pattern="yyyy-MM")
     private String monthCol;
 	/**本期收入(万)*/
 	@Excel(name = "本期收入", width = 15)
@@ -92,15 +94,8 @@ public class IbfMarketFinance implements Serializable {
     @ApiModelProperty(value = "修改人")
     private String updateBy;
 
-    public String convertsetMonthCol(String text) {
-        // 若text为空，则直接报错
-        if (StringUtils.isEmpty(text)) {
-            throw new IllegalArgumentException("月份格式不可以为空");
-        }
-        // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM
-        if (text.contains("T")) {
-            text = text.substring(0, 7);
-        }
-        return text;
+    public void convertsetMonthCol(String text) {
+        this.monthCol = DateUtil.convertMonthCol(text);
     }
+
 }

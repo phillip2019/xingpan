@@ -259,9 +259,10 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 				 //update-begin-author:taoyan date:20211124 for: 导入数据重复增加提示
 				 String msg = e.getMessage();
 				 log.error(msg, e);
-				 if(msg!=null && msg.contains("Duplicate entry")){
+				 if( msg != null && msg.contains("Duplicate entry")){
 					 return Result.error("文件导入失败:有重复数据！");
-				 }else{
+				 } else {
+					 log.error("文件导入失败: ", e);
 					 return Result.error("文件导入失败:" + e.getMessage());
 				 }
 				 //update-end-author:taoyan date:20211124 for: 导入数据重复增加提示
