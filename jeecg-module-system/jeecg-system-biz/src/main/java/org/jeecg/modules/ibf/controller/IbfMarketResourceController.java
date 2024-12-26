@@ -12,6 +12,7 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.api.vo.Result;
@@ -246,7 +247,7 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
                     // 校验月份
                     String monthCol = ibfMarketResource.getMonthCol();
                     // 校验月份格式
-                    if (!monthCol.matches("\\d{4}-\\d{2}")) {
+                    if (StringUtils.isBlank(monthCol) || !monthCol.matches("\\d{4}-\\d{2}")) {
                         return Result.error("月份格式错误:【" + monthCol + "】");
                     }
                     // 校验月份是否大于当前月份
