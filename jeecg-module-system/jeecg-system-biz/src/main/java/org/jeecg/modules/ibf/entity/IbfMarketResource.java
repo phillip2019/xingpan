@@ -126,7 +126,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 商人统计日期 yyyy-MM-dd
      */
-    @Excel(name = "商人统计日期", width = 15, format = "yyyy-MM-dd")
+    @Excel(name = "商人统计日期", width = 15, importConvert = true)
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String merchantStatisticsDate;
 
@@ -147,14 +147,14 @@ public class IbfMarketResource implements Serializable {
     /**
      * 剩余商位出租率统计日期 yyyy-MM-dd
      */
-    @Excel(name = "出租率统计日期", width = 15, format = "yyyy-MM-dd")
+    @Excel(name = "出租率统计日期", width = 15, importConvert = true)
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String remainRentRateStatisticsDate;
 
     /**
      * 续租完成率统计日期 yyyy-MM-dd
      */
-    @Excel(name = "续租统计日期", width = 15, format = "yyyy-MM-dd")
+    @Excel(name = "续租统计日期", width = 15, importConvert = true)
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String renewLeaseRateStatisticsDate;
 
