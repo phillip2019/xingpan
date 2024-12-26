@@ -86,7 +86,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 已出租间数（商位+配套）
      */
-    @Excel(name = "已出租间数(商位+配套)", width = 15, groupName="间数", type = 4)
+    @Excel(name = "已出租间数(商位+配套)", width = 30, groupName="间数", type = 4)
     @ApiModelProperty(value = "已出租间数（商位+配套）")
     @TableField("booth_match_rent_room_num_1d")
     private BigDecimal boothMatchRentRoomNum1d;
@@ -106,7 +106,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 已出租面积(商位+配套)
      */
-    @Excel(name = "已出租面积(商位+配套)", width = 15, groupName="面积", type = 4)
+    @Excel(name = "已出租面积(商位+配套)", width = 30, groupName="面积", type = 4)
     @ApiModelProperty(value = "已出租面积（商位+配套）")
     @TableField("booth_match_rent_area_num_1d")
     private BigDecimal boothMatchRentAreaNum1d;
@@ -136,7 +136,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 剩余商位出租率统计日期 yyyy-MM-dd
      */
-    @Excel(name = "剩余商位出租率统计日期", width = 22, importConvert = true, type = 1, groupName = "招商")
+    @Excel(name = "剩余商位出租率统计日期", width = 30, importConvert = true, type = 1, groupName = "招商")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String remainRentRateStatisticsDate;
 
@@ -171,7 +171,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 本年入场资格费收入（万）
      */
-    @Excel(name = "本年入场资格费收入", width = 15, type = 4, groupName = "招商")
+    @Excel(name = "本年入场资格费收入", width = 20, type = 4, groupName = "招商")
     @ApiModelProperty(value = "本年入场资格费收入（万）")
     private BigDecimal entryQualificationIncomeSd;
 
