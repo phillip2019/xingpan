@@ -56,7 +56,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 所属年月 yyyy-MM
      */
-    @Excel(name = "所属年月", width = 15)
+    @Excel(name = "所属年月", width = 15, importFormat = "yyyy-MM", importConvert = true)
     @ApiModelProperty(value = "所属年月 yyyy-MM")
     private String monthCol;
     /**
@@ -79,29 +79,31 @@ public class IbfMarketResource implements Serializable {
     @TableField("booth_match_rent_room_num_1d")
     private BigDecimal boothMatchRentRoomNum1d;
     /**
-     * 面积（商位）㎡
+     * 面积（商位）
      */
-    @Excel(name = "面积(商位)㎡", width = 15)
-    @ApiModelProperty(value = "面积（商位）㎡")
+    @Excel(name = "面积(商位)", width = 15)
+    @ApiModelProperty(value = "面积（商位）")
     private BigDecimal boothAreaNumTd;
     /**
-     * 面积（配套）㎡
+     * 面积（配套）
      */
-    @Excel(name = "面积(配套)㎡", width = 15)
-    @ApiModelProperty(value = "面积（配套）㎡")
+    @Excel(name = "面积(配套)", width = 15)
+    @ApiModelProperty(value = "面积（配套）")
     @TableField("match_area_num_td")
     private BigDecimal matchAreaNumTd;
     /**
-     * 已出租面积(商位+配套)㎡
+     * 已出租面积(商位+配套)
      */
-    @Excel(name = "已出租面积(商位+配套)㎡", width = 15)
-    @ApiModelProperty(value = "已出租面积（商位+配套）㎡")
+    @Excel(name = "已出租面积(商位+配套)", width = 15)
+    @ApiModelProperty(value = "已出租面积（商位+配套）")
     @TableField("booth_match_rent_area_num_1d")
     private BigDecimal boothMatchRentAreaNum1d;
     /**
      * 资源情况统计日期 yyyy-MM-dd
      */
-    @Excel(name = "资源统计日期", width = 15)
+    @Excel(name = "资源统计日期", width = 15, format = "yyyy-MM-dd", importConvert = true)
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "资源统计日期 yyyy-MM-dd")
     private String resourceStatisticsDate;
 
@@ -122,9 +124,11 @@ public class IbfMarketResource implements Serializable {
     /**
      * 商人统计日期 yyyy-MM-dd
      */
-    @Excel(name = "商人统计日期", width = 15)
+    @Excel(name = "商人统计日期", width = 15, format = "yyyy-MM-dd")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "商人统计日期 yyyy-MM-dd")
-    private String merchantStatisticsDate;
+    private Date merchantStatisticsDate;
 
     /**
      * 本年招商间数
@@ -143,35 +147,39 @@ public class IbfMarketResource implements Serializable {
     /**
      * 剩余商位出租率统计日期 yyyy-MM-dd
      */
-    @Excel(name = "出租率统计日期", width = 15)
+    @Excel(name = "出租率统计日期", width = 15, format = "yyyy-MM-dd")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "出租率统计日期 yyyy-MM-dd")
-    private String remainRentRateStatisticsDate;
+    private Date remainRentRateStatisticsDate;
 
     /**
      * 续租完成率统计日期 yyyy-MM-dd
      */
-    @Excel(name = "续租统计日期", width = 15)
+    @Excel(name = "续租统计日期", width = 15, format = "yyyy-MM-dd")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "续租统计日期 yyyy-MM-dd")
-    private String renewLeaseRateStatisticsDate;
+    private Date renewLeaseRateStatisticsDate;
 
     /**
      * 人流（人次）
      */
-    @Excel(name = "人流(人次)", width = 15)
+    @Excel(name = "人流", width = 15)
     @ApiModelProperty(value = "人流（人次）")
     @TableField("market_buyer_entr_num_1m")
     private BigDecimal marketBuyerEntrNum1m;
     /**
      * 车流（人次）
      */
-    @Excel(name = "车流(人次)", width = 15)
+    @Excel(name = "车流", width = 15)
     @ApiModelProperty(value = "车流（人次）")
     @TableField("car_entr_num_1m")
     private BigDecimal carEntrNum1m;
     /**
      * 外商（人次）
      */
-    @Excel(name = "外商(人次)", width = 15)
+    @Excel(name = "外商", width = 15)
     @ApiModelProperty(value = "外商（人次）")
     @TableField("foreign_buyer_entr_num_1m")
     private BigDecimal foreignBuyerEntrNum1m;
@@ -185,7 +193,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 市场成交额（亿）
      */
-    @Excel(name = "市场成交额(亿元)", width = 15)
+    @Excel(name = "市场成交额", width = 15)
     @ApiModelProperty(value = "市场成交额（亿）")
     @TableField("market_gmv_1m")
     private BigDecimal marketGmv1m;
@@ -199,7 +207,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 商位转让均价（元）
      */
-    @Excel(name = "商位转让均价(万元)", width = 15)
+    @Excel(name = "商位转让均价", width = 15)
     @ApiModelProperty(value = "商位转让均价（元）")
     @TableField("market_transfer_price_avg_1m")
     private BigDecimal marketTransferPriceAvg1m;
@@ -213,7 +221,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 商位转租均价（元）
      */
-    @Excel(name = "商位转租均价(万元)", width = 15)
+    @Excel(name = "商位转租均价", width = 15)
     @ApiModelProperty(value = "商位转租均价（元）")
     @TableField("market_rent_price_avg_1m")
     private BigDecimal marketRentPriceAvg1m;
@@ -227,7 +235,7 @@ public class IbfMarketResource implements Serializable {
     /**
      * 商位质押总金额（元）
      */
-    @Excel(name = "商位质押总金额(元)", width = 15)
+    @Excel(name = "商位质押总金额", width = 15)
     @ApiModelProperty(value = "商位质押总金额（元）")
     @TableField("pledge_apply_income_1m")
     private BigDecimal pledgeApplyIncome1m;
@@ -260,31 +268,31 @@ public class IbfMarketResource implements Serializable {
     /**
      * 本年入场资格费收入（万）
      */
-    @Excel(name = "本年入场资格费收入(万元)", width = 15)
+    @Excel(name = "本年入场资格费收入", width = 15)
     @ApiModelProperty(value = "本年入场资格费收入（万）")
     private BigDecimal entryQualificationIncomeSd;
     /**
      * 本年续租户数（户）
      */
-    @Excel(name = "本年续租户数(户)", width = 15)
+    @Excel(name = "本年续租户数", width = 15)
     @ApiModelProperty(value = "本年续租户数（户）")
     private Integer renewLeaseHoldsNumSd;
     /**
      * 本年退租户数（户）
      */
-    @Excel(name = "本年退租户数(户)", width = 15)
+    @Excel(name = "本年退租户数", width = 15)
     @ApiModelProperty(value = "本年退租户数（户）")
     private Integer surrenderLeaseHoldsNumSd;
     /**
      * 本年到期户数（户）
      */
-    @Excel(name = "本年到期户数(户)", width = 15)
+    @Excel(name = "本年到期户数", width = 15)
     @ApiModelProperty(value = "本年到期户数（户）")
     private Integer expiredHoldsNumSd;
     /**
      * 本年续租收入（万）
      */
-    @Excel(name = "本年续租收入(万元)", width = 15)
+    @Excel(name = "本年续租收入", width = 15)
     @ApiModelProperty(value = "本年续租收入（万）")
     private BigDecimal renewLeaseIncomeSd;
     /**
@@ -311,4 +319,36 @@ public class IbfMarketResource implements Serializable {
      */
     @ApiModelProperty(value = "修改人")
     private String updateBy;
+
+    public String convertsetMonthCol(String text) {
+        // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM
+        if (text.contains("T")) {
+            text = text.substring(0, 7);
+        }
+        return text;
+    }
+
+    public String convertsetDateCol(String text) {
+        // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM-dd
+        if (text.contains("T")) {
+            text = text.substring(0, 10);
+        }
+        return text;
+    }
+
+    public String convertsetResourceStatisticsDate(String text) {
+        return convertsetDateCol(text);
+    }
+
+    public String convertsetMerchantStatisticsDate(String text) {
+        return convertsetDateCol(text);
+    }
+
+    public String convertsetRemainRentRateStatisticsDate(String text) {
+        return convertsetDateCol(text);
+    }
+
+    public String convertsetRenewLeaseRateStatisticsDate(String text) {
+        return convertsetDateCol(text);
+    }
 }

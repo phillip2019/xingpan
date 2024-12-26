@@ -48,30 +48,30 @@ public class IbfMarketFinance implements Serializable {
     @ApiModelProperty(value = "市场ID")
     private String shortMarketId;
 	/**所属年月 yyyy-MM*/
-	@Excel(name = "月份", width = 15, databaseFormat="yyyy-MM", format="yyyy-MM", importFormat="yyyy-MM")
+	@Excel(name = "月份", width = 15, databaseFormat="yyyy-MM", importFormat="yyyy-MM", importConvert = true)
     @ApiModelProperty(value = "所属年月 yyyy-MM")
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM")
     @DateTimeFormat(pattern="yyyy-MM")
     private String monthCol;
 	/**本期收入(万)*/
-	@Excel(name = "本期收入(万元)", width = 15)
+	@Excel(name = "本期收入", width = 15)
     @ApiModelProperty(value = "本期收入(万)")
     @TableField("cur_period_income_1m")
     private BigDecimal curPeriodIncome1m;
 	/**本期营收(万)*/
-	@Excel(name = "本期营收(万元)", width = 15)
+	@Excel(name = "本期营收", width = 15)
     @ApiModelProperty(value = "本期营收(万)")
     private BigDecimal turnoverIncomeSd;
 	/**目标营收(万)*/
-	@Excel(name = "目标营收(万元)", width = 15)
-    @ApiModelProperty(value = "目标营收(万元)")
+	@Excel(name = "目标营收", width = 15)
+    @ApiModelProperty(value = "目标营收")
     private BigDecimal targetTurnoverIncomeSd;
 	/**本期利润(万)*/
-	@Excel(name = "本期利润(万元)", width = 15)
+	@Excel(name = "本期利润", width = 15)
     @ApiModelProperty(value = "本期利润(万)")
     private BigDecimal accumulateProfitIncomeSd;
 	/**目标利润(万)*/
-	@Excel(name = "目标利润(万元)", width = 15)
+	@Excel(name = "目标利润", width = 15)
     @ApiModelProperty(value = "目标利润(万)")
     private BigDecimal targetProfitIncomeSd;
 	/**创建时间*/
@@ -90,4 +90,12 @@ public class IbfMarketFinance implements Serializable {
 	/**修改人*/
     @ApiModelProperty(value = "修改人")
     private String updateBy;
+
+    public String convertsetMonthCol(String text) {
+        // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM
+        if (text.contains("T")) {
+            text = text.substring(0, 7);
+        }
+        return text;
+    }
 }

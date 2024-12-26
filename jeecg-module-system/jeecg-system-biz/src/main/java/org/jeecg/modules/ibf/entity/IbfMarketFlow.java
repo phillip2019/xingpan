@@ -45,7 +45,7 @@ public class IbfMarketFlow implements Serializable {
     @ApiModelProperty(value = "市场ID")
     private java.lang.String shortMarketId;
 	/**日期 yyyy-MM-dd*/
-	@Excel(name = "日期", width = 15, format = "yyyy-MM-dd")
+	@Excel(name = "日期", width = 15, format = "yyyy-MM-dd", importFormat = "yyyy-MM-dd", importConvert = true)
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "日期 yyyy-MM-dd")
@@ -81,4 +81,12 @@ public class IbfMarketFlow implements Serializable {
 	/**修改人*/
     @ApiModelProperty(value = "修改人")
     private String updateBy;
+
+    public String convertsetDateCol(String text) {
+        // 若是YYYY-MM-ddTHH:mm:ss格式，则转换为yyyy-MM-dd
+        if (text.contains("T")) {
+            text = text.substring(0, 10);
+        }
+        return text;
+    }
 }
