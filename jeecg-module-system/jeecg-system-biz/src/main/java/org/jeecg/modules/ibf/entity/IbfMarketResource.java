@@ -107,8 +107,6 @@ public class IbfMarketResource implements Serializable {
      */
     @Excel(name = "资源统计日期", width = 15, importConvert = true)
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @ApiModelProperty(value = "资源统计日期 yyyy-MM-dd")
     private String resourceStatisticsDate;
 
     /**
@@ -130,8 +128,6 @@ public class IbfMarketResource implements Serializable {
      */
     @Excel(name = "商人统计日期", width = 15, format = "yyyy-MM-dd")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @ApiModelProperty(value = "商人统计日期 yyyy-MM-dd")
     private String merchantStatisticsDate;
 
     /**
@@ -153,8 +149,6 @@ public class IbfMarketResource implements Serializable {
      */
     @Excel(name = "出租率统计日期", width = 15, format = "yyyy-MM-dd")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @ApiModelProperty(value = "出租率统计日期 yyyy-MM-dd")
     private String remainRentRateStatisticsDate;
 
     /**
@@ -162,8 +156,6 @@ public class IbfMarketResource implements Serializable {
      */
     @Excel(name = "续租统计日期", width = 15, format = "yyyy-MM-dd")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @ApiModelProperty(value = "续租统计日期 yyyy-MM-dd")
     private String renewLeaseRateStatisticsDate;
 
     /**
