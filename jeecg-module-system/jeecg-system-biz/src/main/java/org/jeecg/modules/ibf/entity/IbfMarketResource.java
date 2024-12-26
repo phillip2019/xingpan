@@ -54,243 +54,251 @@ public class IbfMarketResource implements Serializable {
      * 市场
      */
     @Dict(dicCode = "short_market_id")
-    @Excel(name = "市场", width = 15, dicCode = "short_market_id")
+    @Excel(name = "市场", width = 6, dicCode = "short_market_id", type = 1 )
     @ApiModelProperty(value = "市场")
     private String shortMarketId;
     /**
      * 所属年月 yyyy-MM
      */
-    @Excel(name = "所属年月", width = 15, importFormat = "yyyy-MM", importConvert = true)
+    @Excel(name = "月份", width = 6, importFormat = "yyyy-MM", importConvert = true, type = 1)
     @ApiModelProperty(value = "所属年月 yyyy-MM")
     private String monthCol;
+
+    /**
+     * 资源情况统计日期 yyyy-MM-dd
+     */
+    @Excel(name = "资源统计日期", width = 15, importConvert = true, type = 4)
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    private String resourceStatisticsDate;
+
     /**
      * 间数（商位）
      */
-    @Excel(name = "间数(商位)", width = 15)
+    @Excel(name = "间数(商位)", width = 15, groupName="间数", type = 4)
     @ApiModelProperty(value = "间数（商位）")
     private BigDecimal boothRoomNumTd;
     /**
      * 间数（配套）
      */
-    @Excel(name = "间数(配套)", width = 15)
+    @Excel(name = "间数(配套)", width = 15, groupName="间数", type = 4)
     @ApiModelProperty(value = "间数（配套）")
     private BigDecimal matchRoomNumTd;
     /**
      * 已出租间数（商位+配套）
      */
-    @Excel(name = "已出租间数(商位+配套)", width = 15)
+    @Excel(name = "已出租间数(商位+配套)", width = 15, groupName="间数", type = 4)
     @ApiModelProperty(value = "已出租间数（商位+配套）")
     @TableField("booth_match_rent_room_num_1d")
     private BigDecimal boothMatchRentRoomNum1d;
     /**
      * 面积（商位）
      */
-    @Excel(name = "面积(商位)", width = 15)
+    @Excel(name = "面积(商位)", width = 15, groupName="面积", type = 4)
     @ApiModelProperty(value = "面积（商位）")
     private BigDecimal boothAreaNumTd;
     /**
      * 面积（配套）
      */
-    @Excel(name = "面积(配套)", width = 15)
+    @Excel(name = "面积(配套)", width = 15, groupName="面积", type = 4)
     @ApiModelProperty(value = "面积（配套）")
     @TableField("match_area_num_td")
     private BigDecimal matchAreaNumTd;
     /**
      * 已出租面积(商位+配套)
      */
-    @Excel(name = "已出租面积(商位+配套)", width = 15)
+    @Excel(name = "已出租面积(商位+配套)", width = 15, groupName="面积", type = 4)
     @ApiModelProperty(value = "已出租面积（商位+配套）")
     @TableField("booth_match_rent_area_num_1d")
     private BigDecimal boothMatchRentAreaNum1d;
+
     /**
-     * 资源情况统计日期 yyyy-MM-dd
+     * 商人统计日期 yyyy-MM-dd
      */
-    @Excel(name = "资源统计日期", width = 15, importConvert = true)
+    @Excel(name = "商人统计日期", width = 15, importConvert = true, type = 1, groupName = "商人")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
-    private String resourceStatisticsDate;
+    private String merchantStatisticsDate;
 
     /**
      * 商位使用权人
      */
-    @Excel(name = "商位使用权人数", width = 15)
+    @Excel(name = "商位使用权人数", width = 15, type = 4, groupName = "商人")
     @ApiModelProperty(value = "商位使用权人")
     private Integer boothOwnerNum;
 
     /**
      * 实际经营人
      */
-    @Excel(name = "实际经营人数", width = 15)
+    @Excel(name = "实际经营人数", width = 15, type = 4, groupName = "商人")
     @ApiModelProperty(value = "实际经营人数")
     private Integer boothOperatorNum;
 
+
     /**
-     * 商人统计日期 yyyy-MM-dd
+     * 剩余商位出租率统计日期 yyyy-MM-dd
      */
-    @Excel(name = "商人统计日期", width = 15, importConvert = true)
+    @Excel(name = "剩余商位出租率统计日期", width = 22, importConvert = true, type = 1, groupName = "招商")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
-    private String merchantStatisticsDate;
+    private String remainRentRateStatisticsDate;
 
     /**
      * 本年招商间数
      */
-    @Excel(name = "本年招商间数", width = 15)
+    @Excel(name = "本年招商间数", width = 15, type = 4, groupName = "招商")
     @ApiModelProperty(value = "本年招商间数")
     private BigDecimal invstRoomNumSd;
 
     /**
      * 当前空置间数
      */
-    @Excel(name = "当前空置间数", width = 15)
+    @Excel(name = "当前空置间数", width = 15, type = 4, groupName = "招商")
     @ApiModelProperty(value = "当前空置间数")
     private BigDecimal emptyBoothRoomNumTd;
 
     /**
-     * 剩余商位出租率统计日期 yyyy-MM-dd
+     * 本年招商户数
      */
-    @Excel(name = "出租率统计日期", width = 15, importConvert = true)
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
-    private String remainRentRateStatisticsDate;
+    @Excel(name = "本年招商户数", width = 15, type = 4, groupName = "招商")
+    @ApiModelProperty(value = "本年招商户数")
+    private Integer invstHoldsNumSd;
+
+    /**
+     * 当前空置户数
+     */
+    @Excel(name = "当前空置户数", width = 15, type = 4, groupName = "招商")
+    @ApiModelProperty(value = "当前空置户数")
+    private Integer emptyBoothHoldsNumTd;
+
+    /**
+     * 本年入场资格费收入（万）
+     */
+    @Excel(name = "本年入场资格费收入", width = 15, type = 4, groupName = "招商")
+    @ApiModelProperty(value = "本年入场资格费收入（万）")
+    private BigDecimal entryQualificationIncomeSd;
 
     /**
      * 续租完成率统计日期 yyyy-MM-dd
      */
-    @Excel(name = "续租统计日期", width = 15, importConvert = true)
+    @Excel(name = "续租统计日期", width = 15, importConvert = true, type = 1, groupName = "续租")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String renewLeaseRateStatisticsDate;
 
     /**
+     * 本年续租户数（户）
+     */
+    @Excel(name = "本年续租户数", width = 15, type = 4, groupName = "续租")
+    @ApiModelProperty(value = "本年续租户数（户）")
+    private Integer renewLeaseHoldsNumSd;
+
+    /**
+     * 本年退租户数（户）
+     */
+    @Excel(name = "本年退租户数", width = 15, type = 4, groupName = "续租")
+    @ApiModelProperty(value = "本年退租户数（户）")
+    private Integer surrenderLeaseHoldsNumSd;
+    /**
+     * 本年到期户数（户）
+     */
+    @Excel(name = "本年到期户数", width = 15, type = 4, groupName = "续租")
+    @ApiModelProperty(value = "本年到期户数（户）")
+    private Integer expiredHoldsNumSd;
+    /**
+     * 本年续租收入（万）
+     */
+    @Excel(name = "本年续租收入", width = 15, type = 4, groupName = "续租")
+    @ApiModelProperty(value = "本年续租收入（万）")
+    private BigDecimal renewLeaseIncomeSd;
+
+    /**
      * 人流（人次）
      */
-    @Excel(name = "人流", width = 15)
+    @Excel(name = "人流", width = 8, type = 4, groupName = "流量")
     @ApiModelProperty(value = "人流（人次）")
     @TableField("market_buyer_entr_num_1m")
     private BigDecimal marketBuyerEntrNum1m;
     /**
      * 车流（人次）
      */
-    @Excel(name = "车流", width = 15)
+    @Excel(name = "车流", width = 8, type = 4, groupName = "流量")
     @ApiModelProperty(value = "车流（人次）")
     @TableField("car_entr_num_1m")
     private BigDecimal carEntrNum1m;
     /**
      * 外商（人次）
      */
-    @Excel(name = "外商", width = 15)
+    @Excel(name = "外商", width = 8, type = 4, groupName = "流量")
     @ApiModelProperty(value = "外商（人次）")
     @TableField("foreign_buyer_entr_num_1m")
     private BigDecimal foreignBuyerEntrNum1m;
     /**
      * 开门率 %
      */
-    @Excel(name = "开门率", width = 15)
+    @Excel(name = "开门率", width = 8, type = 4, groupName = "态势")
     @ApiModelProperty(value = "开门率 %")
     @TableField("booth_opening_rate_1m")
     private BigDecimal boothOpeningRate1m;
     /**
      * 市场成交额（亿）
      */
-    @Excel(name = "市场成交额", width = 15)
+    @Excel(name = "市场成交额", width = 15, type = 4, groupName = "态势")
     @ApiModelProperty(value = "市场成交额（亿）")
     @TableField("market_gmv_1m")
     private BigDecimal marketGmv1m;
     /**
      * 商位转让笔数
      */
-    @Excel(name = "商位转让笔数", width = 15)
+    @Excel(name = "商位转让笔数", width = 15, type = 4, groupName = "转让")
     @ApiModelProperty(value = "商位转让笔数")
     @TableField("market_transfer_num_1m")
     private Integer marketTransferNum1m;
     /**
      * 商位转让均价（元）
      */
-    @Excel(name = "商位转让均价", width = 15)
+    @Excel(name = "商位转让均价", width = 15, type = 4, groupName = "转让")
     @ApiModelProperty(value = "商位转让均价（元）")
     @TableField("market_transfer_price_avg_1m")
     private BigDecimal marketTransferPriceAvg1m;
     /**
      * 商位转租笔数
      */
-    @Excel(name = "商位转租笔数", width = 15)
+    @Excel(name = "商位转租笔数", width = 15, type = 4, groupName = "转租")
     @ApiModelProperty(value = "商位转租笔数")
     @TableField("market_rent_num_1m")
     private Integer marketRentNum1m;
     /**
      * 商位转租均价（元）
      */
-    @Excel(name = "商位转租均价", width = 15)
+    @Excel(name = "商位转租均价", width = 15, type = 4, groupName = "转租")
     @ApiModelProperty(value = "商位转租均价（元）")
     @TableField("market_rent_price_avg_1m")
     private BigDecimal marketRentPriceAvg1m;
     /**
      * 商位质押笔数
      */
-    @Excel(name = "商位质押笔数", width = 15)
+    @Excel(name = "商位质押笔数", width = 15, type = 4, groupName = "质押")
     @ApiModelProperty(value = "商位质押笔数")
     @TableField("pledge_apply_num_1m")
     private Integer pledgeApplyNum1m;
     /**
      * 商位质押总金额（元）
      */
-    @Excel(name = "商位质押总金额", width = 15)
+    @Excel(name = "商位质押总金额", width = 15, type = 4, groupName = "质押")
     @ApiModelProperty(value = "商位质押总金额（元）")
     @TableField("pledge_apply_income_1m")
     private BigDecimal pledgeApplyIncome1m;
     /**
      * 商位普通装修笔数
      */
-    @Excel(name = "商位普通装修笔数", width = 15)
+    @Excel(name = "普通装修笔数", width = 15, type = 4, groupName = "装修")
     @ApiModelProperty(value = "商位普通装修笔数")
     @TableField("normal_renovation_num_1m")
     private Integer normalRenovationNum1m;
     /**
      * 商位个性化装修笔数
      */
-    @Excel(name = "商位个性化装修笔数", width = 15)
+    @Excel(name = "个性化装修笔数", width = 15, type = 4, groupName = "装修")
     @ApiModelProperty(value = "商位个性化装修笔数")
     @TableField("special_renovation_num_1m")
     private Integer specialRenovationNum1m;
-    /**
-     * 本年招商户数
-     */
-    @Excel(name = "本年招商户数", width = 15)
-    @ApiModelProperty(value = "本年招商户数")
-    private Integer invstHoldsNumSd;
-    /**
-     * 当前空置户数
-     */
-    @Excel(name = "当前空置户数", width = 15)
-    @ApiModelProperty(value = "当前空置户数")
-    private Integer emptyBoothHoldsNumTd;
-    /**
-     * 本年入场资格费收入（万）
-     */
-    @Excel(name = "本年入场资格费收入", width = 15)
-    @ApiModelProperty(value = "本年入场资格费收入（万）")
-    private BigDecimal entryQualificationIncomeSd;
-    /**
-     * 本年续租户数（户）
-     */
-    @Excel(name = "本年续租户数", width = 15)
-    @ApiModelProperty(value = "本年续租户数（户）")
-    private Integer renewLeaseHoldsNumSd;
-    /**
-     * 本年退租户数（户）
-     */
-    @Excel(name = "本年退租户数", width = 15)
-    @ApiModelProperty(value = "本年退租户数（户）")
-    private Integer surrenderLeaseHoldsNumSd;
-    /**
-     * 本年到期户数（户）
-     */
-    @Excel(name = "本年到期户数", width = 15)
-    @ApiModelProperty(value = "本年到期户数（户）")
-    private Integer expiredHoldsNumSd;
-    /**
-     * 本年续租收入（万）
-     */
-    @Excel(name = "本年续租收入", width = 15)
-    @ApiModelProperty(value = "本年续租收入（万）")
-    private BigDecimal renewLeaseIncomeSd;
     /**
      * 创建时间
      */

@@ -45,25 +45,25 @@ public class IbfMarketFlow implements Serializable {
     private String businessVersion;
 	/**市场ID*/
     @Dict(dicCode = "short_market_id")
-	@Excel(name = "市场", width = 15, dicCode = "short_market_id")
+	@Excel(name = "市场", width = 4, dicCode = "short_market_id", type = 1)
     @ApiModelProperty(value = "市场ID")
     private java.lang.String shortMarketId;
 	/**日期 yyyy-MM-dd*/
-	@Excel(name = "日期", width = 15, importConvert = true)
+	@Excel(name = "日期", width = 15, importConvert = true, type = 1)
     @ApiModelProperty(value = "日期 yyyy-MM-dd")
     private String dateCol;
 	/**日人流量*/
-	@Excel(name = "日人流量", width = 15)
+	@Excel(name = "日人流量", width = 15, type = 4)
     @ApiModelProperty(value = "日人流量")
     @TableField("market_buyer_entr_num_1d")
     private Integer marketBuyerEntrNum1d;
 	/**日车流量*/
-	@Excel(name = "日车流量", width = 15)
+	@Excel(name = "日车流量", width = 15, type = 4)
     @ApiModelProperty(value = "日车流量")
     @TableField("car_entr_num_1d")
     private Integer carEntrNum1d;
 	/**日开门率*/
-	@Excel(name = "日开门率", width = 15)
+	@Excel(name = "日开门率", width = 15, type = 4)
     @ApiModelProperty(value = "日开门率")
     @TableField("booth_opening_rate_1d")
     private BigDecimal boothOpeningRate1d;

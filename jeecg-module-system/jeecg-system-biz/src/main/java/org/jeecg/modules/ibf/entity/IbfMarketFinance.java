@@ -49,32 +49,32 @@ public class IbfMarketFinance implements Serializable {
     private String businessVersion;
 	/**市场*/
     @Dict(dicCode = "finance_short_market_id")
-    @Excel(name = "市场", width = 15, dicCode = "finance_short_market_id")
+    @Excel(name = "市场", width = 4, dicCode = "finance_short_market_id", type = 1)
     @ApiModelProperty(value = "市场ID")
     private String shortMarketId;
 	/**所属年月 yyyy-MM*/
-	@Excel(name = "月份", width = 15, importConvert = true)
+	@Excel(name = "月份", width = 8, importConvert = true, type = 4)
     @ApiModelProperty(value = "所属年月 yyyy-MM")
     private String monthCol;
 	/**本期收入(万)*/
-	@Excel(name = "本期收入", width = 15)
+	@Excel(name = "本期收入", width = 15, type = 4, groupName = "营收")
     @ApiModelProperty(value = "本期收入(万)")
     @TableField("cur_period_income_1m")
     private BigDecimal curPeriodIncome1m;
 	/**本期营收(万)*/
-	@Excel(name = "本期营收", width = 15)
+	@Excel(name = "本期营收", width = 15, type = 4, groupName = "营收")
     @ApiModelProperty(value = "本期营收(万)")
     private BigDecimal turnoverIncomeSd;
 	/**目标营收(万)*/
-	@Excel(name = "目标营收", width = 15)
-    @ApiModelProperty(value = "目标营收")
+	@Excel(name = "本年目标营收", width = 15, type = 4, groupName = "营收")
+    @ApiModelProperty(value = "本年目标营收")
     private BigDecimal targetTurnoverIncomeSd;
 	/**本期利润(万)*/
-	@Excel(name = "本期利润", width = 15)
+	@Excel(name = "本期利润", width = 15, type = 4, groupName = "利润")
     @ApiModelProperty(value = "本期利润(万)")
     private BigDecimal accumulateProfitIncomeSd;
 	/**目标利润(万)*/
-	@Excel(name = "目标利润", width = 15)
+	@Excel(name = "本年目标利润", width = 15, type = 4, groupName = "利润")
     @ApiModelProperty(value = "目标利润(万)")
     private BigDecimal targetProfitIncomeSd;
 	/**创建时间*/
