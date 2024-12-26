@@ -267,7 +267,7 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
                     // 校验唯一性
                     List<IbfMarketResource> ibfMarketFinanceList = service.list(new QueryWrapper<IbfMarketResource>()
                             .eq("business_version", businessVersion)
-                            .eq("month_ol", monthCol)
+                            .eq("month_col", monthCol)
                             .last("limit 1")
                     );
                     // 默认选择第一个
