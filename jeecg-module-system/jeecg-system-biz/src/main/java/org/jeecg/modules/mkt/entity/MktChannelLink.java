@@ -38,15 +38,16 @@ public class MktChannelLink implements Serializable {
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "id")
     private String id;
-	/**PC端带参链接*/
-	@Excel(name = "PC端带参链接", width = 15)
-    @ApiModelProperty(value = "PC端带参链接")
+	/**PC端落地页*/
+	@Excel(name = "PC端落地页", width = 15)
+    @ApiModelProperty(value = "PC端落地页")
     private String pcSourceUrl;
-    /**wap端带参链接*/
-    @Excel(name = "wap端带参链接", width = 15)
-    @ApiModelProperty(value = "wap端带参链接")
+    /**移动端落地页*/
+    @Excel(name = "移动端落地页", width = 15)
+    @ApiModelProperty(value = "移动端落地页")
     private String wapSourceUrl;
 	/**状态*/
+    @Dict(dicCode = "CHANNEL_LINK_STATUS")
 	@Excel(name = "状态", width = 15, dicCode = "CHANNEL_LINK_STATUS")
     @ApiModelProperty(value = "状态")
     private Integer status;
@@ -70,13 +71,13 @@ public class MktChannelLink implements Serializable {
 	@Excel(name = "广告内容", width = 15)
     @ApiModelProperty(value = "广告内容")
     private String utmContent;
-	/**pc端带参链接*/
-	@Excel(name = "pc端带参链接", width = 15)
-    @ApiModelProperty(value = "pc端带参链接")
+	/**PC端带参链接*/
+	@Excel(name = "PC端带参链接", width = 15)
+    @ApiModelProperty(value = "PC端带参链接")
     private String pcTargetUrl;
-    /**wap端带参链接*/
-    @Excel(name = "wap端带参链接", width = 15)
-    @ApiModelProperty(value = "wap端带参链接")
+    /**移动端带参链接*/
+    @Excel(name = "移动端带参链接", width = 15)
+    @ApiModelProperty(value = "移动端带参链接")
     private String wapTargetUrl;
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
