@@ -1,10 +1,7 @@
 package org.jeecg.modules.ibf.controller;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -13,11 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.DictModel;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.ibf.entity.IbfMarketFinance;
 import org.jeecg.modules.ibf.entity.IbfMarketFlow;
@@ -36,6 +35,7 @@ import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,6 +64,10 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
     @Autowired
     private CommonAPI commonApi;
 
+
+    @Value("${jeecg.path.upload}")
+    private String upLoadPath;
+
     public static final String DICT_CODE = "short_market_id";
 
     /**
@@ -83,6 +87,12 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                           HttpServletRequest req) {
         QueryWrapper<IbfMarketResource> queryWrapper = QueryGenerator.initQueryWrapper(ibfMarketResource, req.getParameterMap());
+        // 塞入市场信息
+        // 直接获取当前用户
+        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(loginUser.getRelTenantIds())) {
+            queryWrapper.in("short_market_id", Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds())));
+        }
         Page<IbfMarketResource> page = new Page<IbfMarketResource>(pageNo, pageSize);
         IPage<IbfMarketResource> pageList = ibfMarketResourceService.page(page, queryWrapper);
         return Result.OK(pageList);
@@ -99,6 +109,12 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:add")
     @PostMapping(value = "/add")
     public Result<String> add(@RequestBody IbfMarketResource ibfMarketResource) {
+        // 直接获取当前用户
+        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds()));
+        if (!shortMarketIdList.contains(ibfMarketResource.getShortMarketId())) {
+            return Result.ok(String.format("无法添加市场编号为: [%s]，请联系相关人员!", ibfMarketResource.getShortMarketId()));
+        }
         ibfMarketResourceService.save(ibfMarketResource);
         return Result.OK("添加成功！");
     }
@@ -114,6 +130,12 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:edit")
     @RequestMapping(value = "/edit", method = {RequestMethod.PUT, RequestMethod.POST})
     public Result<String> edit(@RequestBody IbfMarketResource ibfMarketResource) {
+        // 直接获取当前用户
+        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds()));
+        if (org.apache.commons.lang.StringUtils.isNotBlank(ibfMarketResource.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketResource.getShortMarketId())) {
+            return Result.ok(String.format("无法修改市场编号为: [%s]，请联系相关人员!", ibfMarketResource.getShortMarketId()));
+        }
         ibfMarketResourceService.updateById(ibfMarketResource);
         return Result.OK("编辑成功!");
     }
@@ -169,6 +191,45 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
      * 导出excel
      *
      * @param request
+     */
+    protected ModelAndView customExportXls(HttpServletRequest request, IbfMarketResource object, Class<IbfMarketResource> clazz, String title) {
+        // Step.1 组装查询条件
+        QueryWrapper<IbfMarketResource> queryWrapper = QueryGenerator.initQueryWrapper(object, request.getParameterMap());
+        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+
+        // 过滤选中数据
+        String selections = request.getParameter("selections");
+        if (oConvertUtils.isNotEmpty(selections)) {
+            List<String> selectionList = Arrays.asList(selections.split(","));
+            queryWrapper.in("id",selectionList);
+        }
+        // 过滤当前租户数据
+        List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(sysUser.getRelTenantIds()));
+        if (!shortMarketIdList.isEmpty()) {
+            queryWrapper.in("short_market_id", shortMarketIdList);
+        }
+
+        // Step.2 获取导出数据
+        List<IbfMarketResource> exportList = service.list(queryWrapper);
+
+        // Step.3 AutoPoi 导出Excel
+        ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
+        //此处设置的filename无效 ,前端会重更新设置一下
+        mv.addObject(NormalExcelConstants.FILE_NAME, title);
+        mv.addObject(NormalExcelConstants.CLASS, clazz);
+        //update-begin--Author:liusq  Date:20210126 for：图片导出报错，ImageBasePath未设置--------------------
+        ExportParams  exportParams=new ExportParams(title + "报表", "导出人:" + sysUser.getRealname(), title);
+        exportParams.setImageBasePath(upLoadPath);
+        //update-end--Author:liusq  Date:20210126 for：图片导出报错，ImageBasePath未设置----------------------
+        mv.addObject(NormalExcelConstants.PARAMS,exportParams);
+        mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
+        return mv;
+    }
+
+    /**
+     * 导出excel
+     *
+     * @param request
      * @param ibfMarketResource
      */
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:exportXls")
@@ -187,7 +248,7 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
         if (oConvertUtils.isEmpty(selections) && oConvertUtils.isEmpty(request.getParameter("monthCol"))) {
             ibfMarketResource.setMonthCol("9999-12");
         }
-        return super.exportXls(request, ibfMarketResource, IbfMarketResource.class, title);
+        return customExportXls(request, ibfMarketResource, IbfMarketResource.class, title);
     }
 
     /**
@@ -222,6 +283,8 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
     private Result<?> customImportExcel(HttpServletRequest request, HttpServletResponse response, Class<IbfMarketResource> clazz, String businessVersion) {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+
+        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         Date now = new Date();
         List<DictModel> dictModelList = commonApi.queryEnableDictItemsByCode(DICT_CODE);
         // 将dictModelList的value转换成数组
@@ -240,12 +303,21 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
                 for (IbfMarketResource ibfMarketResource : list) {
                     ibfMarketResource.setBusinessVersion(businessVersion);
                 }
+
+                Set<String> errShortMarketIdSet = new HashSet<>();
                 // 校验市场，市场必须为 shortMarketId
                 for (IbfMarketResource ibfMarketResource : list) {
                     String shortMarketId = ibfMarketResource.getShortMarketId();
                     // 只有列表中的shortMarketId在字典中才行
                     if (!shortMarketIdList.contains(shortMarketId)) {
                         return Result.error("市场编号:【" + shortMarketId + "】不存在");
+                    }
+
+                    // 过滤当前租户数据
+                    List<String> permissShortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(sysUser.getRelTenantIds()));
+                    if (!permissShortMarketIdList.contains(shortMarketId)) {
+                        errShortMarketIdSet.add(ibfMarketResource.getShortMarketId());
+                        continue;
                     }
 
                     // 校验月份
@@ -264,6 +336,11 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
                         log.error("月份格式错误:【" + monthCol + "】", e);
                         return Result.error("月份格式错误:【" + monthCol + "】");
                     }
+                }
+
+                // 如果有错误的市场编号，返回错误消息
+                if (!errShortMarketIdSet.isEmpty()) {
+                    return Result.error("无操作权限的市场编号:【" + org.apache.commons.lang.StringUtils.join(errShortMarketIdSet, ",") + "】，请检查权限!");
                 }
 
                 // 二元组唯一性校验，businessVersion，monthCol

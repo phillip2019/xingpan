@@ -1,7 +1,6 @@
 package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.Date;
 import java.math.BigDecimal;
@@ -11,12 +10,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import me.zhyd.oauth.utils.StringUtils;
 import org.jeecg.common.util.DateUtil;
-import org.jeecg.common.util.DateUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
-import org.jeecg.common.aspect.annotation.Dict;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
@@ -33,21 +29,13 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
 @ApiModel(value="ibf_market_flow对象", description="业财一体-每日填报市场流量")
-public class IbfMarketFlow implements Serializable {
+public class IbfMarketFlow extends IbfCommonEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**业财一体-每日填报市场流量*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID，自增主键，无实际含义")
     private String id;
-    /**业务类型*/
-    @ApiModelProperty(value = "业务类型")
-    private String businessVersion;
-	/**市场ID*/
-    @Dict(dicCode = "short_market_id")
-	@Excel(name = "市场", width = 4, dicCode = "short_market_id", type = 1)
-    @ApiModelProperty(value = "市场ID")
-    private java.lang.String shortMarketId;
 	/**日期 yyyy-MM-dd*/
 	@Excel(name = "日期", width = 15, importConvert = true, type = 1)
     @ApiModelProperty(value = "日期 yyyy-MM-dd")

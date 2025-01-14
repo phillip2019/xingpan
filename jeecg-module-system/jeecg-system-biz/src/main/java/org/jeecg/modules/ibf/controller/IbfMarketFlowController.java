@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.api.vo.Result;
@@ -13,13 +15,18 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.DictModel;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.ibf.entity.IbfMarketFinance;
 import org.jeecg.modules.ibf.entity.IbfMarketFlow;
 import org.jeecg.modules.ibf.service.IIbfMarketFlowService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
+import org.jeecgframework.poi.excel.def.NormalExcelConstants;
+import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
+import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,10 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
  /**
@@ -54,6 +58,9 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 	private CommonAPI commonApi;
 
 	public static final String DICT_CODE = "short_market_id";
+
+	 @Value("${jeecg.path.upload}")
+	 private String upLoadPath;
 	
 	/**
 	 * 分页列表查询
@@ -72,6 +79,11 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
 		QueryWrapper<IbfMarketFlow> queryWrapper = QueryGenerator.initQueryWrapper(ibfMarketFlow, req.getParameterMap());
+		// 直接获取当前用户
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		if (StringUtils.isNotBlank(loginUser.getRelTenantIds())) {
+			queryWrapper.in("short_market_id", Arrays.asList(StringUtils.split(loginUser.getRelTenantIds())));
+		}
 		Page<IbfMarketFlow> page = new Page<IbfMarketFlow>(pageNo, pageSize);
 		IPage<IbfMarketFlow> pageList = ibfMarketFlowService.page(page, queryWrapper);
 		return Result.OK(pageList);
@@ -88,6 +100,12 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody IbfMarketFlow ibfMarketFlow) {
+		// 直接获取当前用户
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		List<String> shortMarketIdList = Arrays.asList(StringUtils.split(loginUser.getRelTenantIds()));
+		if (!shortMarketIdList.contains(ibfMarketFlow.getShortMarketId())) {
+			return Result.ok(String.format("无法添加市场编号为: [%s]，请联系相关人员!", ibfMarketFlow.getShortMarketId()));
+		}
 		ibfMarketFlowService.save(ibfMarketFlow);
 		return Result.OK("添加成功！");
 	}
@@ -103,6 +121,12 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody IbfMarketFlow ibfMarketFlow) {
+		// 直接获取当前用户
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		List<String> shortMarketIdList = Arrays.asList(StringUtils.split(loginUser.getRelTenantIds()));
+		if (StringUtils.isNotBlank(ibfMarketFlow.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketFlow.getShortMarketId())) {
+			return Result.ok(String.format("无法修改市场编号为: [%s]，请联系相关人员!", ibfMarketFlow.getShortMarketId()));
+		}
 		ibfMarketFlowService.updateById(ibfMarketFlow);
 		return Result.OK("编辑成功!");
 	}
@@ -176,8 +200,47 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 		if (oConvertUtils.isEmpty(selections) && oConvertUtils.isEmpty(request.getParameter("dateCol"))) {
 			ibfMarketFlow.setDateCol("9999-12-31");
 		}
-		return super.exportXls(request, ibfMarketFlow, IbfMarketFlow.class, title);
+		return customExportXls(request, ibfMarketFlow, IbfMarketFlow.class, title);
     }
+
+	 /**
+	  * 导出excel
+	  *
+	  * @param request
+	  */
+	 protected ModelAndView customExportXls(HttpServletRequest request, IbfMarketFlow object, Class<IbfMarketFlow> clazz, String title) {
+		 // Step.1 组装查询条件
+		 QueryWrapper<IbfMarketFlow> queryWrapper = QueryGenerator.initQueryWrapper(object, request.getParameterMap());
+		 LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+
+		 // 过滤选中数据
+		 String selections = request.getParameter("selections");
+		 if (oConvertUtils.isNotEmpty(selections)) {
+			 List<String> selectionList = Arrays.asList(selections.split(","));
+			 queryWrapper.in("id",selectionList);
+		 }
+		 // 过滤当前租户数据
+		 List<String> shortMarketIdList = Arrays.asList(StringUtils.split(sysUser.getRelTenantIds()));
+		 if (!shortMarketIdList.isEmpty()) {
+			 queryWrapper.in("short_market_id", shortMarketIdList);
+		 }
+
+		 // Step.2 获取导出数据
+		 List<IbfMarketFlow> exportList = service.list(queryWrapper);
+
+		 // Step.3 AutoPoi 导出Excel
+		 ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
+		 //此处设置的filename无效 ,前端会重更新设置一下
+		 mv.addObject(NormalExcelConstants.FILE_NAME, title);
+		 mv.addObject(NormalExcelConstants.CLASS, clazz);
+		 //update-begin--Author:liusq  Date:20210126 for：图片导出报错，ImageBasePath未设置--------------------
+		 ExportParams exportParams=new ExportParams(title + "报表", "导出人:" + sysUser.getRealname(), title);
+		 exportParams.setImageBasePath(upLoadPath);
+		 //update-end--Author:liusq  Date:20210126 for：图片导出报错，ImageBasePath未设置----------------------
+		 mv.addObject(NormalExcelConstants.PARAMS,exportParams);
+		 mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
+		 return mv;
+	 }
 
     /**
       * 通过excel导入数据
@@ -212,6 +275,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 		 MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
 		 Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
 
+		 LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
 		 List<DictModel> dictModelList = commonApi.queryEnableDictItemsByCode(DICT_CODE);
 		 // 将dictModelList的value转换成数组
 		 List<String> shortMarketIdList = dictModelList.stream().map(DictModel::getValue).collect(Collectors.toList());
@@ -228,6 +292,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 				 for (IbfMarketFlow ibfMarketFlow : list) {
 					 ibfMarketFlow.setBusinessVersion(businessVersion);
 				 }
+				 Set<String> errShortMarketIdSet = new HashSet<>();
 				 // 校验市场，市场必须为 shortMarketId
 				 for (IbfMarketFlow ibfMarketFlow : list) {
 					 String shortMarketId = ibfMarketFlow.getShortMarketId();
@@ -235,6 +300,17 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 					 if (!shortMarketIdList.contains(shortMarketId)) {
 						 return Result.error("市场编号:【" + shortMarketId + "】不存在");
 					 }
+					 // 过滤当前租户数据
+					 List<String> permissShortMarketIdList = Arrays.asList(StringUtils.split(sysUser.getRelTenantIds()));
+					 if (!permissShortMarketIdList.contains(shortMarketId)) {
+						 errShortMarketIdSet.add(ibfMarketFlow.getShortMarketId());
+						 continue;
+					 }
+				 }
+
+				 // 如果有错误的市场编号，返回错误消息
+				 if (!errShortMarketIdSet.isEmpty()) {
+					 return Result.error("无操作权限的市场编号:【" + StringUtils.join(errShortMarketIdSet, ",") + "】，请检查权限!");
 				 }
 
 				 // 二元组唯一性校验，businessVersion，monthCol

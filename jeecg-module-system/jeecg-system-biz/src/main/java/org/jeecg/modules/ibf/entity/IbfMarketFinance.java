@@ -1,12 +1,9 @@
 package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.math.BigDecimal;
-import javax.validation.constraints.Pattern;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -14,12 +11,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.extern.slf4j.Slf4j;
-import me.zhyd.oauth.utils.StringUtils;
 import org.jeecg.common.util.DateUtil;
-import org.jeecg.modules.system.util.ValidMonthFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
-import org.jeecg.common.aspect.annotation.Dict;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
@@ -37,21 +31,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
 @ApiModel(value="ibf_market_finance对象", description="财务看板(BOSS)-每月填报")
-public class IbfMarketFinance implements Serializable {
+public class IbfMarketFinance extends IbfCommonEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**ID主键*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID主键")
     private String id;
-	/**业务类型*/
-    @ApiModelProperty(value = "业务类型")
-    private String businessVersion;
-	/**市场*/
-    @Dict(dicCode = "finance_short_market_id")
-    @Excel(name = "市场", width = 4, dicCode = "finance_short_market_id", type = 1)
-    @ApiModelProperty(value = "市场ID")
-    private String shortMarketId;
+
 	/**所属年月 yyyy-MM*/
 	@Excel(name = "月份", width = 8, importConvert = true, type = 4)
     @ApiModelProperty(value = "所属年月 yyyy-MM")

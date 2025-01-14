@@ -35,6 +35,7 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -196,7 +197,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
      */
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_finance:exportXls")
     @RequestMapping(value = "/exportXls")
-    public ModelAndView exportXls(HttpServletRequest request, IbfMarketFinance ibfMarketFinance) {
+    public ModelAndView exportXls(@NotNull HttpServletRequest request, IbfMarketFinance ibfMarketFinance) {
         // 从url中获取businessVersion参数
         String businessVersion = request.getParameter("businessVersion");
         // 根据businessVersion版本参数判断，返回不同的excel模板
@@ -285,6 +286,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
 
         Date now = new Date();
+        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         List<DictModel> dictModelList = commonApi.queryEnableDictItemsByCode(DICT_CODE);
         // 将dictModelList的value转换成数组
         List<String> shortMarketIdList = dictModelList.stream().map(DictModel::getValue).collect(Collectors.toList());
@@ -304,6 +306,7 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
                 }
 
                 List<IbfMarketFinance> validList = new ArrayList<>();
+                Set<String> errShortMarketIdSet = new HashSet<>();
                 // 校验市场，市场必须为 shortMarketId
                 for (IbfMarketFinance ibfMarketFinance : list) {
                     String shortMarketId = ibfMarketFinance.getShortMarketId();
@@ -314,8 +317,9 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
 
                     // 过滤当前租户数据
                     List<String> permissShortMarketIdList = Arrays.asList(StringUtils.split(sysUser.getRelTenantIds()));
-                    if (permissShortMarketIdList.contains(shortMarketId)) {
-
+                    if (!permissShortMarketIdList.contains(shortMarketId)) {
+                        errShortMarketIdSet.add(ibfMarketFinance.getShortMarketId());
+                        continue;
                     }
                     // 校验月份
                     String monthCol = ibfMarketFinance.getMonthCol();
@@ -338,6 +342,11 @@ public class IbfMarketFinanceController extends JeecgController<IbfMarketFinance
                         return Result.error("月份格式错误:【" + monthCol + "】");
                     }
                     validList.add(ibfMarketFinance);
+                }
+
+                // 如果有错误的市场编号，返回错误消息
+                if (!errShortMarketIdSet.isEmpty()) {
+                    return Result.error("无操作权限的市场编号:【" + StringUtils.join(errShortMarketIdSet, ",") + "】，请检查权限!");
                 }
 
                 list = validList;
