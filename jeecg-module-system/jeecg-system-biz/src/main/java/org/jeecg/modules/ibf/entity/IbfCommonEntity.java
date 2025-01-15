@@ -22,7 +22,14 @@ public class IbfCommonEntity extends JeecgEntity implements Serializable {
     @ApiModelProperty(value = "市场ID")
     private String shortMarketId;
 
-    /**业务类型*/
-    @ApiModelProperty(value = "业务类型")
-    private String businessVersion;
+    /**所属年月 yyyy-MM*/
+    @Excel(name = "月份", width = 8, importConvert = true, type = 4)
+    @ApiModelProperty(value = "所属年月")
+    private String monthCol;
+
+    /**是否发布*/
+    @Dict(dicCode = "is_publish")
+    @ApiModelProperty(value = "是否发布")
+    private Integer isPublish;
+
 }

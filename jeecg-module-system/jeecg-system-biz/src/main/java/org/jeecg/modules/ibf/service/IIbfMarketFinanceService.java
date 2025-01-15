@@ -13,10 +13,9 @@ public interface IIbfMarketFinanceService extends IService<IbfMarketFinance> {
 
     /**
      * 校验唯一性
-     * @param businessVersion 业务版本
      * @param shortMarketId 短市场ID
      * @param monthCol 月份
      * @return IbfMarketFinance
      */
-    IbfMarketFinance checkUnique(String businessVersion, String shortMarketId, String monthCol);
+    IbfMarketFinance checkUnique(String shortMarketId, String monthCol);
 }

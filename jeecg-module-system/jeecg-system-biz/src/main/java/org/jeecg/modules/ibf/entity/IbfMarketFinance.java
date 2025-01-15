@@ -38,10 +38,9 @@ public class IbfMarketFinance extends IbfCommonEntity implements Serializable {
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID主键")
     private String id;
-
 	/**所属年月 yyyy-MM*/
 	@Excel(name = "月份", width = 8, importConvert = true, type = 4)
-    @ApiModelProperty(value = "所属年月 yyyy-MM")
+    @ApiModelProperty(value = "所属年月")
     private String monthCol;
 	/**本期收入(万)*/
 	@Excel(name = "本期收入", width = 15, type = 4, groupName = "营收")

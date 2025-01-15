@@ -18,10 +18,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 @DS("ibf")
 @Service
 public class IbfMarketFlowServiceImpl extends ServiceImpl<IbfMarketFlowMapper, IbfMarketFlow> implements IIbfMarketFlowService {
-    public IbfMarketFlow checkUnique(String businessVersion, String shortMarketId, String dateCol) {
+    public IbfMarketFlow checkUnique(String shortMarketId, String dateCol) {
     QueryWrapper<IbfMarketFlow> queryWrapper = new QueryWrapper<>();
-    queryWrapper.eq("business_version", businessVersion)
-                .eq("short_market_id", shortMarketId)
+    queryWrapper.eq("short_market_id", shortMarketId)
                 .eq("date_col", dateCol);
     return this.getOne(queryWrapper);
 }

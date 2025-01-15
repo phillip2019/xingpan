@@ -142,28 +142,24 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @Excel(name = "本年招商户数", width = 15, type = 4, groupName = "招商")
     @ApiModelProperty(value = "本年招商户数")
     private Integer invstHoldsNumSd;
-
     /**
      * 当前空置户数
      */
     @Excel(name = "当前空置户数", width = 15, type = 4, groupName = "招商")
     @ApiModelProperty(value = "当前空置户数")
     private Integer emptyBoothHoldsNumTd;
-
     /**
      * 本年入场资格费收入（万）
      */
     @Excel(name = "本年入场资格费收入", width = 20, type = 4, groupName = "招商")
     @ApiModelProperty(value = "本年入场资格费收入（万）")
     private BigDecimal entryQualificationIncomeSd;
-
     /**
      * 续租完成率统计日期 yyyy-MM-dd
      */
     @Excel(name = "续租统计日期", width = 15, importConvert = true, type = 1, groupName = "续租")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String renewLeaseRateStatisticsDate;
-
     /**
      * 本年续租户数（户）
      */
@@ -189,42 +185,6 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @Excel(name = "本年续租收入", width = 15, type = 4, groupName = "续租")
     @ApiModelProperty(value = "本年续租收入（万）")
     private BigDecimal renewLeaseIncomeSd;
-
-    /**
-     * 人流（人次）
-     */
-    @Excel(name = "人流", width = 8, type = 4, groupName = "流量")
-    @ApiModelProperty(value = "人流（人次）")
-    @TableField("market_buyer_entr_num_1m")
-    private BigDecimal marketBuyerEntrNum1m;
-    /**
-     * 车流（人次）
-     */
-    @Excel(name = "车流", width = 8, type = 4, groupName = "流量")
-    @ApiModelProperty(value = "车流（人次）")
-    @TableField("car_entr_num_1m")
-    private BigDecimal carEntrNum1m;
-    /**
-     * 外商（人次）
-     */
-    @Excel(name = "外商", width = 8, type = 4, groupName = "流量")
-    @ApiModelProperty(value = "外商（人次）")
-    @TableField("foreign_buyer_entr_num_1m")
-    private BigDecimal foreignBuyerEntrNum1m;
-    /**
-     * 开门率 %
-     */
-    @Excel(name = "开门率", width = 8, type = 4, groupName = "态势")
-    @ApiModelProperty(value = "开门率 %")
-    @TableField("booth_opening_rate_1m")
-    private BigDecimal boothOpeningRate1m;
-    /**
-     * 市场成交额（亿）
-     */
-    @Excel(name = "市场成交额", width = 15, type = 4, groupName = "态势")
-    @ApiModelProperty(value = "市场成交额（亿）")
-    @TableField("market_gmv_1m")
-    private BigDecimal marketGmv1m;
     /**
      * 商位转让笔数
      */

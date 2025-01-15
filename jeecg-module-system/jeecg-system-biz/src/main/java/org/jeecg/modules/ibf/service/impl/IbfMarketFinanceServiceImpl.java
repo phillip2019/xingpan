@@ -20,17 +20,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 public class IbfMarketFinanceServiceImpl extends ServiceImpl<IbfMarketFinanceMapper, IbfMarketFinance> implements IIbfMarketFinanceService {
     /**
      * 校验唯一性
-     *
-     * @param businessVersion 业务版本
      * @param shortMarketId   短市场ID
      * @param monthCol        月份
      * @return IbfMarketFinance
      */
-    public IbfMarketFinance checkUnique(String businessVersion, String shortMarketId, String monthCol) {
+    public IbfMarketFinance checkUnique(String shortMarketId, String monthCol) {
         QueryWrapper<IbfMarketFinance> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("business_version", businessVersion)
-                .eq("short_market_id", shortMarketId)
-                .eq("month_col", monthCol);
+        queryWrapper.eq("short_market_id", shortMarketId)
+                    .eq("month_col", monthCol);
         return this.getOne(queryWrapper);
     }
 

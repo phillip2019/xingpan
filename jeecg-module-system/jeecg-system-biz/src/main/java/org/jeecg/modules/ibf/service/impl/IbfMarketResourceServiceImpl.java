@@ -18,10 +18,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 @DS("ibf")
 @Service
 public class IbfMarketResourceServiceImpl extends ServiceImpl<IbfMarketResourceMapper, IbfMarketResource> implements IIbfMarketResourceService {
-    public IbfMarketResource checkUnique(String businessVersion, String shortMarketId, String monthCol) {
+    public IbfMarketResource checkUnique(String shortMarketId, String monthCol) {
         QueryWrapper<IbfMarketResource> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("business_version", businessVersion)
-                .eq("short_market_id", shortMarketId)
+        queryWrapper.eq("short_market_id", shortMarketId)
                 .eq("month_col", monthCol);
         return this.getOne(queryWrapper);
     }

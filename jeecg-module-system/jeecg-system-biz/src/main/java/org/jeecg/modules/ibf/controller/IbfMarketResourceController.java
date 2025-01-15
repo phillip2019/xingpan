@@ -56,7 +56,7 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 @RestController
 @RequestMapping("/ibf/ibfMarketResource")
 @Slf4j
-public class IbfMarketResourceController extends JeecgController<IbfMarketResource, IIbfMarketResourceService> {
+public class IbfMarketResourceController extends CustomController<IbfMarketResource, IIbfMarketResourceService> {
     @Autowired
     private IIbfMarketResourceService ibfMarketResourceService;
 
@@ -191,64 +191,17 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
      * 导出excel
      *
      * @param request
-     */
-    protected ModelAndView customExportXls(HttpServletRequest request, IbfMarketResource object, Class<IbfMarketResource> clazz, String title) {
-        // Step.1 组装查询条件
-        QueryWrapper<IbfMarketResource> queryWrapper = QueryGenerator.initQueryWrapper(object, request.getParameterMap());
-        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-
-        // 过滤选中数据
-        String selections = request.getParameter("selections");
-        if (oConvertUtils.isNotEmpty(selections)) {
-            List<String> selectionList = Arrays.asList(selections.split(","));
-            queryWrapper.in("id",selectionList);
-        }
-        // 过滤当前租户数据
-        List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(sysUser.getRelTenantIds()));
-        if (!shortMarketIdList.isEmpty()) {
-            queryWrapper.in("short_market_id", shortMarketIdList);
-        }
-
-        // Step.2 获取导出数据
-        List<IbfMarketResource> exportList = service.list(queryWrapper);
-
-        // Step.3 AutoPoi 导出Excel
-        ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
-        //此处设置的filename无效 ,前端会重更新设置一下
-        mv.addObject(NormalExcelConstants.FILE_NAME, title);
-        mv.addObject(NormalExcelConstants.CLASS, clazz);
-        //update-begin--Author:liusq  Date:20210126 for：图片导出报错，ImageBasePath未设置--------------------
-        ExportParams  exportParams=new ExportParams(title + "报表", "导出人:" + sysUser.getRealname(), title);
-        exportParams.setImageBasePath(upLoadPath);
-        //update-end--Author:liusq  Date:20210126 for：图片导出报错，ImageBasePath未设置----------------------
-        mv.addObject(NormalExcelConstants.PARAMS,exportParams);
-        mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
-        return mv;
-    }
-
-    /**
-     * 导出excel
-     *
-     * @param request
      * @param ibfMarketResource
      */
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfMarketResource ibfMarketResource) {
-        // 从url中获取businessVersion参数
-        String businessVersion = request.getParameter("businessVersion");
-        // 根据businessVersion版本参数判断，返回不同的excel模板
         String title = "市场资源看板(BOSS)-每月填报";
-        if (businessVersion.equals("BOSS")) {
-            title = "市场资源看板(BOSS)-每月填报";
-        } else if (businessVersion.equals("OPERATION")) {
-            title = "市场资源看板(运营)-每月填报";
-        }
         String selections = request.getParameter("selections");
         if (oConvertUtils.isEmpty(selections) && oConvertUtils.isEmpty(request.getParameter("monthCol"))) {
             ibfMarketResource.setMonthCol("9999-12");
         }
-        return customExportXls(request, ibfMarketResource, IbfMarketResource.class, title);
+        return super.exportXls(request, ibfMarketResource, IbfMarketResource.class, title);
     }
 
     /**
@@ -261,143 +214,14 @@ public class IbfMarketResourceController extends JeecgController<IbfMarketResour
     @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-        // 从url中获取businessVersion参数
-        String businessVersion = request.getParameter("businessVersion");
-        // 只支持BOSS、OPERATION、FINANCE参数
-        if (oConvertUtils.isEmpty(businessVersion)) {
-            return Result.error("业务版本不能为空");
-        }
-        if (!businessVersion.equals("BOSS") && !businessVersion.equals("OPERATION") && !businessVersion.equals("FINANCE")) {
-            return Result.error("业务版本参数错误");
-        }
-        return customImportExcel(request, response, IbfMarketResource.class, businessVersion);
-    }
-
-    /**
-     * 通过excel导入数据
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    private Result<?> customImportExcel(HttpServletRequest request, HttpServletResponse response, Class<IbfMarketResource> clazz, String businessVersion) {
-        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
-
-        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        Date now = new Date();
-        List<DictModel> dictModelList = commonApi.queryEnableDictItemsByCode(DICT_CODE);
-        // 将dictModelList的value转换成数组
-        List<String> shortMarketIdList = dictModelList.stream().map(DictModel::getValue).collect(Collectors.toList());
-
-        for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
-            // 获取上传文件对象
-            MultipartFile file = entity.getValue();
-            ImportParams params = new ImportParams();
-            params.setTitleRows(2);
-            params.setHeadRows(1);
-            params.setNeedSave(true);
-            try {
-                List<IbfMarketResource> list = ExcelImportUtil.importExcel(file.getInputStream(), clazz, params);
-                // 塞入businessVersion
-                for (IbfMarketResource ibfMarketResource : list) {
-                    ibfMarketResource.setBusinessVersion(businessVersion);
-                }
-
-                Set<String> errShortMarketIdSet = new HashSet<>();
-                // 校验市场，市场必须为 shortMarketId
-                for (IbfMarketResource ibfMarketResource : list) {
-                    String shortMarketId = ibfMarketResource.getShortMarketId();
-                    // 只有列表中的shortMarketId在字典中才行
-                    if (!shortMarketIdList.contains(shortMarketId)) {
-                        return Result.error("市场编号:【" + shortMarketId + "】不存在");
-                    }
-
-                    // 过滤当前租户数据
-                    List<String> permissShortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(sysUser.getRelTenantIds()));
-                    if (!permissShortMarketIdList.contains(shortMarketId)) {
-                        errShortMarketIdSet.add(ibfMarketResource.getShortMarketId());
-                        continue;
-                    }
-
-                    // 校验月份
-                    String monthCol = ibfMarketResource.getMonthCol();
-                    // 校验月份格式
-                    if (StringUtils.isBlank(monthCol) || !monthCol.matches("\\d{4}-\\d{2}")) {
-                        return Result.error("月份格式错误:【" + monthCol + "】");
-                    }
-                    // 校验月份是否大于当前月份
-                    try {
-                        Date date = new SimpleDateFormat("yyyy-MM").parse(monthCol);
-                        if (date.after(now)) {
-                            return Result.error("月份不能大于当前月份:【" + monthCol + "】");
-                        }
-                    } catch (Exception e) {
-                        log.error("月份格式错误:【" + monthCol + "】", e);
-                        return Result.error("月份格式错误:【" + monthCol + "】");
-                    }
-                }
-
-                // 如果有错误的市场编号，返回错误消息
-                if (!errShortMarketIdSet.isEmpty()) {
-                    return Result.error("无操作权限的市场编号:【" + org.apache.commons.lang.StringUtils.join(errShortMarketIdSet, ",") + "】，请检查权限!");
-                }
-
-                // 二元组唯一性校验，businessVersion，monthCol
-                for (IbfMarketResource ibfMarketResource : list) {
-                    String shortMarketId = ibfMarketResource.getShortMarketId();
-                    String monthCol = ibfMarketResource.getMonthCol();
-                    // 校验唯一性
-                    List<IbfMarketResource> ibfMarketFinanceList = service.list(new QueryWrapper<IbfMarketResource>()
-                            .eq("short_market_id", shortMarketId)
-                            .eq("business_version", businessVersion)
-                            .eq("business_version", businessVersion)
-                            .eq("month_col", monthCol)
-                            .last("limit 1")
-                    );
-                    // 默认选择第一个
-                    if (!ibfMarketFinanceList.isEmpty()) {
-                        String id = ibfMarketFinanceList.get(0).getId();
-                        log.info("已存在模式: {}，月份: {}, id为：{}", businessVersion, monthCol, id);
-                        ibfMarketResource.setId(ibfMarketFinanceList.get(0).getId());
-                    }
-                }
-
-                //update-begin-author:taoyan date:20190528 for:批量插入数据
-                long start = System.currentTimeMillis();
-                service.saveOrUpdateBatch(list);
-                //400条 saveBatch消耗时间1592毫秒  循环插入消耗时间1947毫秒
-                //1200条  saveBatch消耗时间3687毫秒 循环插入消耗时间5212毫秒
-                log.info("消耗时间" + (System.currentTimeMillis() - start) + "毫秒");
-                //update-end-author:taoyan date:20190528 for:批量插入数据
-                return Result.ok("文件导入成功！数据行数：" + list.size());
-            } catch (Exception e) {
-                //update-begin-author:taoyan date:20211124 for: 导入数据重复增加提示
-                String msg = e.getMessage();
-                log.error(msg, e);
-                if (msg != null && msg.contains("Duplicate entry")) {
-                    return Result.error("文件导入失败:有重复数据！");
-                } else {
-                    return Result.error("文件导入失败:" + e.getMessage());
-                }
-                //update-end-author:taoyan date:20211124 for: 导入数据重复增加提示
-            } finally {
-                try {
-                    file.getInputStream().close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return Result.error("文件导入失败！");
+        return super.importExcel(request, response, IbfMarketResource.class);
     }
 
     @ApiOperation(value = "业财一体-市场资源填报-唯一性校验", notes = "业财一体-市场资源填报-唯一性校验")
     @GetMapping(value = "/checkUnique")
-    public Result<IbfMarketResource> checkUnique(@RequestParam(name = "businessVersion", required = true) String businessVersion,
-                                                 @RequestParam(name = "shortMarketId", required = true) String shortMarketId,
+    public Result<IbfMarketResource> checkUnique(@RequestParam(name = "shortMarketId", required = true) String shortMarketId,
                                                  @RequestParam(name = "monthCol", required = true) String monthCol) {
-        IbfMarketResource ibfMarketResource = ibfMarketResourceService.checkUnique(businessVersion, shortMarketId, monthCol);
+        IbfMarketResource ibfMarketResource = ibfMarketResourceService.checkUnique(shortMarketId, monthCol);
         if (ibfMarketResource == null) {
             return Result.OK(null);
         }

@@ -11,5 +11,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IIbfMarketResourceService extends IService<IbfMarketResource> {
 
-    IbfMarketResource checkUnique(String businessVersion, String shortMarketId, String monthCol);
+    IbfMarketResource checkUnique(String shortMarketId, String monthCol);
 }
