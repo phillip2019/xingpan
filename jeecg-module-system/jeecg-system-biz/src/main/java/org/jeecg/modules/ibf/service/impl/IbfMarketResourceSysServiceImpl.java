@@ -1,5 +1,6 @@
 package org.jeecg.modules.ibf.service.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import org.jeecg.modules.ibf.entity.IbfMarketResourceSys;
 import org.jeecg.modules.ibf.mapper.IbfMarketResourceSysMapper;
 import org.jeecg.modules.ibf.service.IIbfMarketResourceSysService;
@@ -13,6 +14,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
  * @Date:   2025-01-17
  * @Version: V1.0
  */
+@DS("ibf")
 @Service
 public class IbfMarketResourceSysServiceImpl extends ServiceImpl<IbfMarketResourceSysMapper, IbfMarketResourceSys> implements IIbfMarketResourceSysService {
 

@@ -14,6 +14,7 @@ import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.ibf.entity.IbfCommonEntity;
 import org.jeecg.modules.ibf.entity.IbfMarketResource;
+import org.jeecg.modules.ibf.util.IbfDateUtil;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -119,6 +120,8 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
             try {
                 List<T> list = ExcelImportUtil.importExcel(file.getInputStream(), clazz, params);
                 Set<String> errShortMarketIdSet = new HashSet<>();
+
+                String curMonth = IbfDateUtil.getCurrentMonth();
                 // 校验市场，市场必须为 shortMarketId
                 for (T et : list) {
                     String shortMarketId = et.getShortMarketId();
@@ -141,6 +144,17 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
                     }
                     // 校验月份是否大于当前月份
                     try {
+                        // monthCol 格式为 yyyy-MM
+                        // 只能导入当前月份（含）之前月份的数据，不能超过2个月
+                        if (IbfDateUtil.calculateMonthDifference(curMonth, monthCol) > 1 ) {
+                            return Result.error("月份不能遭遇当前月份太多，当前所属月份为: 【" + monthCol + "】， 填报月份:【" + monthCol + "】");
+                        }
+
+                        // 不能导入之后月份的数据
+                        if (IbfDateUtil.calculateMonthDifference(curMonth, monthCol) < 0 ) {
+                            return Result.error("填报月份不能大于当前月份:【" + monthCol + "】");
+                        }
+
                         Date date = new SimpleDateFormat("yyyy-MM").parse(monthCol);
                         if (date.after(now)) {
                             return Result.error("月份不能大于当前月份:【" + monthCol + "】");
@@ -156,7 +170,7 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
                     return Result.error("无操作权限的市场编号:【" + org.apache.commons.lang.StringUtils.join(errShortMarketIdSet, ",") + "】，请检查权限!");
                 }
 
-                // 二元组唯一性校验 short_market_id，monthCol
+                // 三元组唯一性校验 short_market_id，monthCol, isPublish
                 for (T et : list) {
                     String shortMarketId = et.getShortMarketId();
                     String monthCol = et.getMonthCol();
@@ -164,12 +178,18 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
                     List<T> tList = service.list(new QueryWrapper<T>()
                             .eq("short_market_id", shortMarketId)
                             .eq("month_col", monthCol)
+                            // 导入的都是未发布的数据
+                            .eq("is_publish", 0)
                             .last("limit 1")
                     );
+                    et.setIsPublish(0);
+                    // 插入月份，计算当前月份和填写月份的差值
+                    // 当前日期月份
+
                     // 默认选择第一个
                     if (!tList.isEmpty()) {
                         String id = tList.get(0).getId();
-                        log.info("已存在{}市场{}月的填报数据, id为：{}", shortMarketId, monthCol, id);
+                        log.info("已存在{}市场{}月的填报数据未发布数据, id为：{}", shortMarketId, monthCol, id);
                         et.setId(tList.get(0).getId());
                     }
                 }

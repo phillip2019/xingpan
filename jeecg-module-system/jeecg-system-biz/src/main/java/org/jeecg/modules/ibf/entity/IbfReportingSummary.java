@@ -28,7 +28,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
 @ApiModel(value="ibf_reporting_summary对象", description="填报发布汇总")
-public class IbfReportingSummary implements Serializable {
+public class IbfReportingSummary extends IbfCommonEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**主键ID*/
@@ -39,14 +39,6 @@ public class IbfReportingSummary implements Serializable {
 	@Excel(name = "年份", width = 15)
     @ApiModelProperty(value = "年份")
     private Integer year;
-	/**市场ID缩写*/
-	@Excel(name = "市场ID缩写", width = 15)
-    @ApiModelProperty(value = "市场ID缩写")
-    private String shortMarketId;
-	/**月份*/
-	@Excel(name = "月份", width = 15)
-    @ApiModelProperty(value = "月份")
-    private Integer month;
 	/**统计开始日期*/
 	@Excel(name = "统计开始日期", width = 15, format = "yyyy-MM-dd")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
@@ -79,10 +71,6 @@ public class IbfReportingSummary implements Serializable {
 	@Excel(name = "每日流量填报ID", width = 15)
     @ApiModelProperty(value = "每日流量填报ID")
     private Integer flowId;
-	/**发布状态: 0 校准中, 1 已发布*/
-	@Excel(name = "发布状态: 0 校准中, 1 已发布", width = 15)
-    @ApiModelProperty(value = "发布状态: 0 校准中, 1 已发布")
-    private Integer isPublish;
 	/**复制状态: 0 未复制, 1 已复制*/
 	@Excel(name = "复制状态: 0 未复制, 1 已复制", width = 15)
     @ApiModelProperty(value = "复制状态: 0 未复制, 1 已复制")

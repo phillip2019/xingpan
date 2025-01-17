@@ -32,4 +32,12 @@ public class IbfCommonEntity extends JeecgEntity implements Serializable {
     @ApiModelProperty(value = "是否发布")
     private Integer isPublish;
 
+    /**
+     * 当前月份标记
+     * 0: 当前月份
+     * 1: 前1个月
+     * */
+    @ApiModelProperty(value = "当前月份标记")
+    private transient Integer flag = 0;
+
 }
