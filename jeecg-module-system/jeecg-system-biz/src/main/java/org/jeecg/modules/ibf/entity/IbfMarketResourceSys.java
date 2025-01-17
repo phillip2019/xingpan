@@ -1,0 +1,192 @@
+package org.jeecg.modules.ibf.entity;
+
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.math.BigDecimal;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.jeecg.common.aspect.annotation.Dict;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+/**
+ * @Description: ibf_market_resource_sys
+ * @Author: jeecg-boot
+ * @Date:   2025-01-17
+ * @Version: V1.0
+ */
+@Data
+@TableName("ibf_market_resource_sys")
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
+@ApiModel(value="ibf_market_resource_sys对象", description="ibf_market_resource_sys")
+public class IbfMarketResourceSys implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+	/**id*/
+	@TableId(type = IdType.ASSIGN_ID)
+    @ApiModelProperty(value = "id")
+    private String id;
+	/**市场ID缩写*/
+	@Excel(name = "市场ID缩写", width = 15)
+    @ApiModelProperty(value = "市场ID缩写")
+    private String shortMarketId;
+	/**市场名称*/
+	@Excel(name = "市场名称", width = 15)
+    @ApiModelProperty(value = "市场名称")
+    private String shortMarketName;
+	/**所属年月 yyyy-MM*/
+	@Excel(name = "所属年月 yyyy-MM", width = 15)
+    @ApiModelProperty(value = "所属年月 yyyy-MM")
+    private String monthCol;
+	/**间数（商位）*/
+	@Excel(name = "间数（商位）", width = 15)
+    @ApiModelProperty(value = "间数（商位）")
+    private BigDecimal boothRoomNumTd;
+	/**间数（配套）*/
+	@Excel(name = "间数（配套）", width = 15)
+    @ApiModelProperty(value = "间数（配套）")
+    private BigDecimal matchRoomNumTd;
+	/**已出租间数（商位+配套）*/
+	@Excel(name = "已出租间数（商位+配套）", width = 15)
+    @ApiModelProperty(value = "已出租间数（商位+配套）")
+    private BigDecimal boothMatchRentRoomNum1d;
+	/**面积（商位）㎡*/
+	@Excel(name = "面积（商位）㎡", width = 15)
+    @ApiModelProperty(value = "面积（商位）㎡")
+    private BigDecimal boothAreaNumTd;
+	/**面积（配套）㎡*/
+	@Excel(name = "面积（配套）㎡", width = 15)
+    @ApiModelProperty(value = "面积（配套）㎡")
+    private BigDecimal matchAreaNumTd;
+	/**已出租面积（商位+配套）㎡*/
+	@Excel(name = "已出租面积（商位+配套）㎡", width = 15)
+    @ApiModelProperty(value = "已出租面积（商位+配套）㎡")
+    private BigDecimal boothMatchRentAreaNum1d;
+	/**资源情况统计日期 yyyy-MM-dd*/
+	@Excel(name = "资源情况统计日期 yyyy-MM-dd", width = 15)
+    @ApiModelProperty(value = "资源情况统计日期 yyyy-MM-dd")
+    private String resourceStatisticsDate;
+	/**商位使用权人*/
+	@Excel(name = "商位使用权人", width = 15)
+    @ApiModelProperty(value = "商位使用权人")
+    private Integer boothOwnerNum;
+	/**实际经营人*/
+	@Excel(name = "实际经营人", width = 15)
+    @ApiModelProperty(value = "实际经营人")
+    private Integer boothOperatorNum;
+	/**商人统计日期 yyyy-MM-dd*/
+	@Excel(name = "商人统计日期 yyyy-MM-dd", width = 15)
+    @ApiModelProperty(value = "商人统计日期 yyyy-MM-dd")
+    private String merchantStatisticsDate;
+	/**人流（人次）*/
+	@Excel(name = "人流（人次）", width = 15)
+    @ApiModelProperty(value = "人流（人次）")
+    private BigDecimal marketBuyerEntrNum1m;
+	/**车流（人次）*/
+	@Excel(name = "车流（人次）", width = 15)
+    @ApiModelProperty(value = "车流（人次）")
+    private BigDecimal carEntrNum1m;
+	/**外商（人次）*/
+	@Excel(name = "外商（人次）", width = 15)
+    @ApiModelProperty(value = "外商（人次）")
+    private BigDecimal foreignBuyerEntrNum1m;
+	/**开门率 %*/
+	@Excel(name = "开门率 %", width = 15)
+    @ApiModelProperty(value = "开门率 %")
+    private BigDecimal boothOpeningRate1m;
+	/**市场成交额（亿）*/
+	@Excel(name = "市场成交额（亿）", width = 15)
+    @ApiModelProperty(value = "市场成交额（亿）")
+    private BigDecimal marketGmv1m;
+	/**商位转让笔数*/
+	@Excel(name = "商位转让笔数", width = 15)
+    @ApiModelProperty(value = "商位转让笔数")
+    private Integer marketTransferNum1m;
+	/**商位转让均价（元）*/
+	@Excel(name = "商位转让均价（元）", width = 15)
+    @ApiModelProperty(value = "商位转让均价（元）")
+    private BigDecimal marketTransferPriceAvg1m;
+	/**商位转租笔数*/
+	@Excel(name = "商位转租笔数", width = 15)
+    @ApiModelProperty(value = "商位转租笔数")
+    private Integer marketRentNum1m;
+	/**商位转租均价（元）*/
+	@Excel(name = "商位转租均价（元）", width = 15)
+    @ApiModelProperty(value = "商位转租均价（元）")
+    private BigDecimal marketRentPriceAvg1m;
+	/**商位质押笔数*/
+	@Excel(name = "商位质押笔数", width = 15)
+    @ApiModelProperty(value = "商位质押笔数")
+    private Integer pledgeApplyNum1m;
+	/**商位质押总金额（元）*/
+	@Excel(name = "商位质押总金额（元）", width = 15)
+    @ApiModelProperty(value = "商位质押总金额（元）")
+    private BigDecimal pledgeApplyIncome1m;
+	/**商位普通装修笔数*/
+	@Excel(name = "商位普通装修笔数", width = 15)
+    @ApiModelProperty(value = "商位普通装修笔数")
+    private Integer normalRenovationNum1m;
+	/**商位个性化装修笔数*/
+	@Excel(name = "商位个性化装修笔数", width = 15)
+    @ApiModelProperty(value = "商位个性化装修笔数")
+    private Integer specialRenovationNum1m;
+	/**本年招商户数*/
+	@Excel(name = "本年招商户数", width = 15)
+    @ApiModelProperty(value = "本年招商户数")
+    private Integer invstHoldsNumSd;
+	/**本年招商间数*/
+	@Excel(name = "本年招商间数", width = 15)
+    @ApiModelProperty(value = "本年招商间数")
+    private BigDecimal invstRoomNumSd;
+	/**当前空置户数*/
+	@Excel(name = "当前空置户数", width = 15)
+    @ApiModelProperty(value = "当前空置户数")
+    private Integer emptyBoothHoldsNumTd;
+	/**当前空置间数*/
+	@Excel(name = "当前空置间数", width = 15)
+    @ApiModelProperty(value = "当前空置间数")
+    private BigDecimal emptyBoothRoomNumTd;
+	/**本年入场资格费收入（万）*/
+	@Excel(name = "本年入场资格费收入（万）", width = 15)
+    @ApiModelProperty(value = "本年入场资格费收入（万）")
+    private BigDecimal entryQualificationIncomeSd;
+	/**剩余商位出租率统计日期 yyyy-MM-dd*/
+	@Excel(name = "剩余商位出租率统计日期 yyyy-MM-dd", width = 15)
+    @ApiModelProperty(value = "剩余商位出租率统计日期 yyyy-MM-dd")
+    private String remainRentRateStatisticsDate;
+	/**本年续租户数（户）*/
+	@Excel(name = "本年续租户数（户）", width = 15)
+    @ApiModelProperty(value = "本年续租户数（户）")
+    private Integer renewLeaseHoldsNumSd;
+	/**本年退租户数（户）*/
+	@Excel(name = "本年退租户数（户）", width = 15)
+    @ApiModelProperty(value = "本年退租户数（户）")
+    private Integer surrenderLeaseHoldsNumSd;
+	/**本年到期户数（户）*/
+	@Excel(name = "本年到期户数（户）", width = 15)
+    @ApiModelProperty(value = "本年到期户数（户）")
+    private Integer expiredHoldsNumSd;
+	/**本年续租收入（万）*/
+	@Excel(name = "本年续租收入（万）", width = 15)
+    @ApiModelProperty(value = "本年续租收入（万）")
+    private BigDecimal renewLeaseIncomeSd;
+	/**续租完成率统计日期 yyyy-MM-dd*/
+	@Excel(name = "续租完成率统计日期 yyyy-MM-dd", width = 15)
+    @ApiModelProperty(value = "续租完成率统计日期 yyyy-MM-dd")
+    private String renewLeaseRateStatisticsDate;
+	/**创建时间*/
+	@Excel(name = "创建时间", width = 15, format = "yyyy-MM-dd")
+	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @ApiModelProperty(value = "创建时间")
+    private Date createdAt;
+}
