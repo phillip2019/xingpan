@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.jeecg.common.aspect.annotation.Dict;
 import org.jeecg.common.util.DateUtil;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
@@ -39,12 +40,6 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "主键")
     private String id;
-    /**
-     * 所属年月 yyyy-MM
-     */
-    @Excel(name = "月份", width = 6, importFormat = "yyyy-MM", importConvert = true, type = 1)
-    @ApiModelProperty(value = "所属年月 yyyy-MM")
-    private String monthCol;
 
     /**
      * 资源情况统计日期 yyyy-MM-dd
@@ -70,8 +65,8 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
      */
     @Excel(name = "已出租间数(商位+配套)", width = 30, groupName="间数", type = 4)
     @ApiModelProperty(value = "已出租间数（商位+配套）")
-    @TableField("booth_match_rent_room_num_1d")
-    private BigDecimal boothMatchRentRoomNum1d;
+    @TableField("booth_match_rent_room_num_td")
+    private BigDecimal boothMatchRentRoomNumTd;
     /**
      * 面积（商位）
      */
@@ -90,8 +85,8 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
      */
     @Excel(name = "已出租面积(商位+配套)", width = 30, groupName="面积", type = 4)
     @ApiModelProperty(value = "已出租面积（商位+配套）")
-    @TableField("booth_match_rent_area_num_1d")
-    private BigDecimal boothMatchRentAreaNum1d;
+    @TableField("booth_match_rent_area_num_td")
+    private BigDecimal boothMatchRentAreaNumTd;
 
     /**
      * 商人统计日期 yyyy-MM-dd
@@ -241,6 +236,7 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @ApiModelProperty(value = "商位个性化装修笔数")
     @TableField("special_renovation_num_1m")
     private Integer specialRenovationNum1m;
+
     /**
      * 创建时间
      */
@@ -266,10 +262,6 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @ApiModelProperty(value = "修改人")
     private String updateBy;
 
-    public void convertsetMonthCol(String text) {
-        this.monthCol = DateUtil.convertMonthCol(text);
-    }
-
     public String convertsetDateCol(String text) {
         return DateUtil.convertDateCol(text);
     }
@@ -290,4 +282,5 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     public void convertsetRenewLeaseRateStatisticsDate(String text) throws ParseException {
         this.renewLeaseRateStatisticsDate = convertsetDateCol(text);
     }
+
 }

@@ -147,17 +147,12 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
                         // monthCol 格式为 yyyy-MM
                         // 只能导入当前月份（含）之前月份的数据，不能超过2个月
                         if (IbfDateUtil.calculateMonthDifference(curMonth, monthCol) > 1 ) {
-                            return Result.error("月份不能遭遇当前月份太多，当前所属月份为: 【" + monthCol + "】， 填报月份:【" + monthCol + "】");
+                            return Result.error( String.format("只能导入近2个月的数据，当前所属月份为: 【 %s 】， 填报月份:【 %s 】", curMonth, monthCol));
                         }
 
                         // 不能导入之后月份的数据
                         if (IbfDateUtil.calculateMonthDifference(curMonth, monthCol) < 0 ) {
-                            return Result.error("填报月份不能大于当前月份:【" + monthCol + "】");
-                        }
-
-                        Date date = new SimpleDateFormat("yyyy-MM").parse(monthCol);
-                        if (date.after(now)) {
-                            return Result.error("月份不能大于当前月份:【" + monthCol + "】");
+                            return Result.error(String.format("填报月份不能大于当前月份:【 %s 】，不支持提前导入填报: 【%s】月份的数据", curMonth, monthCol));
                         }
                     } catch (Exception e) {
                         log.error("月份格式错误:【" + monthCol + "】", e);

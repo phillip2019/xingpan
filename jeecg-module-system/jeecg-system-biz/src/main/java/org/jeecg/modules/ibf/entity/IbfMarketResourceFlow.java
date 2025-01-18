@@ -64,25 +64,24 @@ public class IbfMarketResourceFlow extends IbfCommonEntity implements Serializab
     @ApiModelProperty(value = "开门率")
     @TableField("booth_opening_rate_1m")
     private BigDecimal boothOpeningRate1m;
-	/**创建时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    /**创建时间*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
-	/**修改时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    /**修改时间*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "修改时间")
     private Date updateTime;
-	/**创建人*/
+    /**创建人*/
     @ApiModelProperty(value = "创建人")
     private String createBy;
-	/**修改人*/
+    /**修改人*/
     @ApiModelProperty(value = "修改人")
     private String updateBy;
 
     public void convertsetMonthCol(String text) {
         this.monthCol = DateUtil.convertMonthCol(text);
     }
-
 }

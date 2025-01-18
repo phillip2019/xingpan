@@ -75,7 +75,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 		// 直接获取当前用户
 		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
 		if (org.apache.commons.lang.StringUtils.isNotBlank(loginUser.getRelTenantIds())) {
-			queryWrapper.in("short_market_id", Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds())));
+			queryWrapper.in("short_market_id", Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds(), ',')));
 		}
 		Page<IbfMarketResourceGmv> page = new Page<IbfMarketResourceGmv>(pageNo, pageSize);
 		IPage<IbfMarketResourceGmv> pageList = ibfMarketResourceGmvService.page(page, queryWrapper);

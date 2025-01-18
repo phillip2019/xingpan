@@ -9,8 +9,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.ibf.entity.IbfMarketFlowSys;
 import org.jeecg.modules.ibf.service.IIbfMarketFlowSysService;
@@ -67,6 +71,11 @@ public class IbfMarketFlowSysController extends JeecgController<IbfMarketFlowSys
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
 		QueryWrapper<IbfMarketFlowSys> queryWrapper = QueryGenerator.initQueryWrapper(ibfMarketFlowSys, req.getParameterMap());
+		// 直接获取当前用户
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		if (StringUtils.isNotBlank(loginUser.getRelTenantIds())) {
+			queryWrapper.in("short_market_id", Arrays.asList(StringUtils.split(loginUser.getRelTenantIds(), ',')));
+		}
 		Page<IbfMarketFlowSys> page = new Page<IbfMarketFlowSys>(pageNo, pageSize);
 		IPage<IbfMarketFlowSys> pageList = ibfMarketFlowSysService.page(page, queryWrapper);
 		return Result.OK(pageList);

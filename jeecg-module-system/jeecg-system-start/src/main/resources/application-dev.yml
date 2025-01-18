@@ -52,11 +52,11 @@ spring:
       org:
         quartz:
           scheduler:
-            instanceName: MyScheduler
+            instanceName: xingpan
             instanceId: AUTO
           jobStore:
             class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
-            driverDelegateClass: org.jeecg.quartz.StdJDBCDelegate
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
             lockHandler:
               class: org.jeecg.quartz.StdRowLockSemaphore
             tablePrefix: qrtz_

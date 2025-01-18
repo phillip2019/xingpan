@@ -39,10 +39,6 @@ public class IbfMarketFlowSys implements Serializable {
 	@Excel(name = "缩写市场ID", width = 15)
     @ApiModelProperty(value = "缩写市场ID")
     private String shortMarketId;
-	/**市场名称*/
-	@Excel(name = "市场名称", width = 15)
-    @ApiModelProperty(value = "市场名称")
-    private String shortMarketName;
 	/**日期 yyyy-MM-dd*/
 	@Excel(name = "日期 yyyy-MM-dd", width = 15, format = "yyyy-MM-dd")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")

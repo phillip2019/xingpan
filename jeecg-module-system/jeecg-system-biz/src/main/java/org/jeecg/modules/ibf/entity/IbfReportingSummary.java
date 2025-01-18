@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.jeecg.common.util.DateUtil;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.jeecg.common.aspect.annotation.Dict;
@@ -27,14 +28,20 @@ import lombok.experimental.Accessors;
 @TableName("ibf_reporting_summary")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="ibf_reporting_summary对象", description="填报发布汇总")
-public class IbfReportingSummary extends IbfCommonEntity implements Serializable {
+@ApiModel(value="ibf_reporting_summary对象", description="大屏发布")
+public class IbfReportingSummary implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**主键ID*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "主键ID")
-    private Integer id;
+    private String id;
+
+    /**所属年月 yyyy-MM*/
+    @Excel(name = "月份", width = 8, importConvert = true, type = 4)
+    @ApiModelProperty(value = "所属年月")
+    private String monthCol;
+
 	/**年份*/
 	@Excel(name = "年份", width = 15)
     @ApiModelProperty(value = "年份")
@@ -51,52 +58,49 @@ public class IbfReportingSummary extends IbfCommonEntity implements Serializable
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "统计结束日期")
     private Date statEndDate;
-	/**资源-资源填报ID*/
-	@Excel(name = "资源-资源填报ID", width = 15)
-    @ApiModelProperty(value = "资源-资源填报ID")
-    private Integer resourceId;
-	/**资源-GMV填报ID*/
-	@Excel(name = "资源-GMV填报ID", width = 15)
-    @ApiModelProperty(value = "资源-GMV填报ID")
-    private Integer resourceGmvId;
-	/**资源-流量填报ID*/
-	@Excel(name = "资源-流量填报ID", width = 15)
-    @ApiModelProperty(value = "资源-流量填报ID")
-    private Integer resourceTrafficId;
-	/**财务填报ID*/
-	@Excel(name = "财务填报ID", width = 15)
-    @ApiModelProperty(value = "财务填报ID")
-    private Integer financeId;
-	/**每日流量填报ID*/
-	@Excel(name = "每日流量填报ID", width = 15)
-    @ApiModelProperty(value = "每日流量填报ID")
-    private Integer flowId;
 	/**复制状态: 0 未复制, 1 已复制*/
-	@Excel(name = "复制状态: 0 未复制, 1 已复制", width = 15)
     @ApiModelProperty(value = "复制状态: 0 未复制, 1 已复制")
     private Integer isCopy;
 	/**备注*/
 	@Excel(name = "备注", width = 15)
     @ApiModelProperty(value = "备注")
     private String remark;
-	/**创建时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+
+    /**是否发布*/
+    @Dict(dicCode = "is_publish")
+    @ApiModelProperty(value = "是否发布")
+    private Integer isPublish;
+
+    /**
+     * 当前月份标记
+     * 0: 当前月份
+     * 1: 前1个月
+     * */
+    @ApiModelProperty(value = "当前月份标记")
+    private Integer flag;
+
+    /**创建时间*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
-	/**创建者*/
-    @ApiModelProperty(value = "创建者")
-    private String createBy;
-	/**更新时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @ApiModelProperty(value = "更新时间")
+    /**修改时间*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "修改时间")
     private Date updateTime;
-	/**更新者*/
-    @ApiModelProperty(value = "更新者")
+    /**创建人*/
+    @ApiModelProperty(value = "创建人")
+    private String createBy;
+    /**修改人*/
+    @ApiModelProperty(value = "修改人")
     private String updateBy;
-	/**删除状态: 0 正常, 1 删除*/
-	@Excel(name = "删除状态: 0 正常, 1 删除", width = 15)
+	/**删除状态*/
     @ApiModelProperty(value = "删除状态: 0 正常, 1 删除")
     private Integer isDeleted;
+
+    public void convertsetMonthCol(String text) {
+        this.monthCol = DateUtil.convertMonthCol(text);
+    }
+
 }

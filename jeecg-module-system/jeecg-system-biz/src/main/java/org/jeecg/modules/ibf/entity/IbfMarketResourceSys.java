@@ -138,7 +138,7 @@ public class IbfMarketResourceSys implements Serializable {
 	/**商位质押总金额（元）*/
 	@Excel(name = "商位质押总金额（元）", width = 15)
     @ApiModelProperty(value = "商位质押总金额（元）")
-    @TableField("pledge_apply_amount_1m")
+    @TableField("pledge_apply_income_1m")
     private BigDecimal pledgeApplyIncome1m;
 	/**本年招商户数*/
 	@Excel(name = "本年招商户数", width = 15)
@@ -185,9 +185,9 @@ public class IbfMarketResourceSys implements Serializable {
     @ApiModelProperty(value = "续租完成率统计日期 yyyy-MM-dd")
     private String renewLeaseRateStatisticsDate;
 	/**创建时间*/
-	@Excel(name = "创建时间", width = 15, format = "yyyy-MM-dd")
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+	@Excel(name = "创建时间", width = 15, format = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private Date createdAt;
 }

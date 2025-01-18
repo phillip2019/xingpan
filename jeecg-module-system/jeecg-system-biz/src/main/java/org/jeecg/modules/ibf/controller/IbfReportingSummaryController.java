@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.ibf.util.IbfDateUtil;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -173,5 +174,12 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, IbfReportingSummary.class);
     }
+
+	// 添加获取当前所属月份的接口
+	 @GetMapping(value = "/getCurrentMonth")
+	 public Result<String> getCurrentMonth() {
+		 String currentMonth = IbfDateUtil.getCurrentMonth();
+		 return Result.OK(currentMonth);
+	 }
 
 }

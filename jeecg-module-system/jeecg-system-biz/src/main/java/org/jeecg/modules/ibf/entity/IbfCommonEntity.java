@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.aspect.annotation.Dict;
 import org.jeecg.common.system.base.entity.JeecgEntity;
+import org.jeecg.common.util.DateUtil;
 import org.jeecgframework.poi.excel.annotation.Excel;
 
 import java.io.Serializable;
@@ -38,6 +39,15 @@ public class IbfCommonEntity extends JeecgEntity implements Serializable {
      * 1: 前1个月
      * */
     @ApiModelProperty(value = "当前月份标记")
-    private transient Integer flag = 0;
+    private Integer flag;
+
+    /**是否删除*/
+    @Dict(dicCode = "is_deleted")
+    @ApiModelProperty(value = "是否删除")
+    private Integer isDeleted;
+
+    public void convertsetMonthCol(String text) {
+        this.monthCol = DateUtil.convertMonthCol(text);
+    }
 
 }
