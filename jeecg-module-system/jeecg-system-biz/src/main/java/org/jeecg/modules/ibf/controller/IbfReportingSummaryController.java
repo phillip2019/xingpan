@@ -182,4 +182,32 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 		 return Result.OK(currentMonth);
 	 }
 
+
+	 /**
+	  *   通过id复制填报记录
+	  *
+	  * @param id
+	  * @return
+	  */
+	 @AutoLog(value = "填报发布汇总-通过id复制填报记录")
+	 @ApiOperation(value="填报发布汇总-通过id复制填报记录", notes="填报发布汇总-通过id复制填报记录")
+	 //@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:delete")
+	 @PostMapping(value = "/copy")
+	 public Result<String> copy(@RequestParam(name="id",required=true) String id) {
+//		 ibfReportingSummaryService.removeById(id);
+		 IbfReportingSummary ibfReportingSummary = ibfReportingSummaryService.getById(id);
+		 if(ibfReportingSummary==null) {
+			 return Result.error("复制失败，未找到对应数据");
+		 }
+		 // 若当前状态为发布状态且拷贝状态为未拷贝，则可继续，否则不允许复制
+		 if(ibfReportingSummary.getIsPublish() == 1 && ibfReportingSummary.getIsCopy() == 0) {
+			 return Result.error("复制失败，当前状态为发布状态，不可复制");
+		 }
+
+		 // 复制当前发布版本，发布数据
+		 service.copy(ibfReportingSummary);
+
+		 return Result.OK("复制成功!");
+	 }
+
 }

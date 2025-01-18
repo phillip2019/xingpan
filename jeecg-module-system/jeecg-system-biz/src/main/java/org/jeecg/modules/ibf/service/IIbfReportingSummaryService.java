@@ -11,4 +11,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IIbfReportingSummaryService extends IService<IbfReportingSummary> {
 
+    /**
+     * 复制
+     * @param record
+     */
+    void copy(IbfReportingSummary record);
 }
