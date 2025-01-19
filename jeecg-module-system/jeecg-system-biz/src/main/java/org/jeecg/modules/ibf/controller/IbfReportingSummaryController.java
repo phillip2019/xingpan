@@ -9,8 +9,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.ibf.entity.IbfReportingSummary;
 import org.jeecg.modules.ibf.service.IIbfReportingSummaryService;
@@ -69,6 +72,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 								   HttpServletRequest req) {
 		QueryWrapper<IbfReportingSummary> queryWrapper = QueryGenerator.initQueryWrapper(ibfReportingSummary, req.getParameterMap());
 		Page<IbfReportingSummary> page = new Page<IbfReportingSummary>(pageNo, pageSize);
+		queryWrapper.eq("is_deleted", 0);
 		IPage<IbfReportingSummary> pageList = ibfReportingSummaryService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
@@ -114,8 +118,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 	//@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
-		ibfReportingSummaryService.removeById(id);
-		return Result.OK("删除成功!");
+		return this.deleteBatch(id);
 	}
 	
 	/**
@@ -129,7 +132,34 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 	//@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-		this.ibfReportingSummaryService.removeByIds(Arrays.asList(ids.split(",")));
+		List<String> idList = Arrays.asList(ids.split(","));
+		// 校验ID，若ID中包含发布状态的，则不允许删除
+		List<IbfReportingSummary> ibfReportingSummaryList = ibfReportingSummaryService.listByIds(idList);
+		List<String> publishIdList = ibfReportingSummaryList.stream()
+				.filter(ibfReportingSummary -> ibfReportingSummary.getIsPublish() == 1)
+				.map(IbfReportingSummary::getId)
+				.collect(Collectors.toList());
+		if (!publishIdList.isEmpty()) {
+			return Result.error("删除失败，存在发布状态的记录，发布状态不允许删除!");
+		}
+
+		// 校验ID，已下线状态的，不允许删除
+		List<IbfReportingSummary> offlineIbfReportingSummaryList = ibfReportingSummaryList.stream()
+				.filter(ibfReportingSummary -> ibfReportingSummary.getIsPublish() == 2)
+				.collect(Collectors.toList());
+		if (!offlineIbfReportingSummaryList.isEmpty()) {
+			return Result.error("删除失败，存在已下线状态的记录，已下线状态不允许删除!");
+		}
+
+		// 校验记录，若校准状态的且创建人为system(系统数据)，则不允许删除
+		List<IbfReportingSummary> ibfReportingSummarySystemList = ibfReportingSummaryList.stream()
+				.filter(ibfReportingSummary -> ibfReportingSummary.getIsPublish() == 0 && "system".equals(ibfReportingSummary.getCreateBy()))
+				.collect(Collectors.toList());
+		if (!ibfReportingSummarySystemList.isEmpty()) {
+			return Result.error("删除失败，存在系统填报数据的记录，系统创建的数据不允许删除!");
+		}
+
+		this.ibfReportingSummaryService.removeBatch(ibfReportingSummaryList);
 		return Result.OK("批量删除成功!");
 	}
 	
@@ -200,12 +230,14 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 			 return Result.error("复制失败，未找到对应数据");
 		 }
 		 // 若当前状态为发布状态且拷贝状态为未拷贝，则可继续，否则不允许复制
-		 if(ibfReportingSummary.getIsPublish() == 1 && ibfReportingSummary.getIsCopy() == 0) {
-			 return Result.error("复制失败，当前状态为发布状态，不可复制");
+		 if(!(ibfReportingSummary.getIsPublish() == 1 && ibfReportingSummary.getIsCopy() == 0)) {
+			 return Result.error("复制失败，只有发布状态且未拷贝的版本可复制!");
 		 }
 
+		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+
 		 // 复制当前发布版本，发布数据
-		 service.copy(ibfReportingSummary);
+		 service.copy(ibfReportingSummary, loginUser);
 
 		 return Result.OK("复制成功!");
 	 }

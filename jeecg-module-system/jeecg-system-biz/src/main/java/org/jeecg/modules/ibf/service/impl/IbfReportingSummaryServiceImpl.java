@@ -2,17 +2,23 @@ package org.jeecg.modules.ibf.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import org.jeecg.modules.ibf.entity.IbfMarketResource;
-import org.jeecg.modules.ibf.entity.IbfReportingSummary;
+import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.modules.ibf.entity.*;
 import org.jeecg.modules.ibf.mapper.IbfReportingSummaryMapper;
-import org.jeecg.modules.ibf.service.IIbfMarketResourceService;
-import org.jeecg.modules.ibf.service.IIbfReportingSummaryService;
+import org.jeecg.modules.ibf.service.*;
+import org.jeecg.modules.ibf.util.IbfDateUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 填报发布汇总
@@ -24,20 +30,197 @@ import java.util.List;
 @Service
 public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSummaryMapper, IbfReportingSummary> implements IIbfReportingSummaryService {
 
+    public static final String[] EXCLUDE_PROPERTIES = {"id", "created_at", "updated_at", "created_by", "updated_by", "is_publish", "flag"};
+
 
     @Autowired
     private IIbfMarketResourceService ibfMarketResourceService;
 
+    @Autowired
+    private IIbfMarketResourceGmvService ibfMarketResourceGmvService;
+
+    @Autowired
+    private IIbfMarketResourceFlowService ibfMarketResourceFlowService;
+
+    @Autowired
+    private IIbfMarketFinanceService ibfMarketFinanceService;
+
+    @Lazy
+    @Autowired
+    private IIbfReportingSummaryService ibfReportingSummaryService; // 注入自身代理对象
+
+
     @Override
-    public void copy(IbfReportingSummary record) {
+    public void copy(IbfReportingSummary record, LoginUser loginUser) {
         // 复制发布记录，复制发布数据
-        String curMonth = record.getMonthCol();
+        String monthCol = record.getMonthCol();
+        String curMonth = IbfDateUtil.getCurrentMonth();
+        List<IbfReportingSummary> reportingSummaryList = new ArrayList<>(2);
+
         // 复制资源-资源
-        List<IbfMarketResource> list = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>().eq(IbfMarketResource::getMonthCol, curMonth)
-                .eq(IbfMarketResource::getIsDeleted, "0")
+        List<IbfMarketResource> sourceResourceList = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>()
+                .eq(IbfMarketResource::getMonthCol, monthCol)
+                .eq(IbfMarketResource::getIsDeleted, 0)
                 .eq(IbfMarketResource::getIsPublish, 1)
-                .eq()
+        );
+        // 复制资源-GMV
+        List<IbfMarketResourceGmv> sourceResourceGmvList = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>()
+               .eq(IbfMarketResourceGmv::getMonthCol, monthCol)
+               .eq(IbfMarketResourceGmv::getIsDeleted, 0)
+               .eq(IbfMarketResourceGmv::getIsPublish, 1)
+        );
+        // 复制资源-流量
+        List<IbfMarketResourceFlow> sourceResourceFlowList = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>()
+              .eq(IbfMarketResourceFlow::getMonthCol, monthCol)
+              .eq(IbfMarketResourceFlow::getIsDeleted, 0)
+              .eq(IbfMarketResourceFlow::getIsPublish, 1)
+        );
+        // 复制财务数据
+        List<IbfMarketFinance> sourceFinanceList = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>()
+              .eq(IbfMarketFinance::getMonthCol, monthCol)
+              .eq(IbfMarketFinance::getIsDeleted, 0)
+              .eq(IbfMarketFinance::getIsPublish, 1)
         );
 
+        Date now = new Date();
+        Integer flag = IbfDateUtil.calculateMonthDifference(curMonth, monthCol);
+        // 复制以上各个对象，修改isPublish=0，isDeleted=0，发布记录创建人为当前用户loginUser里面的用户名
+        IbfReportingSummary newRecord = new IbfReportingSummary();
+        BeanUtils.copyProperties(record, newRecord, EXCLUDE_PROPERTIES);
+        newRecord.setIsPublish(0)
+                .setIsDeleted(0)
+               .setCreateBy(loginUser.getUsername())
+                .setCreateTime(now)
+                .setFlag(flag)
+                .setUpdateBy(null)
+                .setUpdateTime(null)
+                .setRemark(String.format("%s复制%s月数据", loginUser.getUsername(), monthCol));
+        ;
+
+        reportingSummaryList.add(record);
+        reportingSummaryList.add(newRecord);
+
+        List<IbfMarketResource> newResourceList = new ArrayList<>(sourceResourceList.size());
+        for (IbfMarketResource ibfMarketResource : sourceResourceList) {
+            IbfMarketResource newResource = new IbfMarketResource();
+            BeanUtils.copyProperties(ibfMarketResource, newResource, EXCLUDE_PROPERTIES);
+            newResource.setIsPublish(0)
+                    .setIsDeleted(0)
+                    .setFlag(flag)
+                    .setCreateTime(now)
+            ;
+            newResourceList.add(newResource);
+        }
+
+        List<IbfMarketResourceGmv> newResourceGmvList = new ArrayList<>(sourceResourceGmvList.size());
+        for (IbfMarketResourceGmv ibfMarketResourceGmv : sourceResourceGmvList) {
+            IbfMarketResourceGmv newResourceGmv = new IbfMarketResourceGmv();
+            BeanUtils.copyProperties(ibfMarketResourceGmv, newResourceGmv, EXCLUDE_PROPERTIES);
+            newResourceGmv.setIsPublish(0)
+                   .setIsDeleted(0)
+                   .setFlag(flag)
+                   .setCreateTime(now)
+            ;
+            newResourceGmvList.add(newResourceGmv);
+        }
+
+        List<IbfMarketResourceFlow> newResourceFlowList = new ArrayList<>(sourceResourceFlowList.size());
+        for (IbfMarketResourceFlow ibfMarketResourceFlow : sourceResourceFlowList) {
+            IbfMarketResourceFlow newResourceFlow = new IbfMarketResourceFlow();
+            BeanUtils.copyProperties(ibfMarketResourceFlow, newResourceFlow, EXCLUDE_PROPERTIES);
+            newResourceFlow.setIsPublish(0)
+                  .setIsDeleted(0)
+                  .setFlag(flag)
+                  .setCreateTime(now)
+
+            ;
+            newResourceFlowList.add(newResourceFlow);
+        }
+
+        List<IbfMarketFinance> newFinanceList = new ArrayList<>(sourceFinanceList.size());
+        for (IbfMarketFinance ibfMarketFinance : sourceFinanceList) {
+            IbfMarketFinance newFinance = new IbfMarketFinance();
+            BeanUtils.copyProperties(ibfMarketFinance, newFinance, EXCLUDE_PROPERTIES);
+            newFinance.setIsPublish(0)
+                 .setIsDeleted(0)
+                 .setFlag(flag)
+                 .setCreateTime(now)
+            ;
+            newFinanceList.add(newFinance);
+        }
+
+        ibfMarketResourceService.saveBatch(newResourceList);
+        ibfMarketResourceGmvService.saveBatch(newResourceGmvList);
+        ibfMarketResourceFlowService.saveBatch(newResourceFlowList);
+        ibfMarketFinanceService.saveBatch(newFinanceList);
+        record.setIsCopy(1);
+        // 保存以上对象
+        ibfReportingSummaryService.saveOrUpdateBatch(reportingSummaryList);
+    }
+
+    @Override
+    public void removeBatch(List<IbfReportingSummary> ibfReportingSummaryList) {
+        // 批量删除发布记录
+        for (IbfReportingSummary ibfReportingSummary : ibfReportingSummaryList) {
+            List<IbfReportingSummary> list = new ArrayList<>(2);
+            list.add(ibfReportingSummary);
+            String monthCol = ibfReportingSummary.getMonthCol();
+            // 查询资源-资源记录
+            List<IbfMarketResource> resourceList = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>()
+                   .eq(IbfMarketResource::getMonthCol, monthCol)
+                   .eq(IbfMarketResource::getIsDeleted, 0)
+                   .eq(IbfMarketResource::getIsPublish, 0)
+            );
+
+            // 查询资源-GMV记录
+            List<IbfMarketResourceGmv> resourceGmvList = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>()
+                  .eq(IbfMarketResourceGmv::getMonthCol, monthCol)
+                  .eq(IbfMarketResourceGmv::getIsDeleted, 0)
+                  .eq(IbfMarketResourceGmv::getIsPublish, 0)
+            );
+
+            // 查询资源-流量记录
+            List<IbfMarketResourceFlow> resourceFlowList = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>()
+                 .eq(IbfMarketResourceFlow::getMonthCol, monthCol)
+                 .eq(IbfMarketResourceFlow::getIsDeleted, 0)
+                 .eq(IbfMarketResourceFlow::getIsPublish, 0)
+            );
+
+            // 查询财务数据
+            List<IbfMarketFinance> financeList = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>()
+                .eq(IbfMarketFinance::getMonthCol, monthCol)
+                .eq(IbfMarketFinance::getIsDeleted, 0)
+                .eq(IbfMarketFinance::getIsPublish, 0)
+            );
+
+            // 删除发布记录
+            ibfReportingSummary
+                    .setIsDeleted(1);
+
+            // 查询此月份为发布状态的记录
+            IbfReportingSummary publishRecord = ibfReportingSummaryService.getOne(new LambdaQueryWrapper<IbfReportingSummary>()
+                    .eq(IbfReportingSummary::getMonthCol, monthCol)
+                    .eq(IbfReportingSummary::getIsPublish, 1)
+            );
+            if (Objects.nonNull(publishRecord)) {
+                publishRecord.setIsCopy(0);
+                list.add(publishRecord);
+            }
+
+            // 批量删除以上记录
+            if (!resourceList.isEmpty()) {
+                ibfMarketResourceService.removeBatchByIds(resourceList.stream().map(IbfMarketResource::getId).collect(Collectors.toList()));
+            }
+            if (!resourceGmvList.isEmpty()) {
+                ibfMarketResourceGmvService.removeBatchByIds(resourceGmvList.stream().map(IbfMarketResourceGmv::getId).collect(Collectors.toList()));
+            }
+            if (!resourceFlowList.isEmpty()) {
+                ibfMarketResourceFlowService.removeBatchByIds(resourceFlowList.stream().map(IbfMarketResourceFlow::getId).collect(Collectors.toList()));
+            }
+            if (!financeList.isEmpty()) {
+                ibfMarketFinanceService.removeBatchByIds(financeList.stream().map(IbfMarketFinance::getId).collect(Collectors.toList()));
+            }
+            ibfReportingSummaryService.saveOrUpdateBatch(list);
+        }
     }
 }

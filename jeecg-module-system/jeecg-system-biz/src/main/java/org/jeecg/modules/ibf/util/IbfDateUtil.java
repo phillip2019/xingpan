@@ -95,20 +95,20 @@ public class IbfDateUtil {
     }
 
 
-    public static long calculateMonthDifference(String monthCol) {
+    public static Integer calculateMonthDifference(String monthCol) {
         String curMonth = getCurrentMonth();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
         YearMonth ym1 = YearMonth.parse(curMonth, formatter);
         YearMonth ym2 = YearMonth.parse(monthCol, formatter);
 
-        return ym1.until(ym2, ChronoUnit.MONTHS);
+        return Math.toIntExact(ym1.until(ym2, MONTHS));
     }
 
-    public static long calculateMonthDifference(String curMonth, String monthCol) {
+    public static Integer calculateMonthDifference(String curMonth, String monthCol) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
         YearMonth ym1 = YearMonth.parse(curMonth, formatter);
         YearMonth ym2 = YearMonth.parse(monthCol, formatter);
 
-        return ym1.until(ym2, ChronoUnit.MONTHS);
+        return Math.toIntExact(ym1.until(ym2, MONTHS));
     }
 }
