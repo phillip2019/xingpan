@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
@@ -90,7 +91,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 	 */
 	@AutoLog(value = "月市场资源-市场成交额填报-添加")
 	@ApiOperation(value="月市场资源-市场成交额填报-添加", notes="月市场资源-市场成交额填报-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:add")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody IbfMarketResourceGmv ibfMarketResourceGmv) {
 		// 直接获取当前用户
@@ -111,12 +112,12 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 	 */
 	@AutoLog(value = "月市场资源-市场成交额填报-编辑")
 	@ApiOperation(value="月市场资源-市场成交额填报-编辑", notes="月市场资源-市场成交额填报-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:edit")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody IbfMarketResourceGmv ibfMarketResourceGmv) {
 		// 直接获取当前用户
 		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-		List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds()));
+		List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds(), ','));
 		if (org.apache.commons.lang.StringUtils.isNotBlank(ibfMarketResourceGmv.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketResourceGmv.getShortMarketId())) {
 			return Result.ok(String.format("无法修改市场编号为: [%s]，请联系相关人员!", ibfMarketResourceGmv.getShortMarketId()));
 		}
@@ -132,7 +133,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 	 */
 	@AutoLog(value = "月市场资源-市场成交额填报-通过id删除")
 	@ApiOperation(value="月市场资源-市场成交额填报-通过id删除", notes="月市场资源-市场成交额填报-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:delete")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		ibfMarketResourceGmvService.removeById(id);
@@ -147,7 +148,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 	 */
 	@AutoLog(value = "月市场资源-市场成交额填报-批量删除")
 	@ApiOperation(value="月市场资源-市场成交额填报-批量删除", notes="月市场资源-市场成交额填报-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:deleteBatch")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.ibfMarketResourceGmvService.removeByIds(Arrays.asList(ids.split(",")));
@@ -177,7 +178,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
     * @param request
     * @param ibfMarketResourceGmv
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:exportXls")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfMarketResourceGmv ibfMarketResourceGmv) {
 		String title = "月市场资源-市场成交额填报";
@@ -195,7 +196,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
     * @param response
     * @return
     */
-    //@RequiresPermissions("ibf_market_resource_gmv:importExcel")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_gmv:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, IbfMarketResourceGmv.class);

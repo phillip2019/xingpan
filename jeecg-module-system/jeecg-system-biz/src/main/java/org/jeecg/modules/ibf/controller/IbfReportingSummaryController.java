@@ -10,10 +10,18 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.JacksonBuilder;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.ibf.entity.IbfReportingSummary;
 import org.jeecg.modules.ibf.service.IIbfReportingSummaryService;
@@ -31,6 +39,7 @@ import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -53,8 +62,21 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 public class IbfReportingSummaryController extends JeecgController<IbfReportingSummary, IIbfReportingSummaryService> {
 	@Autowired
 	private IIbfReportingSummaryService ibfReportingSummaryService;
-	
-	/**
+
+	 @Value("${cg.marketBooth.apiUrl}")
+	 private String marketBoothApiUrl = "https://testboothuser.ywcbz.com/booth-user";
+
+	 @Value("${cg.marketBooth.clientId}")
+	private String marketBoothClientID = "ArOamgo9buJVNuKeUYUqcx6CrwJb7CONy9ZOFkUXlrosk8nyTpyp38u0n1_Bvqt3XjEsD2nxwCpfc0neCGAM3LxSk9q.hABQfykGh2wRjlxCruwdu9CuTjluRA_nvbN22vqiopOPV7uBbwmUOZBL1PCZEzN5Pdnb5SRjRLhJSxs=";
+
+	 @Value("${cg.marketBooth.ibfResourceUrl}")
+	 private String ibfResourceUrl;
+
+	 @Value("${cg.marketBooth.ibfFinanceUrl}")
+	 private String ibfFinanceUrl;
+
+	 public static final String getAuthCodeUrl = "/login/oauth/authorize";
+	 /**
 	 * 分页列表查询
 	 *
 	 * @param ibfReportingSummary
@@ -85,7 +107,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 	 */
 	@AutoLog(value = "填报发布汇总-添加")
 	@ApiOperation(value="填报发布汇总-添加", notes="填报发布汇总-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:add")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody IbfReportingSummary ibfReportingSummary) {
 		ibfReportingSummaryService.save(ibfReportingSummary);
@@ -100,7 +122,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 	 */
 	@AutoLog(value = "填报发布汇总-编辑")
 	@ApiOperation(value="填报发布汇总-编辑", notes="填报发布汇总-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:edit")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody IbfReportingSummary ibfReportingSummary) {
 		ibfReportingSummaryService.updateById(ibfReportingSummary);
@@ -115,7 +137,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 	 */
 	@AutoLog(value = "填报发布汇总-通过id删除")
 	@ApiOperation(value="填报发布汇总-通过id删除", notes="填报发布汇总-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:delete")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		return this.deleteBatch(id);
@@ -129,7 +151,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 	 */
 	@AutoLog(value = "填报发布汇总-批量删除")
 	@ApiOperation(value="填报发布汇总-批量删除", notes="填报发布汇总-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:deleteBatch")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		List<String> idList = Arrays.asList(ids.split(","));
@@ -186,7 +208,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
     * @param request
     * @param ibfReportingSummary
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:exportXls")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfReportingSummary ibfReportingSummary) {
         return super.exportXls(request, ibfReportingSummary, IbfReportingSummary.class, "填报发布汇总");
@@ -199,7 +221,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
     * @param response
     * @return
     */
-    //@RequiresPermissions("ibf_reporting_summary:importExcel")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, IbfReportingSummary.class);
@@ -221,7 +243,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 	  */
 	 @AutoLog(value = "填报发布汇总-通过id复制填报记录")
 	 @ApiOperation(value="填报发布汇总-通过id复制填报记录", notes="填报发布汇总-通过id复制填报记录")
-	 //@RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:delete")
+	 @RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:copy")
 	 @PostMapping(value = "/copy")
 	 public Result<String> copy(@RequestParam(name="id",required=true) String id) {
 //		 ibfReportingSummaryService.removeById(id);
@@ -242,4 +264,86 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 		 return Result.OK("复制成功!");
 	 }
 
-}
+     /**
+      *   通过id发布大屏
+      *
+      * @param id
+      * @return
+      */
+     @AutoLog(value = "填报发布汇总-通过id发布大屏")
+     @ApiOperation(value="填报发布汇总-通过id发布大屏", notes="填报发布汇总-通过id发布大屏")
+     @RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:publish")
+     @PostMapping(value = "/publish")
+     public Result<String> publish(@RequestParam(name="id",required=true) String id) {
+//		 ibfReportingSummaryService.removeById(id);
+         IbfReportingSummary ibfReportingSummary = ibfReportingSummaryService.getById(id);
+         if(ibfReportingSummary==null) {
+             return Result.error("发布失败，未找到对应数据");
+         }
+         // 若当前状态为核验状态且flag为1，则可继续，否则不允许发布
+         if(!(ibfReportingSummary.getIsPublish() == 0 && ibfReportingSummary.getFlag() == 1)) {
+             return Result.error("发布失败，只有核验状态且当前大屏月份可发布!");
+         }
+
+         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+         // 发布当前版本，发布数据
+         service.publish(ibfReportingSummary, loginUser);
+
+         return Result.OK("发布成功!");
+     }
+
+	 /**
+	  * 获取商位管理系统授权码，此为1次性授权码，只有2H有效期
+	  **/
+	 @GetMapping(value = "/resourceUrl")
+	 public Result<String> getResourceUrl() throws IOException {
+		 String code = getBoothMarketAuthCode();
+		 String resourceUrl = String.format("%s?code=%s", ibfResourceUrl, code);
+		 return Result.OK("", resourceUrl);
+	 }
+	 /**
+	  * 获取商位管理系统授权码，此为1次性授权码，只有2H有效期
+	  **/
+	 @GetMapping(value = "/financeUrl")
+	 public Result<String> getFinanceUrl() throws IOException {
+		 String code = getBoothMarketAuthCode();
+		 String resourceUrl = String.format("%s?code=%s", ibfFinanceUrl, code);
+		 return Result.OK("", resourceUrl);
+	 }
+
+
+	 public String getBoothMarketAuthCode() throws IOException {
+		 OkHttpClient client = new OkHttpClient().newBuilder()
+				 .build();
+		 MediaType mediaType = MediaType.parse("application/json");
+		 // 使用 ObjectMapper 构建 JSON 对象
+		 ObjectMapper objectMapper = new ObjectMapper();
+		 ObjectNode jsonNode = objectMapper.createObjectNode();
+		 jsonNode.put("param", marketBoothClientID);
+		 String json;
+		 try {
+			 json = objectMapper.writeValueAsString(jsonNode);
+		 } catch (IOException e) {
+			 log.error("Failed to convert JSON object to string", e);
+			 return null;
+		 }
+		 log.error("请求参数地址为: {}{}, \n请求参数为: {}", marketBoothApiUrl, getAuthCodeUrl, json);
+		 okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, json);
+		 Request request = new Request.Builder()
+				 .url(String.format("%s%s", marketBoothApiUrl, getAuthCodeUrl))
+				 .method("POST", body)
+				 .addHeader("Content-Type", "application/json")
+				 .build();
+		 okhttp3.Response response = client.newCall(request).execute();
+		 // 解析返回的JSON数据，获取里面的data字段
+		 if (response.isSuccessful()) {
+             assert response.body() != null;
+             String responseBody = response.body().string();
+			 // 使用 Jackson 解析响应体
+			 jsonNode = (ObjectNode) objectMapper.readTree(responseBody);
+             return jsonNode.get("data").asText();
+		 }
+		 log.error("Failed to get Booth Market Auth Code: {}", response.body().string());
+		 return null;
+	 }
+ }

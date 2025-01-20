@@ -23,4 +23,11 @@ public interface IIbfReportingSummaryService extends IService<IbfReportingSummar
     void copy(IbfReportingSummary record, LoginUser loginUser);
 
     void removeBatch(List<IbfReportingSummary> ibfReportingSummaryList);
+
+    /**
+     * 发布
+     * @param ibfReportingSummary 待发布记录
+     * @param loginUser 登录用户
+     **/
+    void publish(IbfReportingSummary ibfReportingSummary, LoginUser loginUser);
 }

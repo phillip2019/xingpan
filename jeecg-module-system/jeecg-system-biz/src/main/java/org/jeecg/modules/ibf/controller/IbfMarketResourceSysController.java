@@ -10,6 +10,7 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
@@ -17,6 +18,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.ibf.entity.IbfMarketResourceSys;
+import org.jeecg.modules.ibf.entity.IbfReportingSummary;
 import org.jeecg.modules.ibf.service.IIbfMarketResourceSysService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -183,4 +185,37 @@ public class IbfMarketResourceSysController extends JeecgController<IbfMarketRes
         return super.importExcel(request, response, IbfMarketResourceSys.class);
     }
 
+	 /**
+	  * 查询某个市场，某月数据
+	  * @param monthCol 月份
+	  * @param shortMarketId shic
+	  **/
+	 @RequestMapping(value = "/getSys", method = RequestMethod.GET)
+	 public Result<IbfMarketResourceSys> getSys(@RequestParam(name="monthCol",required=true) String monthCol, @RequestParam(name="shortMarketId",required=true) String shortMarketId) {
+		 // 校验参数，若参数为空，则返回null
+		 if (StringUtils.isBlank(monthCol) || StringUtils.isBlank(shortMarketId)) {
+			 return Result.error("参数为空，请检查参数");
+		 }
+
+		 // 直接获取当前用户
+		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 List<String> shortMarketIdList = Arrays.asList(StringUtils.split(loginUser.getRelTenantIds(), ','));
+		 if (StringUtils.isNotBlank(shortMarketId) && !shortMarketIdList.contains(shortMarketId)) {
+			 return Result.ok(String.format("无市场编号为: [%s]的权限，请联系相关人员!", shortMarketId));
+		 }
+
+		 // 假设 IbfMarketResourceSys 是实体类
+		 LambdaQueryWrapper<IbfMarketResourceSys> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+		 lambdaQueryWrapper.eq(IbfMarketResourceSys::getMonthCol, monthCol)
+				 .eq(IbfMarketResourceSys::getShortMarketId, shortMarketId)
+		 ;
+
+		 // 查询市场、月份资源系统
+		 IbfMarketResourceSys ibfMarketResourceSys = ibfMarketResourceSysService.getOne(lambdaQueryWrapper);
+		 // 若不存在，抛出错误
+		 if (ibfMarketResourceSys == null) {
+			 return Result.error(String.format("无此%s月份，市场: %s的系统数据，请联系相关人员解决", monthCol, shortMarketId));
+		 }
+		 return Result.OK(ibfMarketResourceSys);
+	 }
 }

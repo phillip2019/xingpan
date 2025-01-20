@@ -223,4 +223,117 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
             ibfReportingSummaryService.saveOrUpdateBatch(list);
         }
     }
+
+    /**
+     * 发布
+     * @param ibfReportingSummary 待发布记录
+     * @param loginUser 登录用户
+     **/
+    @Override
+    public void publish(IbfReportingSummary ibfReportingSummary, LoginUser loginUser) {
+        // 发布操作，将原先已发布记录置为过期且删除，原先发布数据删除
+        String monthCol = ibfReportingSummary.getMonthCol();
+        List<IbfReportingSummary> prepareList = new ArrayList<>(2);
+        prepareList.add(ibfReportingSummary);
+
+        List<IbfMarketResource> prepareResourceList = new ArrayList<>(16);
+        List<IbfMarketResourceGmv> prepareResourceGmvList = new ArrayList<>(16);
+        List<IbfMarketResourceFlow> prepareResourceFlowList = new ArrayList<>(16);
+        List<IbfMarketFinance> prepareFinanceList = new ArrayList<>(16);
+
+        // 查询出当前已发布月份的记录
+        IbfReportingSummary publishRecord = ibfReportingSummaryService.getOne(new LambdaQueryWrapper<IbfReportingSummary>()
+                .eq(IbfReportingSummary::getMonthCol, monthCol)
+                .eq(IbfReportingSummary::getIsPublish, 1)
+        );
+        if (Objects.nonNull(publishRecord)) {
+            publishRecord.setIsCopy(0)
+                    .setIsPublish(2)
+            ;
+            prepareList.add(publishRecord);
+        }
+        ibfReportingSummary.setIsPublish(1);
+
+        // 发布数据查询出来，后续删除
+        List<IbfMarketResource> publishResourceList = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>()
+                .eq(IbfMarketResource::getMonthCol, monthCol)
+                .eq(IbfMarketResource::getIsDeleted, 0)
+                .eq(IbfMarketResource::getIsPublish, 1)
+        );
+
+        List<IbfMarketResourceGmv> publishResourceGmvList = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>()
+                .eq(IbfMarketResourceGmv::getMonthCol, monthCol)
+                .eq(IbfMarketResourceGmv::getIsDeleted, 0)
+                .eq(IbfMarketResourceGmv::getIsPublish, 1)
+        );
+
+        List<IbfMarketResourceFlow> publishResourceFlowList = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>()
+                .eq(IbfMarketResourceFlow::getMonthCol, monthCol)
+                .eq(IbfMarketResourceFlow::getIsDeleted, 0)
+                .eq(IbfMarketResourceFlow::getIsPublish, 1)
+        );
+
+        List<IbfMarketFinance> publishFinanceList = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>()
+                .eq(IbfMarketFinance::getMonthCol, monthCol)
+                .eq(IbfMarketFinance::getIsDeleted, 0)
+                .eq(IbfMarketFinance::getIsPublish, 1)
+        );
+
+        // 查询待发布数据，更新发布状态
+        List<IbfMarketResource> preResourceList = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>()
+                .eq(IbfMarketResource::getMonthCol, monthCol)
+                .eq(IbfMarketResource::getIsDeleted, 0)
+                .eq(IbfMarketResource::getIsPublish, 0)
+        );
+        for (IbfMarketResource ibfMarketResource : preResourceList) {
+            ibfMarketResource.setIsPublish(1)
+                    .setFlag(0)
+            ;
+            prepareResourceList.add(ibfMarketResource);
+        }
+        List<IbfMarketResourceGmv> preResourceGmvList = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>()
+                .eq(IbfMarketResourceGmv::getMonthCol, monthCol)
+                .eq(IbfMarketResourceGmv::getIsDeleted, 0)
+                .eq(IbfMarketResourceGmv::getIsPublish, 0)
+        );
+        for (IbfMarketResourceGmv ibfMarketResourceGmv : preResourceGmvList) {
+            ibfMarketResourceGmv.setIsPublish(1).setFlag(0);
+            prepareResourceGmvList.add(ibfMarketResourceGmv);
+        }
+
+        List<IbfMarketResourceFlow> preResourceFlowList = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>()
+                .eq(IbfMarketResourceFlow::getMonthCol, monthCol)
+                .eq(IbfMarketResourceFlow::getIsDeleted, 0)
+                .eq(IbfMarketResourceFlow::getIsPublish, 0)
+        );
+
+        for (IbfMarketResourceFlow ibfMarketResourceFlow : preResourceFlowList) {
+            ibfMarketResourceFlow.setIsPublish(1).setFlag(0);
+            prepareResourceFlowList.add(ibfMarketResourceFlow);
+        }
+
+        List<IbfMarketFinance> preFinanceList = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>()
+                .eq(IbfMarketFinance::getMonthCol, monthCol)
+                .eq(IbfMarketFinance::getIsDeleted, 0)
+                .eq(IbfMarketFinance::getIsPublish, 0)
+        );
+        for (IbfMarketFinance ibfMarketFinance : preFinanceList) {
+            ibfMarketFinance.setIsPublish(1).setFlag(0);
+            prepareFinanceList.add(ibfMarketFinance);
+        }
+
+        // 批量删除已经发布数据
+        ibfMarketResourceService.removeBatchByIds(publishResourceList.stream().map(IbfMarketResource::getId).collect(Collectors.toList()));
+        ibfMarketResourceGmvService.removeBatchByIds(publishResourceGmvList.stream().map(IbfMarketResourceGmv::getId).collect(Collectors.toList()));
+        ibfMarketResourceFlowService.removeBatchByIds(publishResourceFlowList.stream().map(IbfMarketResourceFlow::getId).collect(Collectors.toList()));
+        ibfMarketFinanceService.removeBatchByIds(publishFinanceList.stream().map(IbfMarketFinance::getId).collect(Collectors.toList()));
+
+        // 批量更新待发布数据为发布状态
+        ibfMarketResourceService.saveOrUpdateBatch(prepareResourceList);
+        ibfMarketResourceGmvService.saveOrUpdateBatch(prepareResourceGmvList);
+        ibfMarketResourceFlowService.saveOrUpdateBatch(prepareResourceFlowList);
+        ibfMarketFinanceService.saveOrUpdateBatch(prepareFinanceList);
+
+        ibfReportingSummaryService.saveOrUpdateBatch(prepareList);
+    }
 }

@@ -379,3 +379,8 @@ cg:
   accessTokenHost: https://testuser.chinagoods.com
   ylbIdHost: https://testapiserver.chinagoods.com
   dbConnectionSecretKey: DK7VB0ca7ewZlhqQ2O+Kq756+suJBxfJ7pQ38bss+rc=
+  marketBooth:
+    apiUrl: https://testboothuser.ywcbz.com/booth-user
+    clientId: ArOamgo9buJVNuKeUYUqcx6CrwJb7CONy9ZOFkUXlrosk8nyTpyp38u0n1_Bvqt3XjEsD2nxwCpfc0neCGAM3LxSk9q.hABQfykGh2wRjlxCruwdu9CuTjluRA_nvbN22vqiopOPV7uBbwmUOZBL1PCZEzN5Pdnb5SRjRLhJSxs=
+    ibfResourceUrl: https://testmarket-admin.chinagoods.com/#/dataBoard/overViewSet/1162/BOSS
+    ibfFinanceUrl: https://testmarket-admin.chinagoods.com/#/dataBoard/detailsSet/1167/BOSS

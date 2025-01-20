@@ -61,6 +61,7 @@ public class IbfMarketResourceSys implements Serializable {
 	/**已出租间数（商位+配套）*/
 	@Excel(name = "已出租间数（商位+配套）", width = 15)
     @ApiModelProperty(value = "已出租间数（商位+配套）")
+    @TableField("booth_match_rent_room_num_1d")
     private BigDecimal boothMatchRentRoomNumTd;
 	/**面积（商位）㎡*/
 	@Excel(name = "面积（商位）㎡", width = 15)
@@ -73,6 +74,7 @@ public class IbfMarketResourceSys implements Serializable {
 	/**已出租面积（商位+配套）㎡*/
 	@Excel(name = "已出租面积（商位+配套）㎡", width = 15)
     @ApiModelProperty(value = "已出租面积（商位+配套）㎡")
+    @TableField("booth_match_rent_area_num_1d")
     private BigDecimal boothMatchRentAreaNumTd;
 	/**资源情况统计日期 yyyy-MM-dd*/
 	@Excel(name = "资源情况统计日期 yyyy-MM-dd", width = 15)

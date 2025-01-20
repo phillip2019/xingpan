@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
@@ -103,7 +104,7 @@ public class IbfMarketResourceFlowController extends CustomController<IbfMarketR
 	 */
 	@AutoLog(value = "月市场资源-市场流量-添加")
 	@ApiOperation(value="月市场资源-市场流量-添加", notes="月市场资源-市场流量-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:add")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody IbfMarketResourceFlow ibfMarketResourceFlow) {
 		// 直接获取当前用户
@@ -124,12 +125,12 @@ public class IbfMarketResourceFlowController extends CustomController<IbfMarketR
 	 */
 	@AutoLog(value = "月市场资源-市场流量-编辑")
 	@ApiOperation(value="月市场资源-市场流量-编辑", notes="月市场资源-市场流量-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:edit")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody IbfMarketResourceFlow ibfMarketResourceFlow) {
 		// 直接获取当前用户
 		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-		List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds()));
+		List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds(), ','));
 		if (org.apache.commons.lang.StringUtils.isNotBlank(ibfMarketResourceFlow.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketResourceFlow.getShortMarketId())) {
 			return Result.ok(String.format("无法修改市场编号为: [%s]，请联系相关人员!", ibfMarketResourceFlow.getShortMarketId()));
 		}
@@ -145,7 +146,7 @@ public class IbfMarketResourceFlowController extends CustomController<IbfMarketR
 	 */
 	@AutoLog(value = "月市场资源-市场流量-通过id删除")
 	@ApiOperation(value="月市场资源-市场流量-通过id删除", notes="月市场资源-市场流量-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:delete")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		ibfMarketResourceFlowService.removeById(id);
@@ -160,7 +161,7 @@ public class IbfMarketResourceFlowController extends CustomController<IbfMarketR
 	 */
 	@AutoLog(value = "月市场资源-市场流量-批量删除")
 	@ApiOperation(value="月市场资源-市场流量-批量删除", notes="月市场资源-市场流量-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:deleteBatch")
+	@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.ibfMarketResourceFlowService.removeByIds(Arrays.asList(ids.split(",")));
@@ -190,7 +191,7 @@ public class IbfMarketResourceFlowController extends CustomController<IbfMarketR
     * @param request
     * @param ibfMarketResourceFlow
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:exportXls")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfMarketResourceFlow ibfMarketResourceFlow) {
 		String selections = request.getParameter("selections");
@@ -207,7 +208,7 @@ public class IbfMarketResourceFlowController extends CustomController<IbfMarketR
     * @param response
     * @return
     */
-    //@RequiresPermissions("ibf_market_resource_flow:importExcel")
+    @RequiresPermissions("org.jeecg.modules.demo:ibf_market_resource_flow:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, IbfMarketResourceFlow.class);
