@@ -3,6 +3,7 @@ package org.jeecg.modules.ibf.job;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.util.DateUtils;
@@ -61,12 +62,20 @@ public class CreateReportRecordJob implements Job {
 
     public static final String[] EXCLUDE_PROPERTIES = {"id", "created_at", "updated_at", "created_by", "updated_by", "is_publish", "flag"};
 
+    /**
+     * 若参数变量名修改 QuartzJobController中也需对应修改
+     */
+    private String parameter;
+
     @SneakyThrows
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         // 每月21号0时创建报表记录
         log.info("创建报表记录");
         String curMonth = IbfDateUtil.getCurrentMonth();
+        if (StringUtils.isNotBlank(parameter)) {
+            curMonth = parameter;
+        }
 
         List<DictModel> dictModelList = commonApi.queryEnableDictItemsByCode(DICT_CODE);
         List<String> shortMarketIdList = dictModelList.stream().map(DictModel::getValue).collect(Collectors.toList());
