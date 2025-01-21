@@ -67,6 +67,10 @@ public class CreateReportRecordJob implements Job {
      */
     private String parameter;
 
+    public void setParameter(String parameter) {
+        this.parameter = parameter;
+    }
+
     @SneakyThrows
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
