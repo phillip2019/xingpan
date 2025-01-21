@@ -1,6 +1,7 @@
 package org.jeecg.modules.ibf.controller;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -90,6 +91,8 @@ public class IbfMarketResourceFlowController extends CustomController<IbfMarketR
 		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
 		if (org.apache.commons.lang.StringUtils.isNotBlank(loginUser.getRelTenantIds())) {
 			queryWrapper.in("short_market_id", Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds(), ',')));
+		} else {
+			queryWrapper.in("short_market_id", Collections.singletonList(""));
 		}
 		Page<IbfMarketResourceFlow> page = new Page<IbfMarketResourceFlow>(pageNo, pageSize);
 		IPage<IbfMarketResourceFlow> pageList = ibfMarketResourceFlowService.page(page, queryWrapper);

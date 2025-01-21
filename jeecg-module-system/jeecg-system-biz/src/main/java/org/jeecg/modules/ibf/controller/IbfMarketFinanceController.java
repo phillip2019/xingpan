@@ -94,6 +94,8 @@ public class IbfMarketFinanceController extends CustomController<IbfMarketFinanc
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         if (StringUtils.isNotBlank(loginUser.getRelTenantIds())) {
             queryWrapper.in("short_market_id", Arrays.asList(StringUtils.split(loginUser.getRelTenantIds(), ',')));
+        } else {
+            queryWrapper.in("short_market_id", Collections.singletonList(""));
         }
         Page<IbfMarketFinance> page = new Page<IbfMarketFinance>(pageNo, pageSize);
         IPage<IbfMarketFinance> pageList = ibfMarketFinanceService.page(page, queryWrapper);

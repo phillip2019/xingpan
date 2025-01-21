@@ -92,6 +92,8 @@ public class IbfMarketResourceController extends CustomController<IbfMarketResou
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         if (org.apache.commons.lang.StringUtils.isNotBlank(loginUser.getRelTenantIds())) {
             queryWrapper.in("short_market_id", Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds(), ',')));
+        } else {
+            queryWrapper.in("short_market_id", Collections.singletonList(""));
         }
         Page<IbfMarketResource> page = new Page<IbfMarketResource>(pageNo, pageSize);
         IPage<IbfMarketResource> pageList = ibfMarketResourceService.page(page, queryWrapper);

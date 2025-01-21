@@ -83,6 +83,8 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         if (StringUtils.isNotBlank(loginUser.getRelTenantIds())) {
             queryWrapper.in("short_market_id", Arrays.asList(StringUtils.split(loginUser.getRelTenantIds(), ',')));
+        } else {
+            queryWrapper.in("short_market_id", Collections.singletonList(""));
         }
         Page<IbfMarketFlow> page = new Page<IbfMarketFlow>(pageNo, pageSize);
         IPage<IbfMarketFlow> pageList = ibfMarketFlowService.page(page, queryWrapper);

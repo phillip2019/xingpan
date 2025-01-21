@@ -1,6 +1,7 @@
 package org.jeecg.modules.ibf.controller;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,6 +78,8 @@ public class IbfMarketResourceSysController extends JeecgController<IbfMarketRes
 		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
 		if (StringUtils.isNotBlank(loginUser.getRelTenantIds())) {
 			queryWrapper.in("short_market_id", Arrays.asList(StringUtils.split(loginUser.getRelTenantIds(), ',')));
+		} else {
+			queryWrapper.in("short_market_id", Collections.singletonList(""));
 		}
 		Page<IbfMarketResourceSys> page = new Page<IbfMarketResourceSys>(pageNo, pageSize);
 		IPage<IbfMarketResourceSys> pageList = ibfMarketResourceSysService.page(page, queryWrapper);
