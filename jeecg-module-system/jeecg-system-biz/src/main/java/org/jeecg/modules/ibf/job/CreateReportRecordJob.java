@@ -189,7 +189,7 @@ public class CreateReportRecordJob implements Job {
 
         // 创建发版记录
         IbfReportingSummary record = new IbfReportingSummary();
-        String[] curMonthDuration = IbfDateUtil.getCurrentMonthStartAndEndDate();
+        String[] curMonthDuration = IbfDateUtil.getCurrentMonthStartAndEndDate(curMonth);
         record.setYear(Integer.parseInt(curMonth.substring(0, 4)))
                 // 起始时间为若为1月，则起始时间为本年1月1号-本年1月20号
                 .setStatStartDate(DateUtils.parseDate(curMonthDuration[0], "yyyy-MM-dd"))

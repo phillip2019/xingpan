@@ -1,6 +1,7 @@
 package org.jeecg.modules.ibf.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -69,8 +70,12 @@ public class IbfDateUtil {
      * @date 18/1/2025 上午 10:42
      * @version v1.0.0
      **/
-    public static String[] getCurrentMonthStartAndEndDate() {
+    public static String[] getCurrentMonthStartAndEndDate(String curMonth) {
+        // 当前curMonth转换成LocalDate对象
         LocalDate today = LocalDate.now();
+        if (StringUtils.isNotBlank(curMonth)) {
+            today = LocalDate.parse(curMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
+        }
         int currentMonth = today.getMonthValue();
         int currentYear = today.getYear();
 
