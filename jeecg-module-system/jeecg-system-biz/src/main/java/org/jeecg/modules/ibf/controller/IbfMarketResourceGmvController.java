@@ -96,7 +96,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 	public Result<String> add(@RequestBody IbfMarketResourceGmv ibfMarketResourceGmv) {
 		// 直接获取当前用户
 		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-		List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds()));
+		List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds(), ','));
 		if (!shortMarketIdList.contains(ibfMarketResourceGmv.getShortMarketId())) {
 			return Result.ok(String.format("无法添加市场编号为: [%s]，请联系相关人员!", ibfMarketResourceGmv.getShortMarketId()));
 		}
@@ -119,7 +119,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
 		List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(loginUser.getRelTenantIds(), ','));
 		if (org.apache.commons.lang.StringUtils.isNotBlank(ibfMarketResourceGmv.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketResourceGmv.getShortMarketId())) {
-			return Result.ok(String.format("无法修改市场编号为: [%s]，请联系相关人员!", ibfMarketResourceGmv.getShortMarketId()));
+			return Result.ok(String.format("没有权限修改市场编号为: [%s]，请联系相关人员!", ibfMarketResourceGmv.getShortMarketId()));
 		}
 		ibfMarketResourceGmvService.updateById(ibfMarketResourceGmv);
 		return Result.OK("编辑成功!");

@@ -102,7 +102,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
     public Result<String> add(@RequestBody IbfMarketFlow ibfMarketFlow) {
         // 直接获取当前用户
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        List<String> shortMarketIdList = Arrays.asList(StringUtils.split(loginUser.getRelTenantIds()));
+        List<String> shortMarketIdList = Arrays.asList(StringUtils.split(loginUser.getRelTenantIds(), ','));
         if (!shortMarketIdList.contains(ibfMarketFlow.getShortMarketId())) {
             return Result.ok(String.format("无法添加市场编号为: [%s]，请联系相关人员!", ibfMarketFlow.getShortMarketId()));
         }
@@ -123,9 +123,9 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
     public Result<String> edit(@RequestBody IbfMarketFlow ibfMarketFlow) {
         // 直接获取当前用户
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        List<String> shortMarketIdList = Arrays.asList(StringUtils.split(loginUser.getRelTenantIds()));
+        List<String> shortMarketIdList = Arrays.asList(StringUtils.split(loginUser.getRelTenantIds(), ','));
         if (StringUtils.isNotBlank(ibfMarketFlow.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketFlow.getShortMarketId())) {
-            return Result.ok(String.format("无法修改市场编号为: [%s]，请联系相关人员!", ibfMarketFlow.getShortMarketId()));
+            return Result.ok(String.format("没有权限修改市场编号为: [%s]，请联系相关人员!", ibfMarketFlow.getShortMarketId()));
         }
         ibfMarketFlowService.updateById(ibfMarketFlow);
         return Result.OK("编辑成功!");
@@ -212,7 +212,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
             queryWrapper.in("id", selectionList);
         }
         // 过滤当前租户数据
-        List<String> shortMarketIdList = Arrays.asList(StringUtils.split(sysUser.getRelTenantIds()));
+        List<String> shortMarketIdList = Arrays.asList(StringUtils.split(sysUser.getRelTenantIds(), ','));
         if (!shortMarketIdList.isEmpty()) {
             queryWrapper.in("short_market_id", shortMarketIdList);
         }

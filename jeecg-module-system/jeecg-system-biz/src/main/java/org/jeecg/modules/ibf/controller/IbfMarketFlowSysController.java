@@ -92,6 +92,12 @@ public class IbfMarketFlowSysController extends JeecgController<IbfMarketFlowSys
 	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow_sys:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody IbfMarketFlowSys ibfMarketFlowSys) {
+		// 直接获取当前用户
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		List<String> shortMarketIdList = Arrays.asList(StringUtils.split(loginUser.getRelTenantIds(), ','));
+		if (!shortMarketIdList.contains(ibfMarketFlowSys.getShortMarketId())) {
+			return Result.ok(String.format("没有权限添加市场编号为: [%s]，请联系相关人员!", ibfMarketFlowSys.getShortMarketId()));
+		}
 		ibfMarketFlowSysService.save(ibfMarketFlowSys);
 		return Result.OK("添加成功！");
 	}
@@ -107,6 +113,12 @@ public class IbfMarketFlowSysController extends JeecgController<IbfMarketFlowSys
 	//@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow_sys:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody IbfMarketFlowSys ibfMarketFlowSys) {
+		// 直接获取当前用户
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		List<String> shortMarketIdList = Arrays.asList(StringUtils.split(loginUser.getRelTenantIds(), ','));
+		if (StringUtils.isNotBlank(ibfMarketFlowSys.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketFlowSys.getShortMarketId())) {
+			return Result.ok(String.format("没有权限修改市场编号为: [%s]，请联系相关人员!", ibfMarketFlowSys.getShortMarketId()));
+		}
 		ibfMarketFlowSysService.updateById(ibfMarketFlowSys);
 		return Result.OK("编辑成功!");
 	}
@@ -167,7 +179,8 @@ public class IbfMarketFlowSysController extends JeecgController<IbfMarketFlowSys
     //@RequiresPermissions("org.jeecg.modules.demo:ibf_market_flow_sys:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, IbfMarketFlowSys ibfMarketFlowSys) {
-        return super.exportXls(request, ibfMarketFlowSys, IbfMarketFlowSys.class, "ibf_market_flow_sys");
+		String title = "每月流量填报";
+		return super.exportXls(request, ibfMarketFlowSys, IbfMarketFlowSys.class, title);
     }
 
     /**

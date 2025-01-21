@@ -79,9 +79,13 @@ public class ReportAutoPublishJob implements Job {
         }
         String lastMonth = IbfDateUtil.getLastMonth(curMonth);
 
-//      将当月的填报记录发布，发布后，将当月发布记录is_publish改为1，将当月填报数据is_publish改为1
-//      将上月的发布记录is_publish改为2（下线)，将上月填报数据is_publish改为2（下线），将之前发布记录flag非0的修改成0，将之前填报数据flag非0的修改成0
-        IbfReportingSummary ibfReportingSummary = ibfReportingSummaryService.getOne(new LambdaQueryWrapper<IbfReportingSummary>().eq(IbfReportingSummary::getMonthCol, curMonth));
+//      将当月的填报记录发布，发布后，将当月发布记录is_publish改为1，flag改成0，将当月填报数据is_publish改为1，flag改成0
+//      将上月的发布记录is_publish改为1，flag=15，将上月填报数据is_publish改为1，flag=15，
+//      若存在待发布记录，is_publish=3(过期)，flag=15，将之前填报数据的is_publish=3,flag=15
+        IbfReportingSummary ibfReportingSummary = ibfReportingSummaryService.getOne(new LambdaQueryWrapper<IbfReportingSummary>()
+                .eq(IbfReportingSummary::getMonthCol, curMonth)
+                .eq(IbfReportingSummary::getIsPublish, 0))
+                ;
         if (ibfReportingSummary == null) {
             log.warn("业财一体-每月创建数据失败，本月数据不存在");
             return;
@@ -93,105 +97,191 @@ public class ReportAutoPublishJob implements Job {
             List<IbfMarketResourceFlow> ibfMarketResourceFlowList = new ArrayList<>(16);
             List<IbfMarketFinance> ibfMarketFinanceList = new ArrayList<>(16);
 
-            ibfReportingSummary.setIsPublish(1)
+            ibfReportingSummary
+                    .setIsPublish(1)
+                    .setFlag(0)
                     .setUpdateBy("system")
             ;
             ibfReportingSummaryList.add(ibfReportingSummary);
 
-            List<IbfMarketResource> curIbfMarketResourceList = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>().eq(IbfMarketResource::getMonthCol, curMonth));
+            List<IbfMarketResource> curIbfMarketResourceList = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>()
+                    .eq(IbfMarketResource::getMonthCol, curMonth)
+                    .eq(IbfMarketResource::getIsPublish, 0)
+                    .eq(IbfMarketResource::getIsDeleted, 0)
+            );
             for (IbfMarketResource ibfMarketResource : curIbfMarketResourceList) {
                 ibfMarketResource.setIsPublish(1)
-                                .setUpdateBy("system")
-                        ;
+                                 .setFlag(0)
+                                 .setUpdateBy("system")
+                ;
                 ibfMarketResourceList.add(ibfMarketResource);
             }
 
             // 资源GMV更新
-            List<IbfMarketResourceGmv> curIbfMarketResourceGmvList = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>().eq(IbfMarketResourceGmv::getMonthCol, curMonth));
+            List<IbfMarketResourceGmv> curIbfMarketResourceGmvList = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>()
+                    .eq(IbfMarketResourceGmv::getMonthCol, curMonth)
+                    .eq(IbfMarketResourceGmv::getIsPublish, 0)
+                    .eq(IbfMarketResourceGmv::getIsDeleted, 0)
+            );
             for (IbfMarketResourceGmv ibfMarketResourceGmv : curIbfMarketResourceGmvList) {
                 ibfMarketResourceGmv.setIsPublish(1)
-                        .setUpdateBy("system");
+                                    .setFlag(0)
+                                    .setUpdateBy("system");
                 ibfMarketResourceGmvList.add(ibfMarketResourceGmv);
             }
 
             // 资源流量更新
-            List<IbfMarketResourceFlow> curIbfMarketResourceFlowList = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>().eq(IbfMarketResourceFlow::getMonthCol, curMonth));
+            List<IbfMarketResourceFlow> curIbfMarketResourceFlowList = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>()
+                    .eq(IbfMarketResourceFlow::getMonthCol, curMonth)
+                    .eq(IbfMarketResourceFlow::getIsPublish, 0)
+                    .eq(IbfMarketResourceFlow::getIsDeleted, 0)
+            );
             for (IbfMarketResourceFlow ibfMarketResourceFlow : curIbfMarketResourceFlowList) {
-                ibfMarketResourceFlow.setIsPublish(1).setUpdateBy("system");
+                ibfMarketResourceFlow
+                        .setIsPublish(1)
+                        .setFlag(0)
+                        .setUpdateBy("system");
                 ibfMarketResourceFlowList.add(ibfMarketResourceFlow);
             }
             // 财务更新
-            List<IbfMarketFinance> curIbfMarketFinanceList = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>().eq(IbfMarketFinance::getMonthCol, curMonth));
+            List<IbfMarketFinance> curIbfMarketFinanceList = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>()
+                    .eq(IbfMarketFinance::getMonthCol, curMonth)
+                    .eq(IbfMarketFinance::getIsPublish, 0)
+                    .eq(IbfMarketFinance::getIsDeleted, 0)
+            );
             for (IbfMarketFinance ibfMarketFinance : curIbfMarketFinanceList) {
-                ibfMarketFinance.setIsPublish(1);
+                ibfMarketFinance
+                        .setIsPublish(1)
+                        .setFlag(0)
+                        .setUpdateBy("system")
+                ;
                 ibfMarketFinanceList.add(ibfMarketFinance);
             }
 
-            // 将上月的发布记录is_publish改为2（下线)，将上月填报数据is_publish改为2（下线），将之前发布记录flag非0的修改成0，将之前填报数据flag非0的修改成0
-            IbfReportingSummary lastMonthIbfReportingSummary = ibfReportingSummaryService.getOne(new LambdaQueryWrapper<IbfReportingSummary>().eq(IbfReportingSummary::getMonthCol, lastMonth).eq(IbfReportingSummary::getIsPublish, 1));
+            // 将上月的发布记录is_publish改为1,flag=15，
+            IbfReportingSummary lastMonthIbfReportingSummary = ibfReportingSummaryService.getOne(new LambdaQueryWrapper<IbfReportingSummary>()
+                    .eq(IbfReportingSummary::getMonthCol, lastMonth)
+                    .eq(IbfReportingSummary::getIsPublish, 1)
+                    .eq(IbfReportingSummary::getIsDeleted, 0)
+            );
             if (lastMonthIbfReportingSummary != null) {
-                lastMonthIbfReportingSummary.setIsPublish(2).setUpdateBy("system");
+                lastMonthIbfReportingSummary
+                        .setIsPublish(1)
+                        .setFlag(15)
+                        .setUpdateBy("system");
                 ibfReportingSummaryList.add(lastMonthIbfReportingSummary);
             }
 
-            List<IbfMarketResource> lastMonthIbfMarketResourceList = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>().eq(IbfMarketResource::getMonthCol, lastMonth).eq(IbfMarketResource::getIsPublish, 1));
+            List<IbfMarketResource> lastMonthIbfMarketResourceList = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>()
+                    .eq(IbfMarketResource::getMonthCol, lastMonth)
+                    .eq(IbfMarketResource::getIsPublish, 1)
+                    .eq(IbfMarketResource::getIsDeleted, 0)
+            );
             for (IbfMarketResource ibfMarketResource : lastMonthIbfMarketResourceList) {
-                ibfMarketResource.setIsPublish(2).setUpdateBy("system");
+                ibfMarketResource
+                        .setIsPublish(1)
+                        .setFlag(15)
+                        .setUpdateBy("system");
                 ibfMarketResourceList.add(ibfMarketResource);
             }
 
             // 资源GMV更新
-            List<IbfMarketResourceGmv> lastMonthIbfMarketResourceGmvList = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>().eq(IbfMarketResourceGmv::getMonthCol, lastMonth).eq(IbfMarketResourceGmv::getIsPublish, 1));
+            List<IbfMarketResourceGmv> lastMonthIbfMarketResourceGmvList = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>()
+                    .eq(IbfMarketResourceGmv::getMonthCol, lastMonth)
+                    .eq(IbfMarketResourceGmv::getIsPublish, 1)
+                    .eq(IbfMarketResourceGmv::getIsDeleted, 0)
+            );
             for (IbfMarketResourceGmv ibfMarketResourceGmv : lastMonthIbfMarketResourceGmvList) {
-                ibfMarketResourceGmv.setIsPublish(2).setUpdateBy("system");
+                ibfMarketResourceGmv
+                        .setIsPublish(1)
+                        .setFlag(15)
+                        .setUpdateBy("system");
                 ibfMarketResourceGmvList.add(ibfMarketResourceGmv);
             }
 
-            List<IbfMarketResourceFlow> lastMonthIbfMarketResourceFlowList = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>().eq(IbfMarketResourceFlow::getMonthCol, lastMonth).eq(IbfMarketResourceFlow::getIsPublish, 1));
+            List<IbfMarketResourceFlow> lastMonthIbfMarketResourceFlowList = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>()
+                    .eq(IbfMarketResourceFlow::getMonthCol, lastMonth)
+                    .eq(IbfMarketResourceFlow::getIsPublish, 1)
+                    .eq(IbfMarketResourceFlow::getIsDeleted, 0)
+            );
             for (IbfMarketResourceFlow ibfMarketResourceFlow : lastMonthIbfMarketResourceFlowList) {
-                ibfMarketResourceFlow.setIsPublish(2).setUpdateBy("system");
+                ibfMarketResourceFlow
+                        .setIsPublish(1)
+                        .setFlag(15)
+                        .setUpdateBy("system");
                 ibfMarketResourceFlowList.add(ibfMarketResourceFlow);
             }
 
-            List<IbfMarketFinance> lastMonthIbfMarketFinanceList = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>().eq(IbfMarketFinance::getMonthCol, lastMonth).eq(IbfMarketFinance::getIsPublish, 1));
+            List<IbfMarketFinance> lastMonthIbfMarketFinanceList = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>()
+                    .eq(IbfMarketFinance::getMonthCol, lastMonth)
+                    .eq(IbfMarketFinance::getIsPublish, 1)
+                    .eq(IbfMarketFinance::getIsDeleted, 0))
+                    ;
             for (IbfMarketFinance ibfMarketFinance : lastMonthIbfMarketFinanceList) {
-                ibfMarketFinance.setIsPublish(2).setUpdateBy("system");
+                ibfMarketFinance
+                        .setIsPublish(1)
+                        .setFlag(15)
+                        .setUpdateBy("system")
+                ;
                 ibfMarketFinanceList.add(ibfMarketFinance);
             }
 
+            // 将上月填报记录is_publish改为3（过期），flag=15，填报数据is_publish改为3(过期),
             // 将上月的发布flag为非0的，发布状态为0的，将之前填报数据flag非0的修改成0，且将状态置为删除状态，此记录自动删除
-            List<IbfReportingSummary> lastMonthIbfReportingSummaryListFlag = ibfReportingSummaryService.list(new LambdaQueryWrapper<IbfReportingSummary>().eq(IbfReportingSummary::getMonthCol, lastMonth).eq(IbfReportingSummary::getIsPublish, 0).ne(IbfReportingSummary::getFlag, 0));
+            List<IbfReportingSummary> lastMonthIbfReportingSummaryListFlag = ibfReportingSummaryService.list(new LambdaQueryWrapper<IbfReportingSummary>()
+                    .eq(IbfReportingSummary::getMonthCol, lastMonth)
+                    .eq(IbfReportingSummary::getIsPublish, 0)
+                    .ne(IbfReportingSummary::getFlag, 0));
             for (IbfReportingSummary reportingSummary : lastMonthIbfReportingSummaryListFlag) {
-                reportingSummary.setFlag(0);
-                reportingSummary.setIsDeleted(1).setUpdateBy("system");
+                reportingSummary.setFlag(15)
+                                .setIsPublish(3)
+                                .setUpdateBy("system");
                 ibfReportingSummaryList.add(reportingSummary);
             }
 
             // 将之前填报数据flag非0的修改成0，且将状态置为删除状态，此记录自动删除
-            List<IbfMarketResource> lastMonthIbfMarketResourceListFlag = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>().eq(IbfMarketResource::getMonthCol, lastMonth).ne(IbfMarketResource::getFlag, 0));
+            List<IbfMarketResource> lastMonthIbfMarketResourceListFlag = ibfMarketResourceService.list(new LambdaQueryWrapper<IbfMarketResource>()
+                    .eq(IbfMarketResource::getMonthCol, lastMonth)
+                    .eq(IbfMarketResource::getIsPublish, 0)
+                    .ne(IbfMarketResource::getFlag, 0));
             for (IbfMarketResource ibfMarketResource : lastMonthIbfMarketResourceListFlag) {
-                ibfMarketResource.setFlag(0);
-                ibfMarketResource.setIsDeleted(1).setUpdateBy("system");
+                ibfMarketResource.setIsPublish(3)
+                                 .setFlag(15)
+                                 .setIsDeleted(1)
+                                 .setUpdateBy("system")
+                ;
                 ibfMarketResourceList.add(ibfMarketResource);
             }
             // 资源GMV更新
-            List<IbfMarketResourceGmv> lastMonthIbfMarketResourceGmvListFlag = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>().eq(IbfMarketResourceGmv::getMonthCol, lastMonth).ne(IbfMarketResourceGmv::getFlag, 0));
+            List<IbfMarketResourceGmv> lastMonthIbfMarketResourceGmvListFlag = ibfMarketResourceGmvService.list(new LambdaQueryWrapper<IbfMarketResourceGmv>()
+                    .eq(IbfMarketResourceGmv::getMonthCol, lastMonth)
+                    .eq(IbfMarketResourceGmv::getIsPublish, 0)
+                    .ne(IbfMarketResourceGmv::getFlag, 0));
             for (IbfMarketResourceGmv ibfMarketResourceGmv : lastMonthIbfMarketResourceGmvListFlag) {
-                ibfMarketResourceGmv.setFlag(0);
-                ibfMarketResourceGmv.setIsDeleted(1).setUpdateBy("system");
+                ibfMarketResourceGmv.setIsPublish(3)
+                                    .setFlag(15)
+                                    .setIsDeleted(1)
+                                    .setUpdateBy("system");
                 ibfMarketResourceGmvList.add(ibfMarketResourceGmv);
             }
             List<IbfMarketResourceFlow> lastMonthIbfMarketResourceFlowListFlag = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>().eq(IbfMarketResourceFlow::getMonthCol, lastMonth).ne(IbfMarketResourceFlow::getFlag, 0));
             for (IbfMarketResourceFlow ibfMarketResourceFlow : lastMonthIbfMarketResourceFlowListFlag) {
-                ibfMarketResourceFlow.setFlag(0);
-                ibfMarketResourceFlow.setIsDeleted(1).setUpdateBy("system");
+                ibfMarketResourceFlow.setIsPublish(3)
+                                     .setFlag(15)
+                                     .setIsDeleted(1)
+                                     .setUpdateBy("system");
                 ibfMarketResourceFlowList.add(ibfMarketResourceFlow);
             }
             // 财务填报记录更新
-            List<IbfMarketFinance> lastMonthIbfMarketFinanceListFlag = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>().eq(IbfMarketFinance::getMonthCol, lastMonth).ne(IbfMarketFinance::getFlag, 0));
+            List<IbfMarketFinance> lastMonthIbfMarketFinanceListFlag = ibfMarketFinanceService.list(new LambdaQueryWrapper<IbfMarketFinance>()
+                    .eq(IbfMarketFinance::getMonthCol, lastMonth)
+                    .eq(IbfMarketFinance::getIsPublish, 0)
+                    .ne(IbfMarketFinance::getFlag, 0));
             for (IbfMarketFinance ibfMarketFinance : lastMonthIbfMarketFinanceListFlag) {
-                ibfMarketFinance.setFlag(0);
-                ibfMarketFinance.setIsDeleted(1).setUpdateBy("system");
+                ibfMarketFinance.setIsPublish(3)
+                                .setFlag(15)
+                                .setIsDeleted(1)
+                                .setUpdateBy("system");
                 ibfMarketFinanceList.add(ibfMarketFinance);
             }
 

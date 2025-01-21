@@ -95,6 +95,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 		QueryWrapper<IbfReportingSummary> queryWrapper = QueryGenerator.initQueryWrapper(ibfReportingSummary, req.getParameterMap());
 		Page<IbfReportingSummary> page = new Page<IbfReportingSummary>(pageNo, pageSize);
 		queryWrapper.eq("is_deleted", 0);
+		queryWrapper.orderByDesc("month_col");
 		IPage<IbfReportingSummary> pageList = ibfReportingSummaryService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
@@ -248,16 +249,17 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 	 public Result<String> copy(@RequestParam(name="id",required=true) String id) {
 //		 ibfReportingSummaryService.removeById(id);
 		 IbfReportingSummary ibfReportingSummary = ibfReportingSummaryService.getById(id);
-		 if(ibfReportingSummary==null) {
+		 if( ibfReportingSummary==null ) {
 			 return Result.error("复制失败，未找到对应数据");
 		 }
-		 // 若当前状态为发布状态且拷贝状态为未拷贝，则可继续，否则不允许复制
-		 if(!(ibfReportingSummary.getIsPublish() == 1 && ibfReportingSummary.getIsCopy() == 0)) {
-			 return Result.error("复制失败，只有发布状态且未拷贝的版本可复制!");
+		 // 若当前状态为发布状态且拷贝状态为未拷贝，flag=0，isDeleted=0，则可继续，否则不允许复制
+		 if(!(ibfReportingSummary.getIsPublish() == 1 &&
+				 ibfReportingSummary.getIsCopy() == 0 &&
+				 ibfReportingSummary.getFlag() == 0 &&
+				 ibfReportingSummary.getIsDeleted() == 0 )) {
+			 return Result.error("复制失败，只有当月发布状态且未拷贝的版本可复制!");
 		 }
-
 		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-
 		 // 复制当前发布版本，发布数据
 		 service.copy(ibfReportingSummary, loginUser);
 
@@ -275,13 +277,12 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
      @RequiresPermissions("org.jeecg.modules.demo:ibf_reporting_summary:publish")
      @PostMapping(value = "/publish")
      public Result<String> publish(@RequestParam(name="id",required=true) String id) {
-//		 ibfReportingSummaryService.removeById(id);
          IbfReportingSummary ibfReportingSummary = ibfReportingSummaryService.getById(id);
-         if(ibfReportingSummary==null) {
+         if( ibfReportingSummary==null ) {
              return Result.error("发布失败，未找到对应数据");
          }
-         // 若当前状态为核验状态且flag为1，则可继续，否则不允许发布
-         if(!(ibfReportingSummary.getIsPublish() == 0 && ibfReportingSummary.getFlag() == 1)) {
+         // 若当前状态为核验状态且flag为1或0，则可继续，否则不允许发布
+         if(!(ibfReportingSummary.getIsPublish() == 0 && (ibfReportingSummary.getFlag() == 1 || ibfReportingSummary.getFlag() == 0))) {
              return Result.error("发布失败，只有核验状态且当前大屏月份可发布!");
          }
 
