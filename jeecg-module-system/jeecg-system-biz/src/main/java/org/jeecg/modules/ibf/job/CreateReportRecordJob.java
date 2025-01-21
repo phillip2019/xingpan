@@ -213,7 +213,7 @@ public class CreateReportRecordJob implements Job {
             ibfMarketResourceFlowService.saveBatch(initResourceFlowM.values());
             ibfMarketFinanceService.saveBatch(initFinanceFlowM.values());
             ibfReportingSummaryService.save(record);
-            log.info("业财一体-每月创建数据成功");
+            log.info("业财一体-创建[{}]月份数据成功", curMonth);
         } catch (Exception e) {
             log.error("业财一体-每月创建数据失败", e);
             throw e;
