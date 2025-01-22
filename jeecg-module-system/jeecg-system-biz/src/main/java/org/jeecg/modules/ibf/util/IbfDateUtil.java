@@ -74,7 +74,7 @@ public class IbfDateUtil {
         // 当前curMonth转换成LocalDate对象
         LocalDate today = LocalDate.now();
         if (StringUtils.isNotBlank(curMonth)) {
-            today = LocalDate.parse(curMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
+            today = LocalDate.from(LocalDate.parse(curMonth + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         }
         int currentMonth = today.getMonthValue();
         int currentYear = today.getYear();
