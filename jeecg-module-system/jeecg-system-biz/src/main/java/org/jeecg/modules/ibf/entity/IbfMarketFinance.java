@@ -1,6 +1,7 @@
 package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.math.BigDecimal;
 
@@ -11,13 +12,14 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.util.DateUtil;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import static org.jeecg.modules.ibf.IbfConst.TEN_THOUSAND;
 
 /**
  * @Description: 业财一体-财务填报
@@ -76,4 +78,43 @@ public class IbfMarketFinance extends IbfCommonEntity implements Serializable {
     @ApiModelProperty(value = "修改人")
     private String updateBy;
 
+    @Override
+    public void customDB2VO() {
+        if (this.curPeriodIncome1m != null) {
+            this.curPeriodIncome1m = this.curPeriodIncome1m.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+        if (this.turnoverIncomeSd != null) {
+            this.turnoverIncomeSd = this.turnoverIncomeSd.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+        if (this.targetTurnoverIncomeSd != null) {
+            this.targetTurnoverIncomeSd = this.targetTurnoverIncomeSd.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.accumulateProfitIncomeSd != null) {
+            this.accumulateProfitIncomeSd = this.accumulateProfitIncomeSd.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+        if (this.targetProfitIncomeSd != null) {
+            this.targetProfitIncomeSd = this.targetProfitIncomeSd.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+    }
+
+    @Override
+    public void customVO2DB() {
+        super.customVO2DB();
+        if (this.curPeriodIncome1m != null) {
+            this.curPeriodIncome1m = this.curPeriodIncome1m.multiply(TEN_THOUSAND);
+        }
+        if (this.turnoverIncomeSd != null) {
+            this.turnoverIncomeSd = this.turnoverIncomeSd.multiply(TEN_THOUSAND);
+        }
+        if (this.targetTurnoverIncomeSd != null) {
+            this.targetTurnoverIncomeSd = this.targetTurnoverIncomeSd.multiply(TEN_THOUSAND);
+        }
+        if (this.accumulateProfitIncomeSd != null) {
+            this.accumulateProfitIncomeSd = this.accumulateProfitIncomeSd.multiply(TEN_THOUSAND);
+        }
+        if (this.targetProfitIncomeSd != null) {
+            this.targetProfitIncomeSd = this.targetProfitIncomeSd.multiply(TEN_THOUSAND);
+        }
+    }
 }

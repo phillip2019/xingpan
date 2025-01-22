@@ -88,6 +88,8 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
         }
         Page<IbfMarketFlow> page = new Page<IbfMarketFlow>(pageNo, pageSize);
         IPage<IbfMarketFlow> pageList = ibfMarketFlowService.page(page, queryWrapper);
+        List<IbfMarketFlow> ibfMarketFlowList = pageList.getRecords();
+        ibfMarketFlowList.forEach(IbfMarketFlow::customDB2VO);
         return Result.OK(pageList);
     }
 
@@ -108,6 +110,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
         if (!shortMarketIdList.contains(ibfMarketFlow.getShortMarketId())) {
             return Result.ok(String.format("无法添加市场编号为: [%s]，请联系相关人员!", ibfMarketFlow.getShortMarketId()));
         }
+        ibfMarketFlow.customVO2DB();
         ibfMarketFlowService.save(ibfMarketFlow);
         return Result.OK("添加成功！");
     }
@@ -129,6 +132,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
         if (StringUtils.isNotBlank(ibfMarketFlow.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketFlow.getShortMarketId())) {
             return Result.ok(String.format("没有权限修改市场编号为: [%s]，请联系相关人员!", ibfMarketFlow.getShortMarketId()));
         }
+        ibfMarketFlow.customVO2DB();
         ibfMarketFlowService.updateById(ibfMarketFlow);
         return Result.OK("编辑成功!");
     }
@@ -177,6 +181,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
         if (ibfMarketFlow == null) {
             return Result.error("未找到对应数据");
         }
+        ibfMarketFlow.customDB2VO();
         return Result.OK(ibfMarketFlow);
     }
 
@@ -221,6 +226,8 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
 
         // Step.2 获取导出数据
         List<IbfMarketFlow> exportList = service.list(queryWrapper);
+
+        exportList.forEach(IbfMarketFlow::customDB2VO);
 
         // Step.3 AutoPoi 导出Excel
         ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
@@ -308,6 +315,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
                     }
                 }
 
+                list.forEach(IbfMarketFlow::customVO2DB);
                 //update-begin-author:taoyan date:20190528 for:批量插入数据
                 long start = System.currentTimeMillis();
                 service.saveOrUpdateBatch(list);
@@ -349,6 +357,7 @@ public class IbfMarketFlowController extends JeecgController<IbfMarketFlow, IIbf
         if (ibfMarketFlow == null) {
             return Result.OK(null);
         }
+        ibfMarketFlow.customDB2VO();
         return Result.OK(ibfMarketFlow);
     }
 

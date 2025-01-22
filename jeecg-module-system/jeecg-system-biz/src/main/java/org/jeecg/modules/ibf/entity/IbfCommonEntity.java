@@ -11,12 +11,14 @@ import org.jeecg.common.util.DateUtil;
 import org.jeecgframework.poi.excel.annotation.Excel;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 public class IbfCommonEntity extends JeecgEntity implements Serializable {
+
     /**市场*/
     @Dict(dicCode = "finance_short_market_id")
     @Excel(name = "市场", width = 4, dicCode = "finance_short_market_id", type = 1)
@@ -50,4 +52,17 @@ public class IbfCommonEntity extends JeecgEntity implements Serializable {
         this.monthCol = DateUtil.convertMonthCol(text);
     }
 
+    /**
+     * 特殊处理方法，某些参数需要转移，除特定的值
+     * 将数据库中的值转换成VO
+     **/
+    public void customDB2VO() {
+    }
+
+    /**
+     * 特殊处理方法，某些参数需要转移，乘特定的值
+     * 将VO转换成DB值
+     **/
+    public void customVO2DB() {
+    }
 }

@@ -1,6 +1,7 @@
 package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.Date;
 import java.math.BigDecimal;
@@ -19,6 +20,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import static org.jeecg.modules.ibf.IbfConst.TEN_THOUSAND;
 
 /**
  * @Description: 业财一体-市场资源填报表
@@ -144,10 +147,10 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @ApiModelProperty(value = "当前空置户数")
     private Integer emptyBoothHoldsNumTd;
     /**
-     * 本年入场资格费收入（万）
+     * 本年入场资格费收入（万元）
      */
     @Excel(name = "本年入场资格费收入", width = 20, type = 4, groupName = "招商")
-    @ApiModelProperty(value = "本年入场资格费收入（万）")
+    @ApiModelProperty(value = "本年入场资格费收入（万元）")
     private BigDecimal entryQualificationIncomeSd;
     /**
      * 续租完成率统计日期 yyyy-MM-dd
@@ -175,10 +178,10 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @ApiModelProperty(value = "本年到期户数（户）")
     private Integer expiredHoldsNumSd;
     /**
-     * 本年续租收入（万）
+     * 本年续租收入（万元）
      */
     @Excel(name = "本年续租收入", width = 15, type = 4, groupName = "续租")
-    @ApiModelProperty(value = "本年续租收入（万）")
+    @ApiModelProperty(value = "本年续租收入（万元）")
     private BigDecimal renewLeaseIncomeSd;
     /**
      * 商位转让笔数
@@ -283,4 +286,49 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
         this.renewLeaseRateStatisticsDate = convertsetDateCol(text);
     }
 
+    @Override
+    public void customDB2VO() {
+        super.customDB2VO();
+        // 金额都/10000
+        if (this.entryQualificationIncomeSd != null) {
+            this.entryQualificationIncomeSd = this.entryQualificationIncomeSd.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.renewLeaseIncomeSd != null) {
+            this.renewLeaseIncomeSd = this.renewLeaseIncomeSd.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.marketTransferPriceAvg1m != null) {
+            this.marketTransferPriceAvg1m = this.marketTransferPriceAvg1m.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.marketRentPriceAvg1m != null) {
+            this.marketRentPriceAvg1m = this.marketRentPriceAvg1m.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.pledgeApplyIncome1m != null) {
+            this.pledgeApplyIncome1m = this.pledgeApplyIncome1m.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+    }
+
+    @Override
+    public void customVO2DB() {
+        super.customVO2DB();
+        if (this.entryQualificationIncomeSd != null) {
+            this.entryQualificationIncomeSd = this.entryQualificationIncomeSd.multiply(TEN_THOUSAND);
+        }
+        if (this.renewLeaseIncomeSd != null) {
+            this.renewLeaseIncomeSd = this.renewLeaseIncomeSd.multiply(TEN_THOUSAND);
+        }
+        if (this.marketTransferPriceAvg1m != null) {
+            this.marketTransferPriceAvg1m = this.marketTransferPriceAvg1m.multiply(TEN_THOUSAND);
+        }
+        if (this.marketRentPriceAvg1m != null) {
+            this.marketRentPriceAvg1m = this.marketRentPriceAvg1m.multiply(TEN_THOUSAND);
+        }
+        if (this.pledgeApplyIncome1m != null) {
+            this.pledgeApplyIncome1m = this.pledgeApplyIncome1m.multiply(TEN_THOUSAND);
+        }
+    }
 }

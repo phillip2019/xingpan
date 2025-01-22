@@ -81,6 +81,7 @@ public class IbfMarketFlowSysController extends JeecgController<IbfMarketFlowSys
 		}
 		Page<IbfMarketFlowSys> page = new Page<IbfMarketFlowSys>(pageNo, pageSize);
 		IPage<IbfMarketFlowSys> pageList = ibfMarketFlowSysService.page(page, queryWrapper);
+		pageList.getRecords().forEach(IbfMarketFlowSys::customDB2VO);
 		return Result.OK(pageList);
 	}
 	
@@ -101,6 +102,7 @@ public class IbfMarketFlowSysController extends JeecgController<IbfMarketFlowSys
 		if (!shortMarketIdList.contains(ibfMarketFlowSys.getShortMarketId())) {
 			return Result.ok(String.format("没有权限添加市场编号为: [%s]，请联系相关人员!", ibfMarketFlowSys.getShortMarketId()));
 		}
+		ibfMarketFlowSys.customVO2DB();
 		ibfMarketFlowSysService.save(ibfMarketFlowSys);
 		return Result.OK("添加成功！");
 	}
@@ -122,6 +124,7 @@ public class IbfMarketFlowSysController extends JeecgController<IbfMarketFlowSys
 		if (StringUtils.isNotBlank(ibfMarketFlowSys.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketFlowSys.getShortMarketId())) {
 			return Result.ok(String.format("没有权限修改市场编号为: [%s]，请联系相关人员!", ibfMarketFlowSys.getShortMarketId()));
 		}
+		ibfMarketFlowSys.customVO2DB();
 		ibfMarketFlowSysService.updateById(ibfMarketFlowSys);
 		return Result.OK("编辑成功!");
 	}
@@ -170,6 +173,7 @@ public class IbfMarketFlowSysController extends JeecgController<IbfMarketFlowSys
 		if(ibfMarketFlowSys==null) {
 			return Result.error("未找到对应数据");
 		}
+		ibfMarketFlowSys.customDB2VO();
 		return Result.OK(ibfMarketFlowSys);
 	}
 

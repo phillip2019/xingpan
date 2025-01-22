@@ -83,6 +83,7 @@ public class IbfMarketResourceSysController extends JeecgController<IbfMarketRes
 		}
 		Page<IbfMarketResourceSys> page = new Page<IbfMarketResourceSys>(pageNo, pageSize);
 		IPage<IbfMarketResourceSys> pageList = ibfMarketResourceSysService.page(page, queryWrapper);
+		pageList.getRecords().forEach(IbfMarketResourceSys::customDB2VO);
 		return Result.OK(pageList);
 	}
 	
@@ -98,6 +99,7 @@ public class IbfMarketResourceSysController extends JeecgController<IbfMarketRes
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody IbfMarketResourceSys ibfMarketResourceSys) {
 		ibfMarketResourceSysService.save(ibfMarketResourceSys);
+		ibfMarketResourceSys.customVO2DB();
 		return Result.OK("添加成功！");
 	}
 	
@@ -113,6 +115,7 @@ public class IbfMarketResourceSysController extends JeecgController<IbfMarketRes
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody IbfMarketResourceSys ibfMarketResourceSys) {
 		ibfMarketResourceSysService.updateById(ibfMarketResourceSys);
+		ibfMarketResourceSys.customVO2DB();
 		return Result.OK("编辑成功!");
 	}
 	
@@ -160,6 +163,7 @@ public class IbfMarketResourceSysController extends JeecgController<IbfMarketRes
 		if(ibfMarketResourceSys==null) {
 			return Result.error("未找到对应数据");
 		}
+		ibfMarketResourceSys.customDB2VO();
 		return Result.OK(ibfMarketResourceSys);
 	}
 
@@ -217,8 +221,9 @@ public class IbfMarketResourceSysController extends JeecgController<IbfMarketRes
 		 IbfMarketResourceSys ibfMarketResourceSys = ibfMarketResourceSysService.getOne(lambdaQueryWrapper);
 		 // 若不存在，抛出错误
 		 if (ibfMarketResourceSys == null) {
-			 return Result.error(String.format("无此%s月份，市场: %s的系统数据，请联系相关人员解决", monthCol, shortMarketId));
+			 return Result.OK();
 		 }
+		 ibfMarketResourceSys.customDB2VO();
 		 return Result.OK(ibfMarketResourceSys);
 	 }
 }

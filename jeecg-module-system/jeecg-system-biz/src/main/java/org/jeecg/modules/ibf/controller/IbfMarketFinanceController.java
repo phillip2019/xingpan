@@ -99,6 +99,9 @@ public class IbfMarketFinanceController extends CustomController<IbfMarketFinanc
         }
         Page<IbfMarketFinance> page = new Page<IbfMarketFinance>(pageNo, pageSize);
         IPage<IbfMarketFinance> pageList = ibfMarketFinanceService.page(page, queryWrapper);
+        List<IbfMarketFinance> ibfMarketFinanceList = pageList.getRecords();
+        // 数据库查询结果需要定制化处理
+        ibfMarketFinanceList.forEach(IbfMarketFinance::customDB2VO);
         return Result.OK(pageList);
     }
 
@@ -119,6 +122,7 @@ public class IbfMarketFinanceController extends CustomController<IbfMarketFinanc
         if (!shortMarketIdList.contains(ibfMarketFinance.getShortMarketId())) {
             return Result.ok(String.format("无法添加市场编号为: [%s]，请联系相关人员!", ibfMarketFinance.getShortMarketId()));
         }
+        ibfMarketFinance.customVO2DB();
         ibfMarketFinanceService.save(ibfMarketFinance);
         return Result.OK("添加成功！");
     }
@@ -140,6 +144,7 @@ public class IbfMarketFinanceController extends CustomController<IbfMarketFinanc
         if (StringUtils.isNotBlank(ibfMarketFinance.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketFinance.getShortMarketId())) {
             return Result.ok(String.format("没有权限修改市场编号为: [%s]，请联系相关人员!", ibfMarketFinance.getShortMarketId()));
         }
+        ibfMarketFinance.customVO2DB();
         ibfMarketFinanceService.updateById(ibfMarketFinance);
         return Result.OK("编辑成功!");
     }
@@ -188,6 +193,7 @@ public class IbfMarketFinanceController extends CustomController<IbfMarketFinanc
         if (ibfMarketFinance == null) {
             return Result.error("未找到对应数据");
         }
+        ibfMarketFinance.customDB2VO();
         return Result.OK(ibfMarketFinance);
     }
 

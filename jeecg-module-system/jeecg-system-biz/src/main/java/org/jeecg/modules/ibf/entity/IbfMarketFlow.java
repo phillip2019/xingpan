@@ -1,6 +1,7 @@
 package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.Date;
 import java.math.BigDecimal;
@@ -18,6 +19,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import static org.jeecg.modules.ibf.IbfConst.HUNDRED;
 
 /**
  * @Description: 业财一体-每日填报市场流量
@@ -100,4 +103,16 @@ public class IbfMarketFlow implements Serializable {
         // 将日期格式yyyy-MM-dd格式转换为日期格式
         this.dateCol = DateUtil.convertDateCol(text);
     }
+    public void customDB2VO() {
+        if (this.boothOpeningRate1d != null) {
+            this.boothOpeningRate1d = this.boothOpeningRate1d.divide(HUNDRED, 2, RoundingMode.HALF_UP);
+        }
+    }
+    public void customVO2DB() {
+        if (this.boothOpeningRate1d != null) {
+            this.boothOpeningRate1d = this.boothOpeningRate1d.multiply(HUNDRED);
+        }
+    }
+
+
 }

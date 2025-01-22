@@ -13,6 +13,7 @@ import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.ibf.entity.IbfCommonEntity;
+import org.jeecg.modules.ibf.entity.IbfMarketFinance;
 import org.jeecg.modules.ibf.entity.IbfMarketResource;
 import org.jeecg.modules.ibf.util.IbfDateUtil;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
@@ -77,6 +78,8 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
 
         // Step.2 获取导出数据
         List<T> exportList = service.list(queryWrapper);
+        exportList.forEach(T::customDB2VO);
+
 
         // Step.3 AutoPoi 导出Excel
         ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
@@ -188,7 +191,7 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
                         et.setId(tList.get(0).getId());
                     }
                 }
-
+                list.forEach(T::customVO2DB);
                 //update-begin-author:taoyan date:20190528 for:批量插入数据
                 long start = System.currentTimeMillis();
                 service.saveOrUpdateBatch(list);

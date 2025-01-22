@@ -83,6 +83,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 		}
 		Page<IbfMarketResourceGmv> page = new Page<IbfMarketResourceGmv>(pageNo, pageSize);
 		IPage<IbfMarketResourceGmv> pageList = ibfMarketResourceGmvService.page(page, queryWrapper);
+		pageList.getRecords().forEach(IbfMarketResourceGmv::customDB2VO);
 		return Result.OK(pageList);
 	}
 	
@@ -103,6 +104,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 		if (!shortMarketIdList.contains(ibfMarketResourceGmv.getShortMarketId())) {
 			return Result.ok(String.format("无法添加市场编号为: [%s]，请联系相关人员!", ibfMarketResourceGmv.getShortMarketId()));
 		}
+		ibfMarketResourceGmv.customVO2DB();
 		ibfMarketResourceGmvService.save(ibfMarketResourceGmv);
 		return Result.OK("添加成功！");
 	}
@@ -124,6 +126,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 		if (org.apache.commons.lang.StringUtils.isNotBlank(ibfMarketResourceGmv.getShortMarketId()) && !shortMarketIdList.contains(ibfMarketResourceGmv.getShortMarketId())) {
 			return Result.ok(String.format("没有权限修改市场编号为: [%s]，请联系相关人员!", ibfMarketResourceGmv.getShortMarketId()));
 		}
+		ibfMarketResourceGmv.customVO2DB();
 		ibfMarketResourceGmvService.updateById(ibfMarketResourceGmv);
 		return Result.OK("编辑成功!");
 	}
@@ -172,6 +175,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 		if(ibfMarketResourceGmv==null) {
 			return Result.error("未找到对应数据");
 		}
+		ibfMarketResourceGmv.customDB2VO();
 		return Result.OK(ibfMarketResourceGmv);
 	}
 
@@ -213,6 +217,7 @@ public class IbfMarketResourceGmvController extends CustomController<IbfMarketRe
 		 if (ibfMarketResourceGmv == null) {
 			 return Result.OK(null);
 		 }
+		 ibfMarketResourceGmv.customDB2VO();
 		 return Result.OK(ibfMarketResourceGmv);
 	 }
 }

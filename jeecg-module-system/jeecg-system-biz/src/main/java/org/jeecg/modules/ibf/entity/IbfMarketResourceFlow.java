@@ -2,6 +2,7 @@ package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -18,6 +19,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import static org.jeecg.modules.ibf.IbfConst.HUNDRED;
 
 /**
  * @Description: 月市场资源-市场流量
@@ -83,5 +86,22 @@ public class IbfMarketResourceFlow extends IbfCommonEntity implements Serializab
 
     public void convertsetMonthCol(String text) {
         this.monthCol = DateUtil.convertMonthCol(text);
+    }
+
+    @Override
+    public void customDB2VO() {
+        super.customDB2VO();
+        if (this.boothOpeningRate1m != null) {
+            this.boothOpeningRate1m = this.boothOpeningRate1m.multiply(HUNDRED);
+        }
+    }
+
+    @Override
+    public void customVO2DB() {
+        super.customVO2DB();
+
+        if (this.boothOpeningRate1m != null) {
+            this.boothOpeningRate1m = this.boothOpeningRate1m.divide(HUNDRED, 2, RoundingMode.HALF_UP);
+        }
     }
 }

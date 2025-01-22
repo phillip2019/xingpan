@@ -2,6 +2,7 @@ package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -19,6 +20,9 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.Table;
+
+import static org.jeecg.modules.ibf.IbfConst.HUNDRED;
+import static org.jeecg.modules.ibf.IbfConst.TEN_THOUSAND;
 
 /**
  * @Description: ibf_market_resource_sys
@@ -192,4 +196,51 @@ public class IbfMarketResourceSys implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private Date createdAt;
+    public void customDB2VO() {
+        if (this.marketTransferPriceAvg1m != null) {
+            this.marketTransferPriceAvg1m = this.marketTransferPriceAvg1m.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.marketRentPriceAvg1m != null) {
+            this.marketRentPriceAvg1m = this.marketRentPriceAvg1m.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.pledgeApplyIncome1m != null) {
+            this.pledgeApplyIncome1m = this.pledgeApplyIncome1m.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.entryQualificationIncomeSd != null) {
+            this.entryQualificationIncomeSd = this.entryQualificationIncomeSd.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.renewLeaseIncomeSd != null) {
+            this.renewLeaseIncomeSd = this.renewLeaseIncomeSd.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+
+        if (this.boothOpeningRate1m != null) {
+            this.boothOpeningRate1m = this.boothOpeningRate1m.multiply(HUNDRED);
+        }
+    }
+
+    public void customVO2DB() {
+        if (this.marketTransferPriceAvg1m != null) {
+            this.marketTransferPriceAvg1m = this.marketTransferPriceAvg1m.multiply(TEN_THOUSAND);
+        }
+        if (this.marketRentPriceAvg1m != null) {
+            this.marketRentPriceAvg1m = this.marketRentPriceAvg1m.multiply(TEN_THOUSAND);
+        }
+        if (this.pledgeApplyIncome1m != null) {
+            this.pledgeApplyIncome1m = this.pledgeApplyIncome1m.multiply(TEN_THOUSAND);
+        }
+        if (this.entryQualificationIncomeSd != null) {
+            this.entryQualificationIncomeSd = this.entryQualificationIncomeSd.multiply(TEN_THOUSAND);
+        }
+        if (this.renewLeaseIncomeSd != null) {
+            this.renewLeaseIncomeSd = this.renewLeaseIncomeSd.multiply(TEN_THOUSAND);
+        }
+        if (this.boothOpeningRate1m != null) {
+            this.boothOpeningRate1m = this.boothOpeningRate1m.divide(HUNDRED, 2, RoundingMode.HALF_UP);
+        }
+    }
+
 }

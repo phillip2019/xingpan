@@ -2,6 +2,7 @@ package org.jeecg.modules.ibf.entity;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -18,6 +19,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import static org.jeecg.modules.ibf.IbfConst.TEN_THOUSAND;
 
 /**
  * @Description: 月市场资源-市场成交额填报
@@ -67,5 +70,21 @@ public class IbfMarketResourceGmv extends IbfCommonEntity implements Serializabl
     private String updateBy;
     public void convertsetMonthCol(String text) {
         this.monthCol = DateUtil.convertMonthCol(text);
+    }
+
+    @Override
+    public void customDB2VO() {
+        super.customDB2VO();
+        if (this.marketGmv1m != null) {
+            this.marketGmv1m = this.marketGmv1m.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+        }
+    }
+
+    @Override
+    public void customVO2DB() {
+        super.customVO2DB();
+        if (this.marketGmv1m != null) {
+            this.marketGmv1m = this.marketGmv1m.multiply(TEN_THOUSAND);
+        }
     }
 }
