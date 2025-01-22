@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import static org.jeecg.modules.ibf.IbfConst.HUNDRED_MILLION;
 import static org.jeecg.modules.ibf.IbfConst.TEN_THOUSAND;
 
 /**
@@ -76,7 +77,7 @@ public class IbfMarketResourceGmv extends IbfCommonEntity implements Serializabl
     public void customDB2VO() {
         super.customDB2VO();
         if (this.marketGmv1m != null) {
-            this.marketGmv1m = this.marketGmv1m.divide(TEN_THOUSAND, 2, RoundingMode.HALF_UP);
+            this.marketGmv1m = this.marketGmv1m.divide(HUNDRED_MILLION, 2, RoundingMode.HALF_UP);
         }
     }
 
@@ -84,7 +85,7 @@ public class IbfMarketResourceGmv extends IbfCommonEntity implements Serializabl
     public void customVO2DB() {
         super.customVO2DB();
         if (this.marketGmv1m != null) {
-            this.marketGmv1m = this.marketGmv1m.multiply(TEN_THOUSAND);
+            this.marketGmv1m = this.marketGmv1m.multiply(HUNDRED_MILLION);
         }
     }
 }

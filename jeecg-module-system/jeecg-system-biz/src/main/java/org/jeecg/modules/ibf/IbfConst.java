@@ -15,6 +15,12 @@ public final class IbfConst {
     public static final BigDecimal TEN_THOUSAND = new BigDecimal("10000");
 
     /**
+     * 金额转换系数100000000
+     **/
+    public static final BigDecimal HUNDRED_MILLION = new BigDecimal("100000000");
+
+
+    /**
      * 率转换系数100
      **/
     public static final BigDecimal HUNDRED = new BigDecimal("100");
