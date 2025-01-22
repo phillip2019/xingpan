@@ -156,21 +156,21 @@ public class CreateReportRecordJob implements Job {
             initFinanceFlowM.put(shortMarketId, finance);
         }
 
-        // 财务填报记录额外处理，增加海城市场
-        IbfMarketFinance finance = new IbfMarketFinance();
-        finance.setCurPeriodIncome1m(BigDecimal.valueOf(0))
-                .setTurnoverIncomeSd(BigDecimal.valueOf(0))
-                .setTargetTurnoverIncomeSd(BigDecimal.valueOf(0))
-                .setAccumulateProfitIncomeSd(BigDecimal.valueOf(0))
-                .setTargetProfitIncomeSd(BigDecimal.valueOf(0))
-                .setIsPublish(0)
-                .setFlag(0)
-                .setShortMarketId("9000")
-                .setMonthCol(curMonth)
-                .setCreateBy("system")
-                .setCreateTime(now);
-        // 9000为海城市场
-        initFinanceFlowM.put("9000", finance);
+//        // 财务填报记录额外处理，增加海城市场
+//        IbfMarketFinance finance = new IbfMarketFinance();
+//        finance.setCurPeriodIncome1m(BigDecimal.valueOf(0))
+//                .setTurnoverIncomeSd(BigDecimal.valueOf(0))
+//                .setTargetTurnoverIncomeSd(BigDecimal.valueOf(0))
+//                .setAccumulateProfitIncomeSd(BigDecimal.valueOf(0))
+//                .setTargetProfitIncomeSd(BigDecimal.valueOf(0))
+//                .setIsPublish(0)
+//                .setFlag(0)
+//                .setShortMarketId("9000")
+//                .setMonthCol(curMonth)
+//                .setCreateBy("system")
+//                .setCreateTime(now);
+//        // 9000为海城市场
+//        initFinanceFlowM.put("9000", finance);
 
         if (sysDataList != null && !sysDataList.isEmpty()) {
             sysDataList.forEach(sysData -> {
