@@ -139,28 +139,29 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
                         errShortMarketIdSet.add(et.getShortMarketId());
                         continue;
                     }
-                    // 校验月份
-                    String monthCol = et.getMonthCol();
-                    // 校验月份格式
-                    if (StringUtils.isBlank(monthCol) || !monthCol.matches("\\d{4}-\\d{2}")) {
-                        return Result.error("月份格式错误:【" + monthCol + "】");
-                    }
-                    // 校验月份是否大于当前月份
-                    try {
-                        // monthCol 格式为 yyyy-MM
-                        // 只能导入当前月份（含）之前月份的数据，不能超过2个月
-                        if (IbfDateUtil.calculateMonthDifference(curMonth, monthCol) > 1 ) {
-                            return Result.error( String.format("只能导入近2个月的数据，当前所属月份为: 【 %s 】， 填报月份:【 %s 】", curMonth, monthCol));
-                        }
-
-                        // 不能导入之后月份的数据
-                        if (IbfDateUtil.calculateMonthDifference(curMonth, monthCol) < 0 ) {
-                            return Result.error(String.format("填报月份不能大于当前月份:【 %s 】，不支持提前导入填报: 【%s】月份的数据", curMonth, monthCol));
-                        }
-                    } catch (Exception e) {
-                        log.error("月份格式错误:【" + monthCol + "】", e);
-                        return Result.error("月份格式错误:【" + monthCol + "】");
-                    }
+                    // TODO 先将校验月份逻辑注释
+//                    // 校验月份
+//                    String monthCol = et.getMonthCol();
+//                    // 校验月份格式
+//                    if (StringUtils.isBlank(monthCol) || !monthCol.matches("\\d{4}-\\d{2}")) {
+//                        return Result.error("月份格式错误:【" + monthCol + "】");
+//                    }
+//                    // 校验月份是否大于当前月份
+//                    try {
+//                        // monthCol 格式为 yyyy-MM
+//                        // 只能导入当前月份（含）之前月份的数据，不能超过2个月
+//                        if (IbfDateUtil.calculateMonthDifference(curMonth, monthCol) > 1 ) {
+//                            return Result.error( String.format("只能导入近2个月的数据，当前所属月份为: 【 %s 】， 填报月份:【 %s 】", curMonth, monthCol));
+//                        }
+//
+//                        // 不能导入之后月份的数据
+//                        if (IbfDateUtil.calculateMonthDifference(curMonth, monthCol) < 0 ) {
+//                            return Result.error(String.format("填报月份不能大于当前月份:【 %s 】，不支持提前导入填报: 【%s】月份的数据", curMonth, monthCol));
+//                        }
+//                    } catch (Exception e) {
+//                        log.error("月份格式错误:【" + monthCol + "】", e);
+//                        return Result.error("月份格式错误:【" + monthCol + "】");
+//                    }
                 }
 
                 // 如果有错误的市场编号，返回错误消息
