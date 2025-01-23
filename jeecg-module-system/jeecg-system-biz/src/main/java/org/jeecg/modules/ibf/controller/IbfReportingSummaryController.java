@@ -255,7 +255,7 @@ public class IbfReportingSummaryController extends JeecgController<IbfReportingS
 		 // 若当前状态为发布状态且拷贝状态为未拷贝，flag=0，isDeleted=0，则可继续，否则不允许复制
 		 if(!(ibfReportingSummary.getIsPublish() == 1 &&
 				 ibfReportingSummary.getIsCopy() == 0 &&
-				 ibfReportingSummary.getFlag() == 0 &&
+				 ibfReportingSummary.getIsVisible() == 1 &&
 				 ibfReportingSummary.getIsDeleted() == 0 )) {
 			 return Result.error("复制失败，只有当月发布状态且未拷贝的版本可复制!");
 		 }

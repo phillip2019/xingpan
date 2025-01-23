@@ -24,6 +24,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.jeecg.modules.ibf.IbfConst.SYSTEM_USER;
+
 /**
  * @author xiaowei.song
  * @version v1.0.0
@@ -104,58 +106,32 @@ public class CreateReportRecordJob implements Job {
         Map<String, IbfMarketFinance> initFinanceFlowM = new HashMap<>(8);
         for (String shortMarketId : shortMarketIdList) {
             IbfMarketResource resource = new IbfMarketResource();
-            resource.setIsPublish(0)
-                    .setFlag(0)
-                    .setShortMarketId(shortMarketId)
+            resource.setShortMarketId(shortMarketId)
                     .setMonthCol(curMonth)
-                    .setIsVisible(1)
-                    .setCreateBy("system")
-                    .setCreateTime(now)
+                    .init(now);
             ;
             initResourceM.put(shortMarketId, resource);
 
             IbfMarketResourceGmv resourceGmv = new IbfMarketResourceGmv();
-            resourceGmv.setMarketGmv1m(BigDecimal.valueOf(0))
-                    .setIsPublish(0)
-                    .setFlag(0)
-                    .setShortMarketId(shortMarketId)
+            resourceGmv.setShortMarketId(shortMarketId)
                     .setMonthCol(curMonth)
-                    .setIsVisible(1)
-                    .setCreateBy("system")
-                    .setCreateTime(now)
+                    .init(now)
             ;
             initResourceGmvM.put(shortMarketId, resourceGmv);
 
             // 创建流量
             IbfMarketResourceFlow resourceFlow = new IbfMarketResourceFlow();
-            resourceFlow.setForeignBuyerEntrNum1m(BigDecimal.valueOf(0))
-                    .setMarketBuyerEntrNum1m(BigDecimal.valueOf(0))
-                    .setCarEntrNum1m(BigDecimal.valueOf(0))
-                    .setBoothOpeningRate1m(BigDecimal.valueOf(0))
-                    .setIsPublish(0)
-                    .setFlag(0)
-                    .setShortMarketId(shortMarketId)
-                    .setMonthCol(curMonth)
-                    .setIsVisible(1)
-                    .setCreateBy("system")
-                    .setCreateTime(now);
+            resourceFlow.setShortMarketId(shortMarketId)
+                        .setMonthCol(curMonth)
+                        .init(now);
 
             initResourceFlowM.put(shortMarketId, resourceFlow);
 
             // 创建财务填报记录
             IbfMarketFinance finance = new IbfMarketFinance();
-            finance.setCurPeriodIncome1m(BigDecimal.valueOf(0))
-                    .setTurnoverIncomeSd(BigDecimal.valueOf(0))
-                    .setTargetTurnoverIncomeSd(BigDecimal.valueOf(0))
-                    .setAccumulateProfitIncomeSd(BigDecimal.valueOf(0))
-                    .setTargetProfitIncomeSd(BigDecimal.valueOf(0))
-                    .setIsPublish(0)
-                    .setFlag(0)
-                    .setMonthCol(curMonth)
-                    .setIsVisible(1)
+            finance.setMonthCol(curMonth)
                     .setShortMarketId(shortMarketId)
-                    .setCreateBy("system")
-                    .setCreateTime(now)
+                    .init(now)
                 ;
             initFinanceFlowM.put(shortMarketId, finance);
         }
@@ -187,7 +163,7 @@ public class CreateReportRecordJob implements Job {
                 .setFlag(0)
                 .setIsVisible(1)
                 .setMonthCol(curMonth)
-                .setCreateBy("system")
+                .setCreateBy(SYSTEM_USER)
                 .setCreateTime(now)
                 ;
 

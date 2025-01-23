@@ -22,6 +22,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.jeecg.modules.ibf.IbfConst.SYSTEM_USER;
+
 /**
  * @author xiaowei.song
  * @version v1.0.0
@@ -80,12 +82,13 @@ public class ReportAutoPublishJob implements Job {
         String lastMonth = IbfDateUtil.getLastMonth(curMonth);
 
 //      将当月的填报记录发布，发布后，将当月发布记录is_publish改为1，flag改成0, isVisible改为1，将当月填报数据is_publish改为1，flag改成0，isVisible改为1
-//      将上月的发布记录is_publish改为1，flag=1, isVisible=0，将上月填报数据is_publish改为1，flag=0, isVisible=0，
-//      若存在待发布记录，is_publish=3(过期)，flag=15，将之前填报数据的is_publish=3,flag=15
+//      将上月的发布记录is_publish改为1，flag=0, isVisible=0，将上月填报数据is_publish改为1，flag=0, isVisible=0，
+//      若存在待发布记录，is_publish=3(过期)，flag=0,isVisible=0，将之前填报数据的is_publish=3,flag=0,isVisible=0
         IbfReportingSummary ibfReportingSummary = ibfReportingSummaryService.getOne(new LambdaQueryWrapper<IbfReportingSummary>()
                 .eq(IbfReportingSummary::getMonthCol, curMonth)
-                .eq(IbfReportingSummary::getIsPublish, 0))
-                ;
+                .eq(IbfReportingSummary::getIsPublish, 0)
+                .eq(IbfReportingSummary::getIsDeleted, 0)
+        );
         if (ibfReportingSummary == null) {
             log.warn("业财一体-每月创建数据失败，本月数据不存在");
             return;
@@ -100,7 +103,8 @@ public class ReportAutoPublishJob implements Job {
             ibfReportingSummary
                     .setIsPublish(1)
                     .setFlag(0)
-                    .setUpdateBy("system")
+                    .setIsVisible(1)
+                    .setUpdateBy(SYSTEM_USER)
             ;
             ibfReportingSummaryList.add(ibfReportingSummary);
 
@@ -110,10 +114,7 @@ public class ReportAutoPublishJob implements Job {
                     .eq(IbfMarketResource::getIsDeleted, 0)
             );
             for (IbfMarketResource ibfMarketResource : curIbfMarketResourceList) {
-                ibfMarketResource.setIsPublish(1)
-                                 .setFlag(0)
-                                 .setUpdateBy("system")
-                ;
+                ibfMarketResource.autoPublish();
                 ibfMarketResourceList.add(ibfMarketResource);
             }
 
@@ -124,9 +125,7 @@ public class ReportAutoPublishJob implements Job {
                     .eq(IbfMarketResourceGmv::getIsDeleted, 0)
             );
             for (IbfMarketResourceGmv ibfMarketResourceGmv : curIbfMarketResourceGmvList) {
-                ibfMarketResourceGmv.setIsPublish(1)
-                                    .setFlag(0)
-                                    .setUpdateBy("system");
+                ibfMarketResourceGmv.autoPublish();
                 ibfMarketResourceGmvList.add(ibfMarketResourceGmv);
             }
 
@@ -137,10 +136,7 @@ public class ReportAutoPublishJob implements Job {
                     .eq(IbfMarketResourceFlow::getIsDeleted, 0)
             );
             for (IbfMarketResourceFlow ibfMarketResourceFlow : curIbfMarketResourceFlowList) {
-                ibfMarketResourceFlow
-                        .setIsPublish(1)
-                        .setFlag(0)
-                        .setUpdateBy("system");
+                ibfMarketResourceFlow.autoPublish();
                 ibfMarketResourceFlowList.add(ibfMarketResourceFlow);
             }
             // 财务更新
@@ -150,15 +146,11 @@ public class ReportAutoPublishJob implements Job {
                     .eq(IbfMarketFinance::getIsDeleted, 0)
             );
             for (IbfMarketFinance ibfMarketFinance : curIbfMarketFinanceList) {
-                ibfMarketFinance
-                        .setIsPublish(1)
-                        .setFlag(0)
-                        .setUpdateBy("system")
-                ;
+                ibfMarketFinance.autoPublish();
                 ibfMarketFinanceList.add(ibfMarketFinance);
             }
 
-            // 将上月的发布记录is_publish改为1,flag=15，
+            // 将上月的发布记录is_publish改为1,flag=0，isVisible=0
             IbfReportingSummary lastMonthIbfReportingSummary = ibfReportingSummaryService.getOne(new LambdaQueryWrapper<IbfReportingSummary>()
                     .eq(IbfReportingSummary::getMonthCol, lastMonth)
                     .eq(IbfReportingSummary::getIsPublish, 1)
@@ -167,8 +159,11 @@ public class ReportAutoPublishJob implements Job {
             if (lastMonthIbfReportingSummary != null) {
                 lastMonthIbfReportingSummary
                         .setIsPublish(1)
-                        .setFlag(15)
-                        .setUpdateBy("system");
+                        .setFlag(0)
+                        .setIsVisible(0)
+                        .setIsCopy(0)
+                        .setUpdateBy(SYSTEM_USER)
+                ;
                 ibfReportingSummaryList.add(lastMonthIbfReportingSummary);
             }
 
@@ -178,10 +173,7 @@ public class ReportAutoPublishJob implements Job {
                     .eq(IbfMarketResource::getIsDeleted, 0)
             );
             for (IbfMarketResource ibfMarketResource : lastMonthIbfMarketResourceList) {
-                ibfMarketResource
-                        .setIsPublish(1)
-                        .setFlag(15)
-                        .setUpdateBy("system");
+                ibfMarketResource.autoOffline();
                 ibfMarketResourceList.add(ibfMarketResource);
             }
 
@@ -193,9 +185,7 @@ public class ReportAutoPublishJob implements Job {
             );
             for (IbfMarketResourceGmv ibfMarketResourceGmv : lastMonthIbfMarketResourceGmvList) {
                 ibfMarketResourceGmv
-                        .setIsPublish(1)
-                        .setFlag(15)
-                        .setUpdateBy("system");
+                        .autoOffline();
                 ibfMarketResourceGmvList.add(ibfMarketResourceGmv);
             }
 
@@ -206,9 +196,7 @@ public class ReportAutoPublishJob implements Job {
             );
             for (IbfMarketResourceFlow ibfMarketResourceFlow : lastMonthIbfMarketResourceFlowList) {
                 ibfMarketResourceFlow
-                        .setIsPublish(1)
-                        .setFlag(15)
-                        .setUpdateBy("system");
+                        .autoOffline();
                 ibfMarketResourceFlowList.add(ibfMarketResourceFlow);
             }
 
@@ -218,24 +206,21 @@ public class ReportAutoPublishJob implements Job {
                     .eq(IbfMarketFinance::getIsDeleted, 0))
                     ;
             for (IbfMarketFinance ibfMarketFinance : lastMonthIbfMarketFinanceList) {
-                ibfMarketFinance
-                        .setIsPublish(1)
-                        .setFlag(15)
-                        .setUpdateBy("system")
-                ;
+                ibfMarketFinance.autoOffline();
                 ibfMarketFinanceList.add(ibfMarketFinance);
             }
 
-            // 将上月填报记录is_publish改为3（过期），flag=15，填报数据is_publish改为3(过期),
+            // 将上月填报记录is_publish改为3（过期），flag=0，填报数据is_publish改为3(过期),
             // 将上月的发布flag为非0的，发布状态为0的，将之前填报数据flag非0的修改成0，且将状态置为删除状态，此记录自动删除
             List<IbfReportingSummary> lastMonthIbfReportingSummaryListFlag = ibfReportingSummaryService.list(new LambdaQueryWrapper<IbfReportingSummary>()
                     .eq(IbfReportingSummary::getMonthCol, lastMonth)
                     .eq(IbfReportingSummary::getIsPublish, 0)
                     .ne(IbfReportingSummary::getFlag, 0));
             for (IbfReportingSummary reportingSummary : lastMonthIbfReportingSummaryListFlag) {
-                reportingSummary.setFlag(15)
+                reportingSummary.setFlag(0)
                                 .setIsPublish(3)
-                                .setUpdateBy("system");
+                                .setIsVisible(0)
+                                .setUpdateBy(SYSTEM_USER);
                 ibfReportingSummaryList.add(reportingSummary);
             }
 
@@ -245,10 +230,7 @@ public class ReportAutoPublishJob implements Job {
                     .eq(IbfMarketResource::getIsPublish, 0)
                     .ne(IbfMarketResource::getFlag, 0));
             for (IbfMarketResource ibfMarketResource : lastMonthIbfMarketResourceListFlag) {
-                ibfMarketResource.setIsPublish(3)
-                                 .setFlag(15)
-                                 .setIsDeleted(1)
-                                 .setUpdateBy("system")
+                ibfMarketResource.autExpire()
                 ;
                 ibfMarketResourceList.add(ibfMarketResource);
             }
@@ -258,18 +240,12 @@ public class ReportAutoPublishJob implements Job {
                     .eq(IbfMarketResourceGmv::getIsPublish, 0)
                     .ne(IbfMarketResourceGmv::getFlag, 0));
             for (IbfMarketResourceGmv ibfMarketResourceGmv : lastMonthIbfMarketResourceGmvListFlag) {
-                ibfMarketResourceGmv.setIsPublish(3)
-                                    .setFlag(15)
-                                    .setIsDeleted(1)
-                                    .setUpdateBy("system");
+                ibfMarketResourceGmv.autExpire();
                 ibfMarketResourceGmvList.add(ibfMarketResourceGmv);
             }
             List<IbfMarketResourceFlow> lastMonthIbfMarketResourceFlowListFlag = ibfMarketResourceFlowService.list(new LambdaQueryWrapper<IbfMarketResourceFlow>().eq(IbfMarketResourceFlow::getMonthCol, lastMonth).ne(IbfMarketResourceFlow::getFlag, 0));
             for (IbfMarketResourceFlow ibfMarketResourceFlow : lastMonthIbfMarketResourceFlowListFlag) {
-                ibfMarketResourceFlow.setIsPublish(3)
-                                     .setFlag(15)
-                                     .setIsDeleted(1)
-                                     .setUpdateBy("system");
+                ibfMarketResourceFlow.autExpire();
                 ibfMarketResourceFlowList.add(ibfMarketResourceFlow);
             }
             // 财务填报记录更新
@@ -278,10 +254,7 @@ public class ReportAutoPublishJob implements Job {
                     .eq(IbfMarketFinance::getIsPublish, 0)
                     .ne(IbfMarketFinance::getFlag, 0));
             for (IbfMarketFinance ibfMarketFinance : lastMonthIbfMarketFinanceListFlag) {
-                ibfMarketFinance.setIsPublish(3)
-                                .setFlag(15)
-                                .setIsDeleted(1)
-                                .setUpdateBy("system");
+                ibfMarketFinance.autExpire();
                 ibfMarketFinanceList.add(ibfMarketFinance);
             }
 

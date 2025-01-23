@@ -25,4 +25,6 @@ public final class IbfConst {
      **/
     public static final BigDecimal HUNDRED = new BigDecimal("100");
 
+    public static final String SYSTEM_USER = "system";
+
 }

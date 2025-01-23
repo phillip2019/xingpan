@@ -94,6 +94,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
                 .setFlag(flag)
                 // 设置isCopy=1, 表示改记录是复制的，后续可以发布
                 .setIsCopy(1)
+                .setIsVisible(0)
                 .setUpdateBy(null)
                 .setUpdateTime(null)
                 .setRemark(String.format("%s复制%s月数据", loginUser.getUsername(), monthCol));
@@ -107,10 +108,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
         for (IbfMarketResource ibfMarketResource : sourceResourceList) {
             IbfMarketResource newResource = new IbfMarketResource();
             BeanUtils.copyProperties(ibfMarketResource, newResource, EXCLUDE_PROPERTIES);
-            newResource.setIsPublish(0)
-                    .setIsDeleted(0)
-                    .setFlag(flag)
-                    .setCreateTime(now)
+            newResource.manualCopy(now)
             ;
             newResourceList.add(newResource);
         }
@@ -119,10 +117,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
         for (IbfMarketResourceGmv ibfMarketResourceGmv : sourceResourceGmvList) {
             IbfMarketResourceGmv newResourceGmv = new IbfMarketResourceGmv();
             BeanUtils.copyProperties(ibfMarketResourceGmv, newResourceGmv, EXCLUDE_PROPERTIES);
-            newResourceGmv.setIsPublish(0)
-                          .setIsDeleted(0)
-                          .setFlag(flag)
-                          .setCreateTime(now)
+            newResourceGmv.manualCopy(now)
             ;
             newResourceGmvList.add(newResourceGmv);
         }
@@ -131,10 +126,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
         for (IbfMarketResourceFlow ibfMarketResourceFlow : sourceResourceFlowList) {
             IbfMarketResourceFlow newResourceFlow = new IbfMarketResourceFlow();
             BeanUtils.copyProperties(ibfMarketResourceFlow, newResourceFlow, EXCLUDE_PROPERTIES);
-            newResourceFlow.setIsPublish(0)
-                           .setIsDeleted(0)
-                           .setFlag(flag)
-                           .setCreateTime(now)
+            newResourceFlow.manualCopy(now)
             ;
             newResourceFlowList.add(newResourceFlow);
         }
@@ -143,10 +135,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
         for (IbfMarketFinance ibfMarketFinance : sourceFinanceList) {
             IbfMarketFinance newFinance = new IbfMarketFinance();
             BeanUtils.copyProperties(ibfMarketFinance, newFinance, EXCLUDE_PROPERTIES);
-            newFinance.setIsPublish(0)
-                     .setIsDeleted(0)
-                     .setFlag(flag)
-                     .setCreateTime(now)
+            newFinance.manualCopy(now)
             ;
             newFinanceList.add(newFinance);
         }
@@ -250,6 +239,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
         );
         if (Objects.nonNull(publishRecord)) {
             publishRecord.setIsCopy(0)
+                         .setIsVisible(0)
                          .setIsPublish(2)
             ;
             prepareList.add(publishRecord);
@@ -257,6 +247,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
         ibfReportingSummary.setIsPublish(1)
                            .setIsCopy(0)
                            .setFlag(0)
+                           .setIsVisible(1)
                            ;
 
         // 发布数据查询出来，后续删除
@@ -291,8 +282,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
                 .eq(IbfMarketResource::getIsPublish, 0)
         );
         for (IbfMarketResource ibfMarketResource : preResourceList) {
-            ibfMarketResource.setIsPublish(1)
-                             .setFlag(0)
+            ibfMarketResource.manualPublish()
             ;
             prepareResourceList.add(ibfMarketResource);
         }
@@ -302,7 +292,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
                 .eq(IbfMarketResourceGmv::getIsPublish, 0)
         );
         for (IbfMarketResourceGmv ibfMarketResourceGmv : preResourceGmvList) {
-            ibfMarketResourceGmv.setIsPublish(1).setFlag(0);
+            ibfMarketResourceGmv.manualPublish();
             prepareResourceGmvList.add(ibfMarketResourceGmv);
         }
 
@@ -313,7 +303,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
         );
 
         for (IbfMarketResourceFlow ibfMarketResourceFlow : preResourceFlowList) {
-            ibfMarketResourceFlow.setIsPublish(1).setFlag(0);
+            ibfMarketResourceFlow.manualPublish();
             prepareResourceFlowList.add(ibfMarketResourceFlow);
         }
 
@@ -323,7 +313,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
                 .eq(IbfMarketFinance::getIsPublish, 0)
         );
         for (IbfMarketFinance ibfMarketFinance : preFinanceList) {
-            ibfMarketFinance.setIsPublish(1).setFlag(0);
+            ibfMarketFinance.manualPublish();
             prepareFinanceList.add(ibfMarketFinance);
         }
 
