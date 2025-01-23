@@ -80,9 +80,6 @@ public class IbfMarketResourceFlow extends IbfCommonEntity implements Serializab
     @ApiModelProperty(value = "修改人")
     private String updateBy;
 
-    public void convertsetMonthCol(String text) {
-        this.monthCol = DateUtil.convertMonthCol(text);
-    }
 
     @Override
     public void customDB2VO() {
