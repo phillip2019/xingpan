@@ -26,7 +26,7 @@ public class IbfCommonEntity extends JeecgEntity implements Serializable {
     private String shortMarketId;
 
     /**所属年月 yyyy-MM*/
-    @Excel(name = "月份", width = 8, importConvert = true, type = 4)
+    @Excel(name = "月份", width = 8, importConvert = true, type = 1)
     @ApiModelProperty(value = "所属年月")
     private String monthCol;
 
