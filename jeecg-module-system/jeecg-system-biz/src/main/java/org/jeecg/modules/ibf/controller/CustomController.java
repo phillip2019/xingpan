@@ -71,7 +71,7 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
             queryWrapper.in("id",selectionList);
         }
         // 过滤当前租户数据
-        List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(sysUser.getRelTenantIds()));
+        List<String> shortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(sysUser.getRelTenantIds(), ','));
         if (!shortMarketIdList.isEmpty()) {
             queryWrapper.in("short_market_id", shortMarketIdList);
         }
@@ -134,7 +134,7 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
                     }
 
                     // 过滤当前租户数据
-                    List<String> permissShortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(sysUser.getRelTenantIds()));
+                    List<String> permissShortMarketIdList = Arrays.asList(org.apache.commons.lang.StringUtils.split(sysUser.getRelTenantIds(), ','));
                     if (!permissShortMarketIdList.contains(shortMarketId)) {
                         errShortMarketIdSet.add(et.getShortMarketId());
                         continue;
