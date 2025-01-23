@@ -79,6 +79,15 @@ public class IbfReportingSummary implements Serializable {
     @ApiModelProperty(value = "当前月份标记")
     private Integer flag;
 
+    /**
+     * 当前版本,是否可见
+     * 0: 不可见
+     * 1: 可见
+     * */
+    @Dict(dicCode = "is_visible")
+    @ApiModelProperty(value = "是否可见")
+    private Integer isVisible;
+
     /**创建时间*/
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")

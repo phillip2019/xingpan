@@ -108,6 +108,7 @@ public class CreateReportRecordJob implements Job {
                     .setFlag(0)
                     .setShortMarketId(shortMarketId)
                     .setMonthCol(curMonth)
+                    .setIsVisible(1)
                     .setCreateBy("system")
                     .setCreateTime(now)
             ;
@@ -119,6 +120,7 @@ public class CreateReportRecordJob implements Job {
                     .setFlag(0)
                     .setShortMarketId(shortMarketId)
                     .setMonthCol(curMonth)
+                    .setIsVisible(1)
                     .setCreateBy("system")
                     .setCreateTime(now)
             ;
@@ -134,6 +136,7 @@ public class CreateReportRecordJob implements Job {
                     .setFlag(0)
                     .setShortMarketId(shortMarketId)
                     .setMonthCol(curMonth)
+                    .setIsVisible(1)
                     .setCreateBy("system")
                     .setCreateTime(now);
 
@@ -149,6 +152,7 @@ public class CreateReportRecordJob implements Job {
                     .setIsPublish(0)
                     .setFlag(0)
                     .setMonthCol(curMonth)
+                    .setIsVisible(1)
                     .setShortMarketId(shortMarketId)
                     .setCreateBy("system")
                     .setCreateTime(now)
@@ -181,6 +185,7 @@ public class CreateReportRecordJob implements Job {
                 .setRemark(String.format("%s月份填报数据", curMonth))
                 .setIsPublish(0)
                 .setFlag(0)
+                .setIsVisible(1)
                 .setMonthCol(curMonth)
                 .setCreateBy("system")
                 .setCreateTime(now)

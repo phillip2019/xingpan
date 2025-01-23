@@ -44,6 +44,15 @@ public class IbfCommonEntity extends JeecgEntity implements Serializable {
     @ApiModelProperty(value = "当前月份标记")
     private Integer flag;
 
+    /**
+     * 当前版本,是否可见
+     * 0: 不可见
+     * 1: 可见
+     * */
+    @Dict(dicCode = "is_visible")
+    @ApiModelProperty(value = "是否可见")
+    private Integer isVisible;
+
     /**是否删除*/
     @Dict(dicCode = "is_deleted")
     @ApiModelProperty(value = "是否删除")

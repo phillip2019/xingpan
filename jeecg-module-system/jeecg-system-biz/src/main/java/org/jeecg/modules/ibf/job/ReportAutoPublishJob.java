@@ -79,8 +79,8 @@ public class ReportAutoPublishJob implements Job {
         }
         String lastMonth = IbfDateUtil.getLastMonth(curMonth);
 
-//      将当月的填报记录发布，发布后，将当月发布记录is_publish改为1，flag改成0，将当月填报数据is_publish改为1，flag改成0
-//      将上月的发布记录is_publish改为1，flag=15，将上月填报数据is_publish改为1，flag=15，
+//      将当月的填报记录发布，发布后，将当月发布记录is_publish改为1，flag改成0, isVisible改为1，将当月填报数据is_publish改为1，flag改成0，isVisible改为1
+//      将上月的发布记录is_publish改为1，flag=1, isVisible=0，将上月填报数据is_publish改为1，flag=0, isVisible=0，
 //      若存在待发布记录，is_publish=3(过期)，flag=15，将之前填报数据的is_publish=3,flag=15
         IbfReportingSummary ibfReportingSummary = ibfReportingSummaryService.getOne(new LambdaQueryWrapper<IbfReportingSummary>()
                 .eq(IbfReportingSummary::getMonthCol, curMonth)
