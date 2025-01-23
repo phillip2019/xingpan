@@ -32,7 +32,7 @@ public class IbfCommonEntity extends JeecgEntity implements Serializable {
 
     /**是否发布*/
     @Dict(dicCode = "is_publish")
-    @Excel(name = "状态", width = 8, importConvert = true, type = 4, dicCode = "is_publish")
+    @Excel(name = "状态", width = 8, importConvert = true, type = 1, dicCode = "is_publish")
     @ApiModelProperty(value = "是否发布")
     private Integer isPublish;
 
@@ -74,5 +74,9 @@ public class IbfCommonEntity extends JeecgEntity implements Serializable {
      * 将VO转换成DB值
      **/
     public void customVO2DB() {
+    }
+
+    public void convertsetIsPublish(Integer text) {
+        this.isPublish = text;
     }
 }
