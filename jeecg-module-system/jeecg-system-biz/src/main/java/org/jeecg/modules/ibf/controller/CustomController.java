@@ -181,7 +181,8 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
                             .eq("is_publish", isPublish)
                             .last("limit 1")
                     );
-                    et.setIsPublish(0);
+                    // TODO 先注释此逻辑，后续再打开
+//                    et.setIsPublish(0);
                     // 插入月份，计算当前月份和填写月份的差值
                     // 当前日期月份
 
