@@ -44,10 +44,6 @@ public class IbfMarketResourceGmv extends IbfCommonEntity implements Serializabl
 	/**市场名称*/
     @ApiModelProperty(value = "市场名称")
     private String shortMarketName;
-	/**所属年月 yyyy-MM*/
-	@Excel(name = "月份", width = 6, importFormat = "yyyy-MM", importConvert = true, type = 1)
-    @ApiModelProperty(value = "月份")
-    private String monthCol;
 	/**市场成交额（亿）*/
 	@Excel(name = "市场成交额（亿）", width = 15)
     @ApiModelProperty(value = "市场成交额（亿）")
@@ -69,9 +65,6 @@ public class IbfMarketResourceGmv extends IbfCommonEntity implements Serializabl
 	/**修改人*/
     @ApiModelProperty(value = "修改人")
     private String updateBy;
-    public void convertsetMonthCol(String text) {
-        this.monthCol = DateUtil.convertMonthCol(text);
-    }
 
     @Override
     public void customDB2VO() {

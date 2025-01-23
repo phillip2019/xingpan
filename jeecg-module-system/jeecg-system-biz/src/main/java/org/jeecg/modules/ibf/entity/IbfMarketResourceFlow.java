@@ -43,10 +43,6 @@ public class IbfMarketResourceFlow extends IbfCommonEntity implements Serializab
 	/**市场名称*/
     @ApiModelProperty(value = "市场名称")
     private String shortMarketName;
-	/**所属年月*/
-	@Excel(name = "月份", width = 8, importConvert = true, type=4)
-    @ApiModelProperty(value = "所属年月")
-    private String monthCol;
 	/**人流（人次）*/
 	@Excel(name = "人流", width = 8, type=4)
     @ApiModelProperty(value = "人流（人次）")

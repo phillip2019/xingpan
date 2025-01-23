@@ -47,7 +47,6 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     /**
      * 资源情况统计日期 yyyy-MM-dd
      */
-    @Excel(name = "资源统计日期", width = 15, importConvert = true, type = 4)
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String resourceStatisticsDate;
 
@@ -94,7 +93,6 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     /**
      * 商人统计日期 yyyy-MM-dd
      */
-    @Excel(name = "商人统计日期", width = 15, importConvert = true, type = 1, groupName = "商人")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String merchantStatisticsDate;
 
@@ -116,7 +114,6 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     /**
      * 剩余商位出租率统计日期 yyyy-MM-dd
      */
-    @Excel(name = "剩余商位出租率统计日期", width = 30, importConvert = true, type = 1, groupName = "招商")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String remainRentRateStatisticsDate;
 
@@ -155,7 +152,6 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     /**
      * 续租完成率统计日期 yyyy-MM-dd
      */
-    @Excel(name = "续租统计日期", width = 15, importConvert = true, type = 1, groupName = "续租")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String renewLeaseRateStatisticsDate;
     /**
