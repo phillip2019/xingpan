@@ -80,7 +80,6 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
         List<T> exportList = service.list(queryWrapper);
         exportList.forEach(T::customDB2VO);
 
-
         // Step.3 AutoPoi 导出Excel
         ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
         //此处设置的filename无效 ,前端会重更新设置一下
@@ -173,12 +172,13 @@ public class CustomController<T extends IbfCommonEntity, S extends IService<T>> 
                 for (T et : list) {
                     String shortMarketId = et.getShortMarketId();
                     String monthCol = et.getMonthCol();
+                    Integer isPublish = et.getIsPublish();
                     // 校验唯一性
                     List<T> tList = service.list(new QueryWrapper<T>()
                             .eq("short_market_id", shortMarketId)
                             .eq("month_col", monthCol)
                             // 导入的都是未发布的数据
-                            .eq("is_publish", 0)
+                            .eq("is_publish", isPublish)
                             .last("limit 1")
                     );
                     et.setIsPublish(0);

@@ -32,6 +32,7 @@ public class IbfCommonEntity extends JeecgEntity implements Serializable {
 
     /**是否发布*/
     @Dict(dicCode = "is_publish")
+    @Excel(name = "是否发布", width = 8, importConvert = true, type = 1, dicCode = "is_publish")
     @ApiModelProperty(value = "是否发布")
     private Integer isPublish;
 
