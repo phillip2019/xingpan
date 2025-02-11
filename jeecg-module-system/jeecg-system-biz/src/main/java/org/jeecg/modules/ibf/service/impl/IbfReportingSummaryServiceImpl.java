@@ -94,7 +94,7 @@ public class IbfReportingSummaryServiceImpl extends ServiceImpl<IbfReportingSumm
                 .setFlag(flag)
                 // 设置isCopy=1, 表示改记录是复制的，后续可以发布
                 .setIsCopy(1)
-                .setIsVisible(0)
+                .setIsVisible(1)
                 .setUpdateBy(null)
                 .setUpdateTime(null)
                 .setRemark(String.format("%s复制%s月数据", loginUser.getUsername(), monthCol));
