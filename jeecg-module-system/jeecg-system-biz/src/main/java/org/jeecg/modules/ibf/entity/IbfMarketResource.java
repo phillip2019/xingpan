@@ -70,6 +70,21 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @TableField("booth_match_rent_room_num_1d")
     private BigDecimal boothMatchRentRoomNumTd;
     /**
+     * 已出租间数（商位）
+     */
+    @Excel(name = "已出租间数(商位)", width = 30, groupName="间数", type = 4)
+    @ApiModelProperty(value = "已出租间数（商位）")
+    @TableField("booth_rent_room_num_td")
+    private BigDecimal boothRentRoomNumTd;
+
+    /**
+     * 已出租间数（配套）
+     */
+    @Excel(name = "已出租间数(配套)", width = 30, groupName="间数", type = 4)
+    @ApiModelProperty(value = "已出租间数（配套）")
+    @TableField("match_rent_room_num_td")
+    private BigDecimal matchRentRoomNumTd;
+    /**
      * 面积（商位）
      */
     @Excel(name = "面积(商位)", width = 15, groupName="面积", type = 4)
@@ -89,6 +104,22 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @ApiModelProperty(value = "已出租面积（商位+配套）")
     @TableField("booth_match_rent_area_num_1d")
     private BigDecimal boothMatchRentAreaNumTd;
+
+    /**
+     * 已出租面积(商位)
+     */
+    @Excel(name = "已出租面积(商位)", width = 30, groupName="面积", type = 4)
+    @ApiModelProperty(value = "已出租面积（商位）")
+    @TableField("booth_rent_area_num_td")
+    private BigDecimal boothRentAreaNumTd;
+
+    /**
+     * 已出租面积(配套)
+     */
+    @Excel(name = "已出租面积(配套)", width = 30, groupName="面积", type = 4)
+    @ApiModelProperty(value = "已出租面积（配套）")
+    @TableField("match_rent_area_num_td")
+    private BigDecimal matchRentAreaNumTd;
 
     /**
      * 商人统计日期 yyyy-MM-dd
@@ -118,11 +149,11 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     private String remainRentRateStatisticsDate;
 
     /**
-     * 本年招商间数
+     * 本年招商商位间数
      */
-    @Excel(name = "本年招商间数", width = 15, type = 4, groupName = "招商")
-    @ApiModelProperty(value = "本年招商间数")
-    private BigDecimal invstRoomNumSd;
+    @Excel(name = "本年招商商位间数", width = 15, type = 4, groupName = "招商")
+    @ApiModelProperty(value = "本年招商商位间数")
+    private BigDecimal invstHoldsBoothRoomNumSd;
 
     /**
      * 当前空置间数
@@ -132,11 +163,11 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     private BigDecimal emptyBoothRoomNumTd;
 
     /**
-     * 本年招商户数
+     * 本年招商商位户数
      */
-    @Excel(name = "本年招商户数", width = 15, type = 4, groupName = "招商")
-    @ApiModelProperty(value = "本年招商户数")
-    private Integer invstHoldsNumSd;
+    @Excel(name = "本年招商商位户数", width = 15, type = 4, groupName = "招商")
+    @ApiModelProperty(value = "本年招商商位户数")
+    private Integer invstHoldsBoothNumSd;
     /**
      * 当前空置户数
      */
@@ -155,24 +186,24 @@ public class IbfMarketResource extends IbfCommonEntity implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private String renewLeaseRateStatisticsDate;
     /**
-     * 本年续租户数（户）
+     * 本年续租商位户数（户）
      */
-    @Excel(name = "本年续租户数", width = 15, type = 4, groupName = "续租")
-    @ApiModelProperty(value = "本年续租户数（户）")
-    private Integer renewLeaseHoldsNumSd;
+    @Excel(name = "本年续租商位户数", width = 15, type = 4, groupName = "续租")
+    @ApiModelProperty(value = "本年续租商位户数（户）")
+    private Integer renewLeaseHoldsBoothNumSd;
 
     /**
-     * 本年退租户数（户）
+     * 本年退租商位户数（户）
      */
-    @Excel(name = "本年退租户数", width = 15, type = 4, groupName = "续租")
-    @ApiModelProperty(value = "本年退租户数（户）")
-    private Integer surrenderLeaseHoldsNumSd;
+    @Excel(name = "本年退租商位户数", width = 15, type = 4, groupName = "续租")
+    @ApiModelProperty(value = "本年退租商位户数（户）")
+    private Integer surrenderLeaseHoldsBoothNumSd;
     /**
-     * 本年到期户数（户）
+     * 本年到期商位户数（户）
      */
-    @Excel(name = "本年到期户数", width = 15, type = 4, groupName = "续租")
-    @ApiModelProperty(value = "本年到期户数（户）")
-    private Integer expiredHoldsNumSd;
+    @Excel(name = "本年到期商位户数", width = 15, type = 4, groupName = "续租")
+    @ApiModelProperty(value = "本年到期商位户数（户）")
+    private Integer expiredHoldsBoothNumSd;
     /**
      * 本年续租收入（万元）
      */
