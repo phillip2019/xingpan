@@ -48,7 +48,7 @@ public class IbfMarketFinance extends IbfCommonEntity implements Serializable {
 	/**本期营收(万)*/
 	@Excel(name = "本期营收", width = 15, type = 4, groupName = "营收")
     @ApiModelProperty(value = "本期营收(万)")
-    @TableField("turnover_income_1m")
+    @TableField("turnover_income_sd")
     private BigDecimal turnoverIncomeSd;
 	/**目标营收(万)*/
 	@Excel(name = "本年目标营收", width = 15, type = 4, groupName = "营收")
