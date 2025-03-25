@@ -57,7 +57,7 @@ public class IbfMarketFinance extends IbfCommonEntity implements Serializable {
 	/**本期利润(万)*/
 	@Excel(name = "本期利润", width = 15, type = 4, groupName = "利润")
     @ApiModelProperty(value = "本期利润(万)")
-    @TableField("accumulate_profit_income_1m")
+    @TableField("accumulate_profit_income_sd")
     private BigDecimal accumulateProfitIncomeSd;
 	/**目标利润(万)*/
 	@Excel(name = "本年目标利润", width = 15, type = 4, groupName = "利润")
