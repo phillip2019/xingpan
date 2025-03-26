@@ -41,7 +41,7 @@ public class UrlUtils {
             queryParams.append("&utm_term=").append(encode(record.getUtmTerm()));
             queryParams.append("&utm_content=").append(encode(record.getUtmContent()));
 
-            URL newUrl = new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getFile() + "?" + queryParams);
+            URL newUrl = new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getPath() + "?" + queryParams);
             return newUrl.toString();
         } catch (MalformedURLException e) {
             log.error("Invalid URL: " + sourceUrl, e);
@@ -59,6 +59,18 @@ public class UrlUtils {
             log.error("Encoding error", e);
             return value;
         }
+    }
+
+    public static void main(String[] args) {
+        String sourceUrl = "https://www.baidu.com?name=123";
+        MktChannelLink record = new MktChannelLink();
+        record.setUtmCampaign("campaign");
+        record.setUtmSource("source");
+        record.setUtmMedium("medium");
+        record.setUtmTerm("term");
+        record.setUtmContent("content");
+        record.setPcTargetUrl(sourceUrl);
+        System.out.println(genAdvUrl(sourceUrl, record, true));
     }
 }
 
