@@ -44,7 +44,7 @@ import org.jeecg.common.aspect.annotation.AutoLog;
  */
 @Api(tags="档口食堂关系")
 @RestController
-@RequestMapping("/23444/tbRestMerchantRelation")
+@RequestMapping("/tb/tbRestMerchantRelation")
 @Slf4j
 public class TbRestMerchantRelationController extends JeecgController<TbRestMerchantRelation, ITbRestMerchantRelationService> {
 	@Autowired
