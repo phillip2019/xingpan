@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -80,7 +82,7 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
 	 */
 	@AutoLog(value = "档口食堂关系-添加")
 	@ApiOperation(value="档口食堂关系-添加", notes="档口食堂关系-添加")
-	//@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:add")
+	@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody TbRestMerchantRelation tbRestMerchantRelation) {
 		tbRestMerchantRelationService.save(tbRestMerchantRelation);
@@ -95,7 +97,7 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
 	 */
 	@AutoLog(value = "档口食堂关系-编辑")
 	@ApiOperation(value="档口食堂关系-编辑", notes="档口食堂关系-编辑")
-	//@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:edit")
+	@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody TbRestMerchantRelation tbRestMerchantRelation) {
 		tbRestMerchantRelationService.updateById(tbRestMerchantRelation);
@@ -110,7 +112,7 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
 	 */
 	@AutoLog(value = "档口食堂关系-通过id删除")
 	@ApiOperation(value="档口食堂关系-通过id删除", notes="档口食堂关系-通过id删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:delete")
+	@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
 		tbRestMerchantRelationService.removeById(id);
@@ -125,7 +127,7 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
 	 */
 	@AutoLog(value = "档口食堂关系-批量删除")
 	@ApiOperation(value="档口食堂关系-批量删除", notes="档口食堂关系-批量删除")
-	//@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:deleteBatch")
+	@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.tbRestMerchantRelationService.removeByIds(Arrays.asList(ids.split(",")));
@@ -140,6 +142,7 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
 	 */
 	//@AutoLog(value = "档口食堂关系-通过id查询")
 	@ApiOperation(value="档口食堂关系-通过id查询", notes="档口食堂关系-通过id查询")
+	@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:queryById")
 	@GetMapping(value = "/queryById")
 	public Result<TbRestMerchantRelation> queryById(@RequestParam(name="id",required=true) String id) {
 		TbRestMerchantRelation tbRestMerchantRelation = tbRestMerchantRelationService.getById(id);
@@ -155,7 +158,7 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
     * @param request
     * @param tbRestMerchantRelation
     */
-    //@RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:exportXls")
+    @RequiresPermissions("org.jeecg.modules.demo:tb_rest_merchant_relation:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, TbRestMerchantRelation tbRestMerchantRelation) {
         return super.exportXls(request, tbRestMerchantRelation, TbRestMerchantRelation.class, "档口食堂关系");
@@ -168,7 +171,7 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
     * @param response
     * @return
     */
-    //@RequiresPermissions("tb_rest_merchant_relation:importExcel")
+    @RequiresPermissions("tb_rest_merchant_relation:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, TbRestMerchantRelation.class);
