@@ -10,6 +10,7 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
@@ -68,7 +69,18 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
-		QueryWrapper<TbRestMerchantRelation> queryWrapper = QueryGenerator.initQueryWrapper(tbRestMerchantRelation, req.getParameterMap());
+		QueryWrapper<TbRestMerchantRelation> queryWrapper = new QueryWrapper<>();
+
+		// 模糊查询条件构建
+		if (StringUtils.isNotBlank(tbRestMerchantRelation.getDeviceMerchantName())) {
+			queryWrapper.like("device_merchant_name", tbRestMerchantRelation.getDeviceMerchantName());
+		}
+		if (StringUtils.isNotBlank(tbRestMerchantRelation.getMerchantName())) {
+			queryWrapper.like("merchant_name", tbRestMerchantRelation.getMerchantName());
+		}
+		if (StringUtils.isNotBlank(tbRestMerchantRelation.getRestName())) {
+			queryWrapper.like("rest_name", tbRestMerchantRelation.getRestName());
+		}
 		Page<TbRestMerchantRelation> page = new Page<TbRestMerchantRelation>(pageNo, pageSize);
 		IPage<TbRestMerchantRelation> pageList = tbRestMerchantRelationService.page(page, queryWrapper);
 		return Result.OK(pageList);
