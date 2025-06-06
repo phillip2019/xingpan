@@ -18,8 +18,8 @@ import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.cg.entity.CgDeptIndex;
 import org.jeecg.modules.cg.entity.CgDeptIndexValue;
 import org.jeecg.modules.cg.service.ICgDeptIndexService;
-import org.jeecg.modules.demo.cg.entity.CgDeptIndexTarget;
-import org.jeecg.modules.demo.cg.service.ICgDeptIndexTargetService;
+import org.jeecg.modules.cg.entity.CgDeptIndexTarget;
+import org.jeecg.modules.cg.service.ICgDeptIndexTargetService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
