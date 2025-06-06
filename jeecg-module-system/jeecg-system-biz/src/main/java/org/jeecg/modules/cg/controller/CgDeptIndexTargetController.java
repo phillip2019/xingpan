@@ -1,4 +1,4 @@
-package org.jeecg.modules.demo.cg.controller;
+package org.jeecg.modules.cg.controller;
 
 import java.util.Arrays;
 import java.util.HashMap;

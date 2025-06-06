@@ -1,9 +1,10 @@
-package org.jeecg.modules.demo.cg.mapper;
+package org.jeecg.modules.cg.mapper;
 
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
-import org.jeecg.modules.demo.cg.entity.CgDeptIndexTarget;
+import org.jeecg.modules.cg.entity.CgDeptIndexTarget;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
