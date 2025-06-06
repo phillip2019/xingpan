@@ -1,6 +1,7 @@
-package org.jeecg.modules.demo.cg.service;
+package org.jeecg.modules.cg.service;
 
-import org.jeecg.modules.demo.cg.entity.CgDeptIndexTarget;
+import org.jeecg.modules.cg.entity.CgDeptIndexTarget;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

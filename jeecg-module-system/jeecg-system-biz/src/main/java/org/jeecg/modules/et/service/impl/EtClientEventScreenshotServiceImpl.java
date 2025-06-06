@@ -1,4 +1,4 @@
-package org.jeecg.modules.demo.et.service.impl;
+package org.jeecg.modules.et.service.impl;
 
 import org.jeecg.modules.et.entity.EtClientEventScreenshot;
 import org.jeecg.modules.et.mapper.EtClientEventScreenshotMapper;
