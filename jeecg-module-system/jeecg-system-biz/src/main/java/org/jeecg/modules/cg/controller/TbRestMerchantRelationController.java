@@ -183,7 +183,7 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
     * @param response
     * @return
     */
-    @RequiresPermissions("tb_rest_merchant_relation:importExcel")
+//    @RequiresPermissions("tb_rest_merchant_relation:importExcel")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, TbRestMerchantRelation.class);
