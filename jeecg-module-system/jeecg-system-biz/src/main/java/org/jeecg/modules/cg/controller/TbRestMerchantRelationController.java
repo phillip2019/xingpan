@@ -22,7 +22,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-
+import org.jeecg.common.util.oConvertUtils;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -72,13 +72,13 @@ public class TbRestMerchantRelationController extends JeecgController<TbRestMerc
 		QueryWrapper<TbRestMerchantRelation> queryWrapper = new QueryWrapper<>();
 
 		// 模糊查询条件构建
-		if (StringUtils.isNotBlank(tbRestMerchantRelation.getDeviceMerchantName())) {
+		if (oConvertUtils.isNotEmpty(tbRestMerchantRelation.getDeviceMerchantName())) {
 			queryWrapper.like("device_merchant_name", tbRestMerchantRelation.getDeviceMerchantName());
 		}
-		if (StringUtils.isNotBlank(tbRestMerchantRelation.getMerchantName())) {
+		if (oConvertUtils.isNotEmpty(tbRestMerchantRelation.getMerchantName())) {
 			queryWrapper.like("merchant_name", tbRestMerchantRelation.getMerchantName());
 		}
-		if (StringUtils.isNotBlank(tbRestMerchantRelation.getRestName())) {
+		if (oConvertUtils.isNotEmpty(tbRestMerchantRelation.getRestName())) {
 			queryWrapper.like("rest_name", tbRestMerchantRelation.getRestName());
 		}
 		Page<TbRestMerchantRelation> page = new Page<TbRestMerchantRelation>(pageNo, pageSize);
