@@ -88,7 +88,7 @@ public class SysThirdAccountServiceImpl extends ServiceImpl<SysThirdAccountMappe
         //设置初始密码
         String salt = oConvertUtils.randomGen(8);
         user.setSalt(salt);
-        String passwordEncode = PasswordUtil.encrypt(user.getUsername(), "123456", salt);
+        String passwordEncode = PasswordUtil.encrypt(user.getUsername(), "GnIa^@cru3jP", salt);
         user.setPassword(passwordEncode);
         user.setRealname(account.getRealname());
         user.setAvatar(account.getAvatar());

@@ -514,8 +514,8 @@ public class SysUserController {
                 for (int i = 0; i < listSysUsers.size(); i++) {
                     SysUser sysUserExcel = listSysUsers.get(i);
                     if (StringUtils.isBlank(sysUserExcel.getPassword())) {
-                        // 密码默认为 “123456”
-                        sysUserExcel.setPassword("123456");
+                        // 密码默认为 “GnIa^@cru3jP”
+                        sysUserExcel.setPassword("GnIa^@cru3jP");
                     }
                     // 密码加密加盐
                     String salt = oConvertUtils.randomGen(8);
