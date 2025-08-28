@@ -376,7 +376,7 @@ public class LoginController {
 
 	/**
 	 * 邮箱验证码接口
-	 * 
+	 *
 	 * @param jsonObject
 	 * @return
 	 */
@@ -386,42 +386,36 @@ public class LoginController {
 		String email = jsonObject.get("email").toString();
 		//邮箱模式 登录模式: "2"  注册模式: "1"  忘记密码模式: "3"
 		String emailmode = jsonObject.get("emailmode").toString();
-		log.info(email);
+		log.info("通过邮箱: [ {} ]获取验证码",  email);
 		if(oConvertUtils.isEmpty(email)){
 			result.setMessage("邮箱不允许为空！");
 			result.setSuccess(false);
 			return result;
 		}
-		
-		//update-begin-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
 		String redisKey = CommonConstant.EMAIL_REDIS_KEY_PRE+email;
 		Object object = redisUtil.get(redisKey);
-		//update-end-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
-		
 		if (object != null) {
 			result.setMessage("验证码10分钟内，仍然有效！");
 			result.setSuccess(false);
 			return result;
 		}
-
 		//随机数
 		String captcha = RandomUtil.randomNumbers(6);
 		try {
 			boolean b = false;
 			//注册模板
-			if (CommonConstant.SMS_TPL_TYPE_1.equals(emailmode)) {
-				SysUser sysUser = sysUserService.getUserByEmail(email);
-				if(sysUser!=null) {
+            SysUser sysUser = sysUserService.getUserByEmail(email);
+            if (CommonConstant.SMS_TPL_TYPE_1.equals(emailmode)) {
+                if(sysUser!=null) {
 					result.error500(" 邮箱已经注册，请直接登录！");
 					baseCommonService.addLog("邮箱已经注册，请直接登录！", CommonConstant.LOG_TYPE_1, null);
 					return result;
 				}
 				// 发送注册验证码邮件
 				b = sendEmailVerificationCode(email, captcha, "注册验证码");
-			}else {
+			} else {
 				//登录模式，校验用户有效性
-				SysUser sysUser = sysUserService.getUserByEmail(email);
-				result = sysUserService.checkUserIsEffective(sysUser);
+                result = sysUserService.checkUserIsEffective(sysUser);
 				if(!result.isSuccess()) {
 					String message = result.getMessage();
 					String userNotExist="该用户不存在，请注册";
@@ -443,19 +437,14 @@ public class LoginController {
 				}
 			}
 
-			if (b == false) {
+			if (!b) {
 				result.setMessage("邮箱验证码发送失败,请稍后重试");
 				result.setSuccess(false);
 				return result;
 			}
-			
-			//update-begin-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
 			//验证码10分钟内有效
 			redisUtil.set(redisKey, captcha, 600);
-			//update-end-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
-			
 			result.setSuccess(true);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			result.error500(" 邮箱接口未配置，请联系管理员！");
@@ -476,13 +465,8 @@ public class LoginController {
 			// 获取邮件发送器
 			org.springframework.mail.javamail.JavaMailSender mailSender = 
 				(org.springframework.mail.javamail.JavaMailSender) SpringContextUtils.getBean("mailSender");
-			
-			if (mailSender == null) {
-				log.error("邮件发送器未配置");
-				return false;
-			}
-			
-			// 创建邮件消息
+
+            // 创建邮件消息
 			javax.mail.internet.MimeMessage message = mailSender.createMimeMessage();
 			org.springframework.mail.javamail.MimeMessageHelper helper = 
 				new org.springframework.mail.javamail.MimeMessageHelper(message, true);
