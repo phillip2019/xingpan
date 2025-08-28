@@ -473,13 +473,59 @@ public class LoginController {
 			
 			// 设置邮件内容
 			String content = String.format(
-				"<html><body>" +
-				"<h3>%s</h3>" +
-				"<p>您的验证码是：<strong style='color: #ff6b6b; font-size: 20px;'>%s</strong></p>" +
-				"<p>验证码有效期为10分钟，请及时使用。</p>" +
-				"<p>如果这不是您的操作，请忽略此邮件。</p>" +
-				"</body></html>", 
-				subject, code
+				"<!DOCTYPE html>" +
+				"<html>" +
+				"<head>" +
+				"    <meta charset=\"UTF-8\">" +
+				"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" +
+				"    <title>星盘验证码</title>" +
+				"    <style>" +
+				"        body { font-family: 'Microsoft YaHei', Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }" +
+				"        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }" +
+				"        .header { background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%); color: white; padding: 30px 40px; text-align: center; }" +
+				"        .header h1 { margin: 0; font-size: 28px; font-weight: 300; }" +
+				"        .content { padding: 40px; line-height: 1.6; color: #333; }" +
+				"        .greeting { font-size: 16px; margin-bottom: 20px; }" +
+				"        .code-container { text-align: center; margin: 30px 0; padding: 20px; background-color: #f8f9fa; border-radius: 6px; border: 2px dashed #dee2e6; }" +
+				"        .verification-code { font-size: 32px; font-weight: bold; color: #007bff; letter-spacing: 3px; font-family: 'Courier New', monospace; }" +
+				"        .validity { color: #6c757d; font-size: 14px; margin-top: 10px; }" +
+				"        .instructions { background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }" +
+				"        .disclaimer { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; font-size: 14px; color: #856404; }" +
+				"        .footer { background-color: #f8f9fa; padding: 20px 40px; text-align: center; color: #6c757d; font-size: 12px; border-top: 1px solid #dee2e6; }" +
+				"        .logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; }" +
+				"    </style>" +
+				"</head>" +
+				"<body>" +
+				"    <div class=\"container\">" +
+				"        <div class=\"header\">" +
+				"            <div class=\"logo\">⭐ 星盘</div>" +
+				"            <h1>%s</h1>" +
+				"        </div>" +
+				"        <div class=\"content\">" +
+				"            <div class=\"greeting\">" +
+				"                您好，星盘收到了 <strong>%s</strong> %s的请求，" +
+				"            </div>" +
+				"            <div class=\"code-container\">" +
+				"                <div class=\"validity\">10分钟内有效：</div>" +
+				"                <div class=\"verification-code\">%s</div>" +
+				"            </div>" +
+				"            <div class=\"instructions\">" +
+				"                <strong>使用说明：</strong><br>" +
+				"                在系统要求您输入验证码时输入该验证码，以证明可通过此电子邮件地址与您联系。" +
+				"            </div>" +
+				"            <div class=\"disclaimer\">" +
+				"                <strong>安全提示：</strong><br>" +
+				"                如果您没有提交%s的操作，可能是其他人误提供了您的电子邮件地址。您可以放心地忽略此电子邮件。" +
+				"            </div>" +
+				"        </div>" +
+				"        <div class=\"footer\">" +
+				"            <p>此邮件由星盘系统自动发送，请勿回复</p>" +
+				"            <p>© 2024 星盘系统. 保留所有权利.</p>" +
+				"        </div>" +
+				"    </div>" +
+				"</body>" +
+				"</html>", 
+				subject, email, getOperationDescription(subject), code, getOperationDescription(subject)
 			);
 			
 			// 获取发件人邮箱
@@ -503,6 +549,23 @@ public class LoginController {
 		} catch (Exception e) {
 			log.error("发送邮箱验证码失败，邮箱：{}，错误：{}", email, e.getMessage(), e);
 			return false;
+		}
+	}
+	
+	/**
+	 * 根据邮件主题获取操作描述
+	 * @param subject 邮件主题
+	 * @return 操作描述
+	 */
+	private String getOperationDescription(String subject) {
+		if (subject.contains("注册")) {
+			return "注册账号";
+		} else if (subject.contains("登录")) {
+			return "登录账号";
+		} else if (subject.contains("重置密码") || subject.contains("密码重置")) {
+			return "重置密码";
+		} else {
+			return "验证操作";
 		}
 	}
 
