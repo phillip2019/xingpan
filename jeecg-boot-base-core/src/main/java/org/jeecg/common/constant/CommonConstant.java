@@ -429,6 +429,11 @@ public interface CommonConstant {
      */
     String PHONE_REDIS_KEY_PRE = "phone_msg";
 
+    /**
+     * 邮箱验证码redis-key的前缀
+     */
+    String EMAIL_REDIS_KEY_PRE = "email_msg";
+
    /**
     * 上线
     */

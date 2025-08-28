@@ -1070,6 +1070,38 @@ public class SysUserController {
 		result.setSuccess(true);
 		return result;
 	}
+
+	/**
+	 * 用户邮箱验证
+	 */
+	@PostMapping("/emailVerification")
+	public Result<Map<String,String>> emailVerification(@RequestBody JSONObject jsonObject) {
+		Result<Map<String,String>> result = new Result<Map<String,String>>();
+		String email = jsonObject.getString("email");
+		String emailcode = jsonObject.getString("emailcode");
+        //update-begin-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
+        String redisKey = CommonConstant.EMAIL_REDIS_KEY_PRE+email;
+		Object code = redisUtil.get(redisKey);
+		if (!emailcode.equals(code)) {
+			result.setMessage("邮箱验证码错误");
+			result.setSuccess(false);
+			return result;
+		}
+		//设置有效时间
+		redisUtil.set(redisKey, emailcode,600);
+        //update-end-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
+
+		//新增查询用户名
+		LambdaQueryWrapper<SysUser> query = new LambdaQueryWrapper<>();
+        query.eq(SysUser::getEmail,email);
+        SysUser user = sysUserService.getOne(query);
+        Map<String,String> map = new HashMap(5);
+        map.put("emailcode",emailcode);
+        map.put("username",user.getUsername());
+        result.setResult(map);
+		result.setSuccess(true);
+		return result;
+	}
 	
 	/**
 	 * 用户更改密码
@@ -1114,6 +1146,56 @@ public class SysUserController {
             this.sysUserService.updateById(sysUser);
             //update-begin---author:wangshuai ---date:20220316  for：[VUEN-234]密码重置添加敏感日志------------
             baseCommonService.addLog("重置 "+username+" 的密码，操作人： " +sysUser.getUsername() ,CommonConstant.LOG_TYPE_2, 2);
+            //update-end---author:wangshuai ---date:20220316  for：[VUEN-234]密码重置添加敏感日志------------
+            result.setSuccess(true);
+            result.setMessage("密码重置完成！");
+            return result;
+        }
+    }
+	
+	/**
+	 * 用户通过邮箱更改密码
+	 */
+	@GetMapping("/passwordChangeByEmail")
+	public Result<SysUser> passwordChangeByEmail(@RequestParam(name="username")String username,
+										  @RequestParam(name="password")String password,
+			                              @RequestParam(name="emailcode")String emailcode,
+			                              @RequestParam(name="email") String email) {
+        Result<SysUser> result = new Result<SysUser>();
+        if(oConvertUtils.isEmpty(username) || oConvertUtils.isEmpty(password) || oConvertUtils.isEmpty(emailcode)  || oConvertUtils.isEmpty(email) ) {
+            result.setMessage("重置密码失败！");
+            result.setSuccess(false);
+            return result;
+        }
+
+        SysUser sysUser=new SysUser();
+        //update-begin-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
+        String redisKey = CommonConstant.EMAIL_REDIS_KEY_PRE+email;
+        Object object= redisUtil.get(redisKey);
+        //update-end-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
+        if(null==object) {
+        	result.setMessage("邮箱验证码失效！");
+            result.setSuccess(false);
+            return result;
+        }
+        if(!emailcode.equals(object.toString())) {
+        	result.setMessage("邮箱验证码不匹配！");
+            result.setSuccess(false);
+            return result;
+        }
+        sysUser = this.sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername,username).eq(SysUser::getEmail,email));
+        if (sysUser == null) {
+            result.setMessage("未找到用户！");
+            result.setSuccess(false);
+            return result;
+        } else {
+            String salt = oConvertUtils.randomGen(8);
+            sysUser.setSalt(salt);
+            String passwordEncode = PasswordUtil.encrypt(sysUser.getUsername(), password, salt);
+            sysUser.setPassword(passwordEncode);
+            this.sysUserService.updateById(sysUser);
+            //update-begin---author:wangshuai ---date:20220316  for：[VUEN-234]密码重置添加敏感日志------------
+            baseCommonService.addLog("通过邮箱重置 "+username+" 的密码，操作人： " +sysUser.getUsername() ,CommonConstant.LOG_TYPE_2, 2);
             //update-end---author:wangshuai ---date:20220316  for：[VUEN-234]密码重置添加敏感日志------------
             result.setSuccess(true);
             result.setMessage("密码重置完成！");

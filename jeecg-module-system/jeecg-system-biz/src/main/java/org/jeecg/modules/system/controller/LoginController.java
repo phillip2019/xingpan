@@ -373,7 +373,154 @@ public class LoginController {
 		}
 		return result;
 	}
-	
+
+	/**
+	 * 邮箱验证码接口
+	 * 
+	 * @param jsonObject
+	 * @return
+	 */
+	@PostMapping(value = "/email")
+	public Result<String> email(@RequestBody JSONObject jsonObject) {
+		Result<String> result = new Result<String>();
+		String email = jsonObject.get("email").toString();
+		//邮箱模式 登录模式: "2"  注册模式: "1"  忘记密码模式: "3"
+		String emailmode = jsonObject.get("emailmode").toString();
+		log.info(email);
+		if(oConvertUtils.isEmpty(email)){
+			result.setMessage("邮箱不允许为空！");
+			result.setSuccess(false);
+			return result;
+		}
+		
+		//update-begin-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
+		String redisKey = CommonConstant.EMAIL_REDIS_KEY_PRE+email;
+		Object object = redisUtil.get(redisKey);
+		//update-end-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
+		
+		if (object != null) {
+			result.setMessage("验证码10分钟内，仍然有效！");
+			result.setSuccess(false);
+			return result;
+		}
+
+		//随机数
+		String captcha = RandomUtil.randomNumbers(6);
+		try {
+			boolean b = false;
+			//注册模板
+			if (CommonConstant.SMS_TPL_TYPE_1.equals(emailmode)) {
+				SysUser sysUser = sysUserService.getUserByEmail(email);
+				if(sysUser!=null) {
+					result.error500(" 邮箱已经注册，请直接登录！");
+					baseCommonService.addLog("邮箱已经注册，请直接登录！", CommonConstant.LOG_TYPE_1, null);
+					return result;
+				}
+				// 发送注册验证码邮件
+				b = sendEmailVerificationCode(email, captcha, "注册验证码");
+			}else {
+				//登录模式，校验用户有效性
+				SysUser sysUser = sysUserService.getUserByEmail(email);
+				result = sysUserService.checkUserIsEffective(sysUser);
+				if(!result.isSuccess()) {
+					String message = result.getMessage();
+					String userNotExist="该用户不存在，请注册";
+					if(userNotExist.equals(message)){
+						result.error500("该用户不存在或未绑定邮箱");
+					}
+					return result;
+				}
+				
+				/**
+				 * emailmode 邮箱模板方式  0 .登录模板、1.注册模板、2.忘记密码模板
+				 */
+				if (CommonConstant.SMS_TPL_TYPE_0.equals(emailmode)) {
+					//登录模板
+					b = sendEmailVerificationCode(email, captcha, "登录验证码");
+				} else if(CommonConstant.SMS_TPL_TYPE_2.equals(emailmode)) {
+					//忘记密码模板
+					b = sendEmailVerificationCode(email, captcha, "密码重置验证码");
+				}
+			}
+
+			if (b == false) {
+				result.setMessage("邮箱验证码发送失败,请稍后重试");
+				result.setSuccess(false);
+				return result;
+			}
+			
+			//update-begin-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
+			//验证码10分钟内有效
+			redisUtil.set(redisKey, captcha, 600);
+			//update-end-author:taoyan date:2022-9-13 for: VUEN-2245 【漏洞】发现新漏洞待处理20220906
+			
+			result.setSuccess(true);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.error500(" 邮箱接口未配置，请联系管理员！");
+			return result;
+		}
+		return result;
+	}
+
+	/**
+	 * 发送邮箱验证码
+	 * @param email 邮箱地址
+	 * @param code 验证码
+	 * @param subject 邮件主题
+	 * @return 是否发送成功
+	 */
+	private boolean sendEmailVerificationCode(String email, String code, String subject) {
+		try {
+			// 获取邮件发送器
+			org.springframework.mail.javamail.JavaMailSender mailSender = 
+				(org.springframework.mail.javamail.JavaMailSender) SpringContextUtils.getBean("mailSender");
+			
+			if (mailSender == null) {
+				log.error("邮件发送器未配置");
+				return false;
+			}
+			
+			// 创建邮件消息
+			javax.mail.internet.MimeMessage message = mailSender.createMimeMessage();
+			org.springframework.mail.javamail.MimeMessageHelper helper = 
+				new org.springframework.mail.javamail.MimeMessageHelper(message, true);
+			
+			// 设置邮件内容
+			String content = String.format(
+				"<html><body>" +
+				"<h3>%s</h3>" +
+				"<p>您的验证码是：<strong style='color: #ff6b6b; font-size: 20px;'>%s</strong></p>" +
+				"<p>验证码有效期为10分钟，请及时使用。</p>" +
+				"<p>如果这不是您的操作，请忽略此邮件。</p>" +
+				"</body></html>", 
+				subject, code
+			);
+			
+			// 获取发件人邮箱
+			org.jeecg.config.StaticConfig staticConfig = SpringContextUtils.getBean(org.jeecg.config.StaticConfig.class);
+			String fromEmail = staticConfig.getEmailFrom();
+			if (oConvertUtils.isEmpty(fromEmail)) {
+				log.error("发件人邮箱未配置");
+				return false;
+			}
+			
+			helper.setFrom(fromEmail);
+			helper.setTo(email);
+			helper.setSubject(subject);
+			helper.setText(content, true);
+			
+			// 发送邮件
+			mailSender.send(message);
+			log.info("邮箱验证码发送成功，邮箱：{}，验证码：{}", email, code);
+			return true;
+			
+		} catch (Exception e) {
+			log.error("发送邮箱验证码失败，邮箱：{}，错误：{}", email, e.getMessage(), e);
+			return false;
+		}
+	}
 
 	/**
 	 * 手机号登录接口
@@ -536,66 +683,6 @@ public class LoginController {
 		return res;
 	}
 	
-	/**
-	 * app登录
-	 * @param sysLoginModel
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/mLogin", method = RequestMethod.POST)
-	public Result<JSONObject> mLogin(@RequestBody SysLoginModel sysLoginModel) throws Exception {
-		Result<JSONObject> result = new Result<JSONObject>();
-		String username = sysLoginModel.getUsername();
-		String password = sysLoginModel.getPassword();
-		
-		//1. 校验用户是否有效
-		SysUser sysUser = sysUserService.getUserByName(username);
-		result = sysUserService.checkUserIsEffective(sysUser);
-		if(!result.isSuccess()) {
-			return result;
-		}
-		
-		//2. 校验用户名或密码是否正确
-		String userpassword = PasswordUtil.encrypt(username, password, sysUser.getSalt());
-		String syspassword = sysUser.getPassword();
-		if (!syspassword.equals(userpassword)) {
-			result.error500("用户名或密码错误");
-			return result;
-		}
-		
-		String orgCode = sysUser.getOrgCode();
-		if(oConvertUtils.isEmpty(orgCode)) {
-			//如果当前用户无选择部门 查看部门关联信息
-			List<SysDepart> departs = sysDepartService.queryUserDeparts(sysUser.getId());
-			//update-begin-author:taoyan date:20220117 for: JTC-1068【app】新建用户，没有设置部门及角色，点击登录提示暂未归属部，一直在登录页面 使用手机号登录 可正常
-			if (departs == null || departs.size() == 0) {
-				/*result.error500("用户暂未归属部门,不可登录!");
-				return result;*/
-			}else{
-				orgCode = departs.get(0).getOrgCode();
-				sysUser.setOrgCode(orgCode);
-				this.sysUserService.updateUserDepart(username, orgCode);
-			}
-			//update-end-author:taoyan date:20220117 for: JTC-1068【app】新建用户，没有设置部门及角色，点击登录提示暂未归属部，一直在登录页面 使用手机号登录 可正常
-		}
-		JSONObject obj = new JSONObject();
-		//用户登录信息
-		obj.put("userInfo", sysUser);
-		
-		// 生成token
-		String token = JwtUtil.sign(username, syspassword);
-		// 设置超时时间
-		redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, token);
-		redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME*2 / 1000);
-
-		//token 信息
-		obj.put("token", token);
-		result.setResult(obj);
-		result.setSuccess(true);
-		result.setCode(200);
-		baseCommonService.addLog("用户名: " + username + ",登录成功[移动端]！", CommonConstant.LOG_TYPE_1, null);
-		return result;
-	}
 
 	/**
 	 * 图形验证码
@@ -617,58 +704,4 @@ public class LoginController {
 		}
 		return Result.ok();
 	}
-	/**
-	 * 登录二维码
-	 */
-	@ApiOperation(value = "登录二维码", notes = "登录二维码")
-	@GetMapping("/getLoginQrcode")
-	public Result<?>  getLoginQrcode() {
-		String qrcodeId = CommonConstant.LOGIN_QRCODE_PRE+IdWorker.getIdStr();
-		//定义二维码参数
-		Map params = new HashMap(5);
-		params.put("qrcodeId", qrcodeId);
-		//存放二维码唯一标识30秒有效
-		redisUtil.set(CommonConstant.LOGIN_QRCODE + qrcodeId, qrcodeId, 30);
-		return Result.OK(params);
-	}
-	/**
-	 * 扫码二维码
-	 */
-	@ApiOperation(value = "扫码登录二维码", notes = "扫码登录二维码")
-	@PostMapping("/scanLoginQrcode")
-	public Result<?> scanLoginQrcode(@RequestParam String qrcodeId, @RequestParam String token) {
-		Object check = redisUtil.get(CommonConstant.LOGIN_QRCODE + qrcodeId);
-		if (oConvertUtils.isNotEmpty(check)) {
-			//存放token给前台读取
-			redisUtil.set(CommonConstant.LOGIN_QRCODE_TOKEN+qrcodeId, token, 60);
-		} else {
-			return Result.error("二维码已过期,请刷新后重试");
-		}
-		return Result.OK("扫码成功");
-	}
-
-
-	/**
-	 * 获取用户扫码后保存的token
-	 */
-	@ApiOperation(value = "获取用户扫码后保存的token", notes = "获取用户扫码后保存的token")
-	@GetMapping("/getQrcodeToken")
-	public Result getQrcodeToken(@RequestParam String qrcodeId) {
-		Object token = redisUtil.get(CommonConstant.LOGIN_QRCODE_TOKEN + qrcodeId);
-		Map result = new HashMap(5);
-		Object qrcodeIdExpire = redisUtil.get(CommonConstant.LOGIN_QRCODE + qrcodeId);
-		if (oConvertUtils.isEmpty(qrcodeIdExpire)) {
-			//二维码过期通知前台刷新
-			result.put("token", "-2");
-			return Result.OK(result);
-		}
-		if (oConvertUtils.isNotEmpty(token)) {
-			result.put("success", true);
-			result.put("token", token);
-		} else {
-			result.put("token", "-1");
-		}
-		return Result.OK(result);
-	}
-
 }
